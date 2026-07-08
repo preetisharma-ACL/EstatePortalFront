@@ -24,29 +24,26 @@ export default function ProjectPage() {
   const params = useParams();
   const project = createAsync(() => projectQuery(params.slug!), { deferStream: true });
 
-  // Meta ungated (deferStream resolves project() before the SSR head flush).
-  const desc = () => project()?.meta_description || project()?.description?.slice(0, 160) || "";
   return (
-    <>
-      <Title>
-        {project()?.meta_title ||
-          (project() ? `${project()!.name} by ${project()!.developer.name} | EstatePortal` : "Project | EstatePortal")}
-      </Title>
-      <Meta name="description" content={desc()} />
-      <Meta property="og:title" content={project()?.meta_title || project()?.name || "EstatePortal"} />
-      <Meta property="og:description" content={desc()} />
-      <Meta property="og:type" content="website" />
-      <Show when={project()?.og_image}>
-        <Meta property="og:image" content={project()!.og_image!} />
-      </Show>
-      <Link rel="canonical" href={`/project/${params.slug}`} />
-
-      <Show when={project() !== undefined} fallback={<Loading />}>
+    <Show when={project() !== undefined} fallback={<Loading />}>
       <Show when={project()} fallback={<NotFound kind="project" />}>
         {(p) => {
           const configLabels = () => p().configurations.map((c) => c.sub_type_display);
+          const desc = () => p().meta_description || p().description?.slice(0, 160) || "";
           return (
           <>
+            {/* Head tags live on the resolved path only — a 404 must not emit a
+                self-referential canonical or this project's title/meta. */}
+            <Title>{p().meta_title || `${p().name} by ${p().developer.name} | EstatePortal`}</Title>
+            <Meta name="description" content={desc()} />
+            <Meta property="og:title" content={p().meta_title || p().name} />
+            <Meta property="og:description" content={desc()} />
+            <Meta property="og:type" content="website" />
+            <Show when={p().og_image}>
+              <Meta property="og:image" content={p().og_image!} />
+            </Show>
+            <Link rel="canonical" href={`/project/${p().slug}`} />
+
             {/* Breadcrumb + title band */}
             <div class="border-b border-line bg-card">
               <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -189,8 +186,7 @@ export default function ProjectPage() {
           );
         }}
       </Show>
-      </Show>
-    </>
+    </Show>
   );
 }
 

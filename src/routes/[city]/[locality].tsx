@@ -5,16 +5,17 @@ import { Title, Meta, Link } from "@solidjs/meta";
 import { createMemo, Show } from "solid-js";
 import FilterPanel from "~/components/FilterPanel";
 import ResultsGrid from "~/components/ResultsGrid";
-import { localitiesQuery, projectsQuery } from "~/lib/queries";
+import { localityQuery, projectsQuery } from "~/lib/queries";
 import { filtersFromParams } from "~/lib/filters";
 import { titleCase } from "~/lib/format";
+import NotFound from "~/components/NotFound";
 import type { ProjectFilters } from "~/lib/types";
 
 const PAGE_SIZE = 12;
 
 export const route = {
   preload: ({ params, location }) => {
-    void localitiesQuery({ city: params.city! });
+    void localityQuery(params.city!, params.locality!);
     const f = filtersFromParams(location.query as Record<string, string>, {
       city: params.city,
       locality: params.locality,
@@ -27,10 +28,10 @@ export default function LocalityPage() {
   const params = useParams();
   const [sp, setParams] = useSearchParams();
 
-  const localities = createAsync(() => localitiesQuery({ city: params.city! }), { deferStream: true });
-  const locality = createMemo(() =>
-    localities()?.results.find((l) => l.slug === params.locality),
-  );
+  // Resolves to the Locality, or null when the slug doesn't exist in this city.
+  const locality = createAsync(() => localityQuery(params.city!, params.locality!), {
+    deferStream: true,
+  });
 
   const filters = createMemo<ProjectFilters>(() =>
     filtersFromParams(sp as Record<string, string>, {
@@ -51,44 +52,56 @@ export default function LocalityPage() {
       { scroll: false },
     );
 
-  const displayName = () => locality()?.name ?? titleCase(params.locality ?? "");
-  const cityName = () => locality()?.city ?? titleCase(params.city ?? "");
-
   return (
-    <>
-      {/* Meta ungated (deferStream resolves localities() before the SSR head flush). */}
-      <Title>
-        {locality()?.meta_title ||
-          `Property in ${displayName()}, ${cityName()} — RERA-verified | EstatePortal`}
-      </Title>
-      <Meta
-        name="description"
-        content={locality()?.meta_description || `RERA-verified projects in ${displayName()}, ${cityName()}.`}
-      />
-      <Link rel="canonical" href={`/${params.city}/${params.locality}`} />
+    <Show when={locality() !== undefined} fallback={<Loading />}>
+      <Show when={locality()} fallback={<NotFound kind="locality" />}>
+        {(l) => (
+          <>
+            {/* Meta ungated (deferStream resolves locality() before the SSR head flush). */}
+            <Title>
+              {l().meta_title ||
+                `Property in ${l().name}, ${l().city} — RERA-verified | EstatePortal`}
+            </Title>
+            <Meta
+              name="description"
+              content={l().meta_description || `RERA-verified projects in ${l().name}, ${l().city}.`}
+            />
+            <Link rel="canonical" href={`/${params.city}/${params.locality}`} />
 
-      <section class="hero-gradient relative overflow-hidden text-white">
-        <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6">
-          <nav class="mb-3 flex items-center gap-1.5 text-xs text-white/60" aria-label="Breadcrumb">
-            <A href="/" class="hover:text-white">Home</A><span>/</span>
-            <A href={`/${params.city}`} class="hover:text-white">{cityName()}</A><span>/</span>
-            <span class="text-white/80">{displayName()}</span>
-          </nav>
-          <p class="eyebrow text-gold-soft">{locality()?.locality_type ? titleCase(locality()!.locality_type) : "Locality"}</p>
-          <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">
-            Property in <span class="italic text-gold-soft">{displayName()}</span>
-          </h1>
-          <p class="mt-2 text-white/70">{cityName()} · RERA-verified inventory</p>
-        </div>
-      </section>
+            <section class="hero-gradient relative overflow-hidden text-white">
+              <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />
+              <div class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6">
+                <nav class="mb-3 flex items-center gap-1.5 text-xs text-white/60" aria-label="Breadcrumb">
+                  <A href="/" class="hover:text-white">Home</A><span>/</span>
+                  <A href={`/${params.city}`} class="hover:text-white">{l().city}</A><span>/</span>
+                  <span class="text-white/80">{l().name}</span>
+                </nav>
+                <p class="eyebrow text-gold-soft">{titleCase(l().locality_type)}</p>
+                <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">
+                  Property in <span class="italic text-gold-soft">{l().name}</span>
+                </h1>
+                <p class="mt-2 text-white/70">{l().city} · RERA-verified inventory</p>
+              </div>
+            </section>
 
-      <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
-          <FilterPanel filters={filters()} setParam={setParam} clearAll={clearAll} />
-          <ResultsGrid data={data()} ordering={filters().ordering} page={filters().page ?? 1} setParam={setParam} />
-        </div>
-      </div>
-    </>
+            <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+              <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+                <FilterPanel filters={filters()} setParam={setParam} clearAll={clearAll} />
+                <ResultsGrid data={data()} ordering={filters().ordering} page={filters().page ?? 1} setParam={setParam} />
+              </div>
+            </div>
+          </>
+        )}
+      </Show>
+    </Show>
+  );
+}
+
+function Loading() {
+  return (
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+      <div class="h-8 w-2/3 animate-pulse rounded bg-navy/5" />
+      <div class="mt-8 h-64 w-full animate-pulse rounded-[12px] bg-navy/5" />
+    </div>
   );
 }

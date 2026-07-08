@@ -20,22 +20,19 @@ export default function DeveloperPage() {
   const developer = createAsync(() => developerQuery(params.slug!), { deferStream: true });
   const projects = createAsync(() => projectsQuery({ developer: params.slug!, page_size: 12 }));
 
-  // Meta ungated (deferStream resolves developer() before the SSR head flush).
   return (
-    <>
-      <Title>
-        {developer()?.meta_title ||
-          (developer() ? `${developer()!.name} — projects & RERA details | EstatePortal` : "Developer | EstatePortal")}
-      </Title>
-      <Meta name="description" content={developer()?.meta_description || developer()?.description?.slice(0, 160) || ""} />
-      <Meta property="og:title" content={developer()?.meta_title || developer()?.name || "EstatePortal"} />
-      <Show when={developer()?.og_image}><Meta property="og:image" content={developer()!.og_image!} /></Show>
-      <Link rel="canonical" href={`/developer/${params.slug}`} />
-
-      <Show when={developer() !== undefined} fallback={<Loading />}>
+    <Show when={developer() !== undefined} fallback={<Loading />}>
       <Show when={developer()} fallback={<NotFound kind="developer" />}>
       {(d) => (
         <>
+          {/* Head tags live on the resolved path only — a 404 must not emit a
+              self-referential canonical or this developer's title/meta. */}
+          <Title>{d().meta_title || `${d().name} — projects & RERA details | EstatePortal`}</Title>
+          <Meta name="description" content={d().meta_description || d().description?.slice(0, 160) || ""} />
+          <Meta property="og:title" content={d().meta_title || d().name} />
+          <Show when={d().og_image}><Meta property="og:image" content={d().og_image!} /></Show>
+          <Link rel="canonical" href={`/developer/${d().slug}`} />
+
           <section class="hero-gradient relative overflow-hidden text-white">
             <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />
             <div class="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-14 sm:px-6 md:flex-row md:items-center">
@@ -95,8 +92,7 @@ export default function DeveloperPage() {
         </>
       )}
       </Show>
-      </Show>
-    </>
+    </Show>
   );
 }
 

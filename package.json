@@ -3,9 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vinxi dev --port 3000",
+    "dev": "vinxi dev --port 3002",
     "build": "vinxi build",
-    "start": "vinxi start",
+    "start": "vinxi start --port 3002",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

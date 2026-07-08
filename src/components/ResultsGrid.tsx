@@ -38,7 +38,15 @@ export default function ResultsGrid(props: {
             value={props.ordering ?? ""}
             onChange={(e) => props.setParam("ordering", e.currentTarget.value || undefined)}
           >
-            <For each={SORTS}>{(s) => <option value={s.v}>{s.label}</option>}</For>
+            {/* `selected` (not the select's `value`) is what survives SSR + hydration,
+                so the control reflects ?ordering= on a fresh page load. */}
+            <For each={SORTS}>
+              {(s) => (
+                <option value={s.v} selected={s.v === (props.ordering ?? "")}>
+                  {s.label}
+                </option>
+              )}
+            </For>
           </select>
         </label>
       </div>

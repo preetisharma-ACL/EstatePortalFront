@@ -15,6 +15,17 @@ export default function ConfigTable(props: { configurations: Configuration[] }) 
     props.configurations.filter((c) => c.category === "commercial"),
   );
 
+  /**
+   * BHK hint shown after the label — only when the label doesn't already state it.
+   * "2 BHK" stays "2 BHK" (not "2 BHK (2 BHK)"), while "Villa" becomes "Villa (4 BHK)".
+   */
+  const bhkHint = (c: Configuration): string | null => {
+    const b = num(c.bhk);
+    if (b === null) return null;
+    if (/bhk/i.test(c.sub_type_display ?? "")) return null;
+    return `${b} BHK`;
+  };
+
   const areaCell = (c: Configuration) => {
     const carpet = num(c.carpet_area);
     const saleable = num(c.saleable_area);
@@ -43,8 +54,8 @@ export default function ConfigTable(props: { configurations: Configuration[] }) 
                   <tr class="border-b border-line/70 last:border-0">
                     <Td>
                       <span class="font-semibold text-navy">{c.sub_type_display}</span>
-                      <Show when={num(c.bhk)}>
-                        {(b) => <span class="ml-1 text-xs text-slate">({b()} BHK)</span>}
+                      <Show when={bhkHint(c)}>
+                        {(h) => <span class="ml-1 text-xs text-slate">({h()})</span>}
                       </Show>
                     </Td>
                     <Td>{areaCell(c)}</Td>

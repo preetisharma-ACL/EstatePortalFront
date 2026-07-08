@@ -85,8 +85,11 @@ export default function FilterPanel(props: {
           value={f().sub_type ?? ""}
           onChange={(e) => props.setParam("sub_type", e.currentTarget.value || undefined)}
         >
-          <option value="">Any configuration</option>
-          <For each={SUB_TYPES}>{(s) => <option value={s.v}>{s.label}</option>}</For>
+          {/* `selected` is what survives SSR + hydration; a select's `value` attribute is ignored. */}
+          <option value="" selected={!f().sub_type}>Any configuration</option>
+          <For each={SUB_TYPES}>
+            {(s) => <option value={s.v} selected={s.v === f().sub_type}>{s.label}</option>}
+          </For>
         </select>
       </Section>
 
@@ -129,8 +132,10 @@ export default function FilterPanel(props: {
             value={f().amenity ?? ""}
             onChange={(e) => props.setParam("amenity", e.currentTarget.value || undefined)}
           >
-            <option value="">Any amenity</option>
-            <For each={amenities()}>{(a) => <option value={a.slug}>{a.name}</option>}</For>
+            <option value="" selected={!f().amenity}>Any amenity</option>
+            <For each={amenities()}>
+              {(a) => <option value={a.slug} selected={a.slug === f().amenity}>{a.name}</option>}
+            </For>
           </select>
         </Section>
       </Show>
@@ -213,8 +218,10 @@ function PriceSelect(props: {
       value={props.value ?? ""}
       onChange={(e) => props.onChange(e.currentTarget.value ? Number(e.currentTarget.value) : undefined)}
     >
-      <option value="">{props.label}</option>
-      <For each={PRICE_STEPS}>{(p) => <option value={p.v}>{`₹${p.label}`}</option>}</For>
+      <option value="" selected={props.value === undefined}>{props.label}</option>
+      <For each={PRICE_STEPS}>
+        {(p) => <option value={p.v} selected={p.v === props.value}>{`₹${p.label}`}</option>}
+      </For>
     </select>
   );
 }

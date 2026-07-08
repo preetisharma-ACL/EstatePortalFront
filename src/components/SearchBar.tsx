@@ -89,12 +89,18 @@ export default function SearchBar(props: {
   return (
     <div class={hero ? "w-full" : "relative w-full"}>
       <Show when={props.showTypeToggle}>
-        <div class="mb-3 inline-flex rounded-full bg-navy/5 p-1 text-sm font-medium">
-          <ToggleBtn active={ptype() === ""} onClick={() => setPtype("")}>All</ToggleBtn>
-          <ToggleBtn active={ptype() === "residential"} onClick={() => setPtype("residential")}>
+        {/* On the navy hero the track and inactive labels must be light-on-dark;
+            navy-on-navy fails WCAG AA. */}
+        <div
+          class={`mb-3 inline-flex rounded-full p-1 text-sm font-medium ${
+            hero ? "bg-white/10" : "bg-navy/5"
+          }`}
+        >
+          <ToggleBtn hero={hero} active={ptype() === ""} onClick={() => setPtype("")}>All</ToggleBtn>
+          <ToggleBtn hero={hero} active={ptype() === "residential"} onClick={() => setPtype("residential")}>
             Residential
           </ToggleBtn>
-          <ToggleBtn active={ptype() === "commercial"} onClick={() => setPtype("commercial")}>
+          <ToggleBtn hero={hero} active={ptype() === "commercial"} onClick={() => setPtype("commercial")}>
             Commercial
           </ToggleBtn>
         </div>
@@ -182,13 +188,22 @@ export default function SearchBar(props: {
   );
 }
 
-function ToggleBtn(props: { active: boolean; onClick: () => void; children: any }) {
+function ToggleBtn(props: {
+  active: boolean;
+  hero?: boolean;
+  onClick: () => void;
+  children: any;
+}) {
+  // Inactive label: off-white on navy (~10:1), navy on paper (~5.4:1). Active is unchanged.
+  const inactive = () =>
+    props.hero ? "text-white/85 hover:text-white" : "text-navy/70 hover:text-navy";
   return (
     <button
       type="button"
+      aria-pressed={props.active}
       onClick={props.onClick}
       class={`rounded-full px-4 py-1.5 transition-colors ${
-        props.active ? "bg-navy text-white" : "text-navy/70 hover:text-navy"
+        props.active ? "bg-navy text-white" : inactive()
       }`}
     >
       {props.children}

@@ -1,5 +1,11 @@
 import { For, Show, createSignal, createMemo } from "solid-js";
-import type { ProjectMedia } from "~/lib/types";
+import type { MediaType, ProjectMedia } from "~/lib/types";
+
+const TYPE_LABEL: Partial<Record<MediaType, string>> = {
+  master_plan: "master plan",
+  floor_plan: "floor plan",
+  location_map: "location map",
+};
 
 /** Project gallery: a large active image with a thumbnail strip. */
 export default function Gallery(props: { media: ProjectMedia[]; name: string }) {
@@ -10,6 +16,10 @@ export default function Gallery(props: { media: ProjectMedia[]; name: string }) 
   );
   const [active, setActive] = createSignal(0);
   const current = () => images()[active()];
+
+  /** What this image *is* — caption, else its media type, else its position. */
+  const label = (m: ProjectMedia, i: number) =>
+    m.caption || TYPE_LABEL[m.media_type] || `gallery photo ${i + 1}`;
 
   return (
     <Show
@@ -24,7 +34,7 @@ export default function Gallery(props: { media: ProjectMedia[]; name: string }) 
         <div class="img-scrim relative aspect-[16/9] w-full overflow-hidden rounded-[12px] border border-line bg-navy/5">
           <img
             src={current()?.image!}
-            alt={current()?.caption || `${props.name} — image ${active() + 1}`}
+            alt={`${props.name} — ${label(current()!, active())}`}
             class="h-full w-full object-cover"
           />
           <Show when={current()?.caption}>
@@ -41,12 +51,13 @@ export default function Gallery(props: { media: ProjectMedia[]; name: string }) 
                 <button
                   type="button"
                   onClick={() => setActive(i())}
-                  aria-label={`View image ${i() + 1}`}
+                  aria-label={`View ${label(m, i())}`}
                   aria-current={i() === active()}
                   class={`h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
                     i() === active() ? "border-gold" : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
+                  {/* Decorative: the button's aria-label already names this image. */}
                   <img src={m.image!} alt="" class="h-full w-full object-cover" />
                 </button>
               )}

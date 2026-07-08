@@ -4,7 +4,7 @@
 import { query } from "@solidjs/router";
 import * as api from "./api";
 import { ApiError } from "./api";
-import type { ProjectFilters } from "./types";
+import type { Locality, ProjectFilters } from "./types";
 
 // A 404 on a detail lookup means "no such slug" — resolve to null instead of
 // throwing, so the route renders a graceful NotFound. A rejected deferStream
@@ -54,6 +54,32 @@ export const localitiesQuery = query(
   (params: { city?: string; state?: string; search?: string; page?: number }) =>
     api.getLocalities(params),
   "localities",
+);
+
+/**
+ * Every locality in a city, following pagination so a locality sitting on a
+ * later page can never be mistaken for a 404.
+ */
+async function fetchAllLocalities(city: string): Promise<Locality[]> {
+  const all: Locality[] = [];
+  for (let page = 1; page <= 50; page++) {
+    const res = await api.getLocalities({ city, page });
+    all.push(...res.results);
+    if (!res.next) break;
+  }
+  return all;
+}
+
+/**
+ * Resolve one locality by slug within a city, or null when it doesn't exist.
+ * Resolving to null (rather than leaving the component to infer "missing" from
+ * an undefined list) lets the route render NotFound on its FIRST pass, so the
+ * 404 status and <title> are committed before the response is flushed.
+ */
+export const localityQuery = query(
+  async (city: string, slug: string) =>
+    (await fetchAllLocalities(city)).find((l) => l.slug === slug) ?? null,
+  "locality",
 );
 
 export const amenitiesQuery = query(
