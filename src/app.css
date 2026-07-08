@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   EstatePortal design tokens — the visual identity. Do not substitute.
+   Tailwind v4 reads these @theme vars to generate utilities:
+   --color-navy -> bg-navy / text-navy / border-navy, --font-display -> font-display, etc.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-navy: #16294b;
+  --color-navy-deep: #0e1b33;
+  --color-gold: #c2a15a;
+  --color-gold-soft: #d8be86;
+  --color-green: #1e7a54;
+  --color-paper: #f7f7f5;
+  --color-card: #ffffff;
+  --color-line: #e8e7e2;
+  --color-slate: #5b6472;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-btn: 8px;
+  --radius-card: 12px;
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-sans);
+  color: var(--color-navy);
+  background: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Signature helpers
+--------------------------------------------------------------------------- */
+
+/* Gold uppercase eyebrow label */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-gold);
+}
+
+/* RERA registration numbers read as official verifiable IDs */
+.rera-num {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Navy hero / footer gradient with faint gold blueprint line-art behind content */
+.hero-gradient {
+  background:
+    radial-gradient(
+      120% 90% at 85% -10%,
+      rgba(194, 161, 90, 0.14) 0%,
+      rgba(194, 161, 90, 0) 55%
+    ),
+    linear-gradient(160deg, var(--color-navy) 0%, var(--color-navy-deep) 100%);
+}
+.blueprint {
+  background-image:
+    linear-gradient(rgba(216, 190, 134, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(216, 190, 134, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(216, 190, 134, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(216, 190, 134, 0.12) 1px, transparent 1px);
+  background-size:
+    28px 28px,
+    28px 28px,
+    140px 140px,
+    140px 140px;
+}
+
+/* 52px gold rule under hero eyebrow */
+.gold-rule {
+  width: 52px;
+  height: 3px;
+  background: var(--color-gold);
+  border-radius: 2px;
+}
+
+/* Card lift on hover */
+.card-lift {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -24px rgba(22, 41, 75, 0.45);
+  border-color: var(--color-gold-soft);
+}
+
+/* Navy bottom scrim so overlaid badges stay legible on cover imagery */
+.img-scrim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(14, 27, 51, 0.78) 0%,
+    rgba(14, 27, 51, 0.12) 42%,
+    rgba(14, 27, 51, 0) 70%
+  );
+  pointer-events: none;
+}
+
+/* Gold underline that grows on hover / active nav link */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 2px;
+  width: 100%;
+  background: var(--color-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+.nav-link:hover::after,
+.nav-link[data-active]::after {
+  transform: scaleX(1);
+}
+
+/* One restrained scroll reveal for the featured section */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  animation: reveal-up 0.6s ease both;
+}
+
+/* Visible keyboard focus everywhere */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
