@@ -77,6 +77,21 @@ export function areaRange(
   return `${fmt((lo ?? hi)!)} ${unit}`;
 }
 
+/**
+ * Land parcel size from a string decimal + unit, trimming trailing zeros.
+ *  ("5.50", "acres") -> "5.5 acres"; ("12.00", "acres") -> "12 acres"; null -> null.
+ */
+export function landArea(
+  value: string | null | undefined,
+  unit: string | null | undefined,
+): string | null {
+  const n = num(value ?? null);
+  if (n === null) return null;
+  const label = Number.isInteger(n) ? String(n) : String(Number(n.toFixed(2)));
+  const u = (unit ?? "").trim();
+  return u ? `${label} ${u}` : label;
+}
+
 /** Price per sq.ft. from a string decimal. */
 export function pricePerSqft(value: string | null | undefined): string | null {
   const n = num(value ?? null);

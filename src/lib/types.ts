@@ -115,6 +115,19 @@ export interface ProjectDocument {
   id: number; doc_type: DocType; title: string; file: string;
 }
 
+// Luxury-listing extras. The backend serializes these ordered by `order`, so
+// render them as received. Empty arrays / null scalars mean "not provided" —
+// the detail page hides the corresponding section rather than showing it blank.
+export interface LocationAdvantage {
+  id: number; label: string; time_or_distance: string; order: number;
+}
+export interface KeyFeature {
+  id: number; title: string; description: string; order: number;
+}
+export interface ProjectFAQ {
+  id: number; question: string; answer: string; order: number;
+}
+
 export interface ProjectListItem {
   id: number; name: string; slug: string;
   developer: string; developer_slug: string;
@@ -137,6 +150,11 @@ export interface ProjectDetail {
   description: string; highlights_list: string[];
   price_min: number | null; price_max: number | null;
   area_min: string | null; area_max: string | null;
+  // Luxury-listing facts. Decimal land area arrives as a string (see contract
+  // note above); towers/units as nullable numbers; labels as (possibly empty) strings.
+  land_area_value: string | null; land_area_unit: string;
+  total_towers: number | null; total_units: number | null;
+  floors_label: string; possession_label: string;
   developer: DeveloperStub;
   location: LocationStub;
   configurations: Configuration[];
@@ -144,6 +162,9 @@ export interface ProjectDetail {
   amenities: Amenity[];
   media: ProjectMedia[];
   documents: ProjectDocument[];
+  location_advantages: LocationAdvantage[];
+  key_features: KeyFeature[];
+  faqs: ProjectFAQ[];
   meta_title: string; meta_description: string; og_image: string | null;
 }
 

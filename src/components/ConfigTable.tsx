@@ -59,8 +59,8 @@ export default function ConfigTable(props: { configurations: Configuration[] }) 
                       </Show>
                     </Td>
                     <Td>{areaCell(c)}</Td>
-                    <Td class="text-right font-display font-semibold text-navy">
-                      {c.price !== null ? formatINR(c.price) : "On request"}
+                    <Td class="text-right">
+                      <Price value={c.price} />
                     </Td>
                     <Td class="text-right">
                       <Availability available={c.is_available} />
@@ -95,8 +95,8 @@ export default function ConfigTable(props: { configurations: Configuration[] }) 
                     </Td>
                     <Td>{areaCell(c)}</Td>
                     <Td class="text-right">{pricePerSqft(c.price_per_sqft) ?? "—"}</Td>
-                    <Td class="text-right font-display font-semibold text-navy">
-                      {c.price !== null ? formatINR(c.price) : "On request"}
+                    <Td class="text-right">
+                      <Price value={c.price} />
                     </Td>
                     <Td class="text-right">
                       <Availability available={c.is_available} />
@@ -124,6 +124,21 @@ function Th(props: { children?: any; class?: string }) {
 }
 function Td(props: { children?: any; class?: string }) {
   return <td class={`px-4 py-3 align-middle text-navy/85 ${props.class ?? ""}`}>{props.children}</td>;
+}
+/**
+ * Price cell. A real price renders bold in the navy display face (INR
+ * lakh/crore); a null price shows a muted "Price on request" instead of
+ * hiding the row, so every configuration stays visible and comparable.
+ */
+function Price(props: { value: number | null }) {
+  return (
+    <Show
+      when={props.value !== null}
+      fallback={<span class="text-sm font-medium italic text-slate">Price on request</span>}
+    >
+      <span class="font-display font-semibold text-navy">{formatINR(props.value)}</span>
+    </Show>
+  );
 }
 function Availability(props: { available: boolean }) {
   return (
