@@ -188,6 +188,22 @@ export default function ProjectPage() {
                       </p>
                     )}
                   </Show>
+
+                  {/* Hard facts (land / towers / floors / units) as glass chips */}
+                  <Show when={projectFacts().length}>
+                    <dl class="mt-5 flex flex-wrap gap-2.5">
+                      <For each={projectFacts()}>
+                        {(f) => (
+                          <div class="rounded-[10px] border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-sm">
+                            <dt class="eyebrow text-gold-soft">{f.label}</dt>
+                            <dd class="mt-1 font-display text-base font-semibold leading-tight text-white">
+                              {f.value}
+                            </dd>
+                          </div>
+                        )}
+                      </For>
+                    </dl>
+                  </Show>
                 </div>
               </div>
 
@@ -212,31 +228,6 @@ export default function ProjectPage() {
                 </div>
               </div>
             </section>
-
-            {/* ---------------------------------------------------------------
-                Project facts strip — hard stats (land / towers / floors /
-                units / possession) as clean tiles directly under the hero.
-                Hidden entirely when the backend supplies none of them.
-            ---------------------------------------------------------------- */}
-            <Show when={projectFacts().length}>
-              <section class="border-b border-line bg-card">
-                <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
-                  <dl class="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-5">
-                    <For each={projectFacts()}>
-                      {(f) => (
-                        <div class="card-lift relative overflow-hidden rounded-[14px] border border-line bg-paper p-5 text-center">
-                          <span class="absolute inset-x-0 top-0 h-1 bg-gold/70" aria-hidden="true" />
-                          <dt class="eyebrow text-slate">{f.label}</dt>
-                          <dd class="mt-2 font-display text-2xl font-semibold leading-tight text-navy">
-                            {f.value}
-                          </dd>
-                        </div>
-                      )}
-                    </For>
-                  </dl>
-                </div>
-              </section>
-            </Show>
 
             {/* ---------------------------------------------------------------
                 About — description, key facts, and a media panel.

@@ -7,11 +7,8 @@ export default function Footer() {
       <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <div class="grid gap-10 md:grid-cols-4">
           <div class="md:col-span-1">
-            <div class="flex items-center gap-2">
-              <span class="font-display text-2xl font-semibold text-white">
-                EstatePortal
-              </span>
-              <span class="mb-3 inline-block h-1.5 w-1.5 rounded-full bg-gold" />
+            <div class="flex items-center">
+              <img src="/logo/acl-logo.png" alt="Aajneeti" class="h-10 w-auto shrink-0 rounded bg-white/95 px-2 py-1" />
             </div>
             <p class="mt-3 max-w-xs text-sm leading-relaxed text-white/65">
               A RERA-verifiable, content-rich portal for serious residential and
