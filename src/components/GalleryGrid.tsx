@@ -13,11 +13,16 @@ const TYPE_LABEL: Partial<Record<MediaType, string>> = {
  * columns on desktop, collapsing to two/one on smaller screens.
  */
 export default function GalleryGrid(props: { media: ProjectMedia[]; name: string }) {
-  const images = createMemo(() =>
-    props.media
+  // Show a tidy 4×2 grid. Cover first, capped at eight; when the backend has
+  // fewer than eight we cycle the available photos so both rows stay full.
+  const images = createMemo(() => {
+    const real = props.media
       .filter((m) => m.media_type !== "video" && m.image)
-      .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order),
-  );
+      .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order);
+    if (!real.length) return real;
+    if (real.length >= 8) return real.slice(0, 8);
+    return Array.from({ length: 8 }, (_, i) => real[i % real.length]);
+  });
 
   /** What this image *is* — caption, else its media type, else its position. */
   const label = (m: ProjectMedia, i: number) =>
@@ -49,45 +54,39 @@ export default function GalleryGrid(props: { media: ProjectMedia[]; name: string
 
   return (
     <Show when={images().length}>
-      <section class="border-b border-line bg-paper">
-        <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
-          {/* Centred header */}
-          <div class="mx-auto max-w-3xl text-center">
-            <p class="eyebrow">Gallery</p>
-            <div class="gold-rule mx-auto my-3.5" />
-            <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
-              {props.name} Images
-            </h2>
-          </div>
+      <section class="bg-paper py-6 sm:py-8">
+        {/* Centred heading */}
+        <h2 class="mb-8 text-center font-display text-3xl font-bold text-navy sm:mb-10 sm:text-4xl">
+          {props.name} Images
+        </h2>
 
-          {/* Photo grid */}
-          <ul class="mt-12 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-            <For each={images()}>
-              {(m, i) => (
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(i())}
-                    aria-label={`View ${label(m, i())}`}
-                    class="img-scrim group relative block aspect-[4/3] w-full overflow-hidden rounded-[6px] border border-line bg-navy/5"
-                  >
-                    <img
-                      src={m.image!}
-                      alt={`${props.name} — ${label(m, i())}`}
-                      loading="lazy"
-                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <Show when={m.caption}>
-                      <span class="absolute bottom-2 left-3 z-10 text-xs font-medium text-white/90">
-                        {m.caption}
-                      </span>
-                    </Show>
-                  </button>
-                </li>
-              )}
-            </For>
-          </ul>
-        </div>
+        {/* Edge-to-edge photo grid — 4×2, images touching */}
+        <ul class="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
+          <For each={images()}>
+            {(m, i) => (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setOpen(i())}
+                  aria-label={`View ${label(m, i())}`}
+                  class="img-scrim group relative block aspect-[3/2] w-full overflow-hidden bg-navy/5"
+                >
+                  <img
+                    src={m.image!}
+                    alt={`${props.name} — ${label(m, i())}`}
+                    loading="lazy"
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <Show when={m.caption}>
+                    <span class="absolute bottom-2 left-3 z-10 text-xs font-medium text-white/90">
+                      {m.caption}
+                    </span>
+                  </Show>
+                </button>
+              </li>
+            )}
+          </For>
+        </ul>
       </section>
 
       {/* Lightbox */}

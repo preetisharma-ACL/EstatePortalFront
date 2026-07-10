@@ -46,6 +46,10 @@ export interface State {
 export interface CityList {
   id: number; name: string; slug: string;
   state: string; state_slug: string; tier: 1 | 2 | 3;
+  // Absolute URL when the city has a hero photo, else null (schema declares it
+  // required/uri, but the API serializes an empty image as null). CityDetail
+  // inherits this field. Falls back to a gradient tile when null.
+  image: string | null;
 }
 export interface CityDetail extends CityList {
   latitude: string | null; longitude: string | null;

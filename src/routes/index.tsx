@@ -193,8 +193,26 @@ export default function Home() {
           <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             <For each={cities()!.results.slice(0, 8)}>
               {(c) => (
-                <A href={`/${c.slug}`} class="card-lift group relative overflow-hidden rounded-[12px] border border-line bg-navy">
-                  <div class="hero-gradient flex aspect-[4/3] flex-col justify-end p-4">
+                <A href={`/${c.slug}`} class="card-lift group relative block aspect-[4/3] overflow-hidden rounded-[12px] border border-line bg-navy">
+                  {/* With a photo: cover image under a navy scrim so the white
+                      name stays legible. Without one: the original gradient tile. */}
+                  <Show
+                    when={c.image}
+                    fallback={<div class="hero-gradient absolute inset-0" aria-hidden="true" />}
+                  >
+                    {(img) => (
+                      <>
+                        <img
+                          src={img()}
+                          alt={c.name}
+                          loading="lazy"
+                          class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div class="img-scrim absolute inset-0" aria-hidden="true" />
+                      </>
+                    )}
+                  </Show>
+                  <div class="absolute inset-x-0 bottom-0 flex flex-col p-4">
                     <span class="font-display text-xl font-semibold text-white">{c.name}</span>
                     <span class="text-xs text-white/60">{c.state} · Tier {c.tier}</span>
                   </div>

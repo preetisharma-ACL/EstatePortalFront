@@ -6,6 +6,7 @@ import { Show, For } from "solid-js";
 import { projectQuery } from "~/lib/queries";
 import { priceRange, areaRange, statusLabel, typeLabel, possession, formatINR, landArea } from "~/lib/format";
 import GalleryGrid from "~/components/GalleryGrid";
+import FloorPlan from "~/components/FloorPlan";
 import BannerSlideshow from "~/components/BannerSlideshow";
 import CoverImage from "~/components/CoverImage";
 import ConfigTable from "~/components/ConfigTable";
@@ -303,8 +304,8 @@ export default function ProjectPage() {
                       <For each={facts()}>
                         {(f) => (
                           <div class="card-lift relative overflow-hidden rounded-[14px] border border-line bg-card p-5">
-                            <span class="absolute inset-y-0 left-0 w-1 bg-gold/70" aria-hidden="true" />
-                            <dt class="eyebrow text-slate">{f.label}</dt>
+                            <span class="absolute inset-y-0 left-0 w-1 bg-navy/70" aria-hidden="true" />
+                            <dt class="eyebrow" style="color:var(--color-navy)">{f.label}</dt>
                             <dd class="mt-2 font-display text-xl font-semibold leading-tight text-navy">
                               {f.value}
                             </dd>
@@ -322,6 +323,12 @@ export default function ProjectPage() {
                 grid with a click-to-zoom lightbox. Hidden when no images.
             ---------------------------------------------------------------- */}
             <GalleryGrid media={p().media} name={p().name} />
+
+            {/* ---------------------------------------------------------------
+                Sizes & Floor Plan — navy panel with a gold-ruled sizes table
+                beside the floor-plan artwork. Hidden when no configurations.
+            ---------------------------------------------------------------- */}
+            <FloorPlan project={p()} />
 
             {/* ---------------------------------------------------------------
                 Key features — larger, titled differentiators (distinct from the
