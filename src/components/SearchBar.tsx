@@ -90,19 +90,21 @@ export default function SearchBar(props: {
     <div class={hero ? "w-full" : "relative w-full"}>
       <Show when={props.showTypeToggle}>
         {/* On the navy hero the track and inactive labels must be light-on-dark;
-            navy-on-navy fails WCAG AA. */}
-        <div
-          class={`mb-3 inline-flex rounded-full p-1 text-sm font-medium ${
-            hero ? "bg-white/10" : "bg-navy/5"
-          }`}
-        >
-          <ToggleBtn hero={hero} active={ptype() === ""} onClick={() => setPtype("")}>All</ToggleBtn>
-          <ToggleBtn hero={hero} active={ptype() === "residential"} onClick={() => setPtype("residential")}>
-            Residential
-          </ToggleBtn>
-          <ToggleBtn hero={hero} active={ptype() === "commercial"} onClick={() => setPtype("commercial")}>
-            Commercial
-          </ToggleBtn>
+            navy-on-navy fails WCAG AA. Centered under the hero, left on compact. */}
+        <div class={`mb-3 flex ${hero ? "justify-center" : ""}`}>
+          <div
+            class={`inline-flex rounded-full p-1 text-sm font-medium ${
+              hero ? "bg-white/10" : "bg-navy/5"
+            }`}
+          >
+            <ToggleBtn hero={hero} active={ptype() === ""} onClick={() => setPtype("")}>All</ToggleBtn>
+            <ToggleBtn hero={hero} active={ptype() === "residential"} onClick={() => setPtype("residential")}>
+              Residential
+            </ToggleBtn>
+            <ToggleBtn hero={hero} active={ptype() === "commercial"} onClick={() => setPtype("commercial")}>
+              Commercial
+            </ToggleBtn>
+          </div>
         </div>
       </Show>
 

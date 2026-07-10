@@ -45,18 +45,18 @@ export default function Home() {
       <section class="hero-gradient relative overflow-hidden text-white">
         <div class="blueprint pointer-events-none absolute inset-0 opacity-100" aria-hidden="true" />
         <div class="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pt-24">
-          <div class="mx-auto max-w-3xl text-center">
+          <div class="mx-auto max-w-5xl text-center">
             <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5">
               <ReraSeal size="sm" />
               <span class="text-sm font-medium text-gold-soft">Every project RERA-verified</span>
             </span>
-            <h1 class="mt-6 font-display text-[40px] font-semibold leading-[1.05] sm:text-6xl">
+            <h1 class="mt-6 font-display text-[40px] font-semibold leading-[1.05] sm:text-6xl lg:text-7xl">
               Property discovery,
               <br />
               <span class="italic text-gold-soft">done with conviction.</span>
             </h1>
             <div class="gold-rule mx-auto mt-6" />
-            <p class="mx-auto mt-6 max-w-xl text-base text-white/75 sm:text-lg">
+            <p class="mx-auto mt-6 max-w-3xl text-base text-white/75 sm:text-lg">
               A content-rich, RERA-verifiable portal for residential and commercial
               real estate across India — built for investors, NRIs and end-users who
               expect the truth, verified.
@@ -64,7 +64,7 @@ export default function Home() {
           </div>
 
           {/* Search card */}
-          <div class="mx-auto mt-10 max-w-2xl">
+          <div class="mx-auto mt-10 max-w-4xl">
             <SearchBar variant="hero" showTypeToggle placeholder="Search by city, locality, project or developer" />
             <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
               <For each={COLLECTIONS.slice(0, 4)}>
