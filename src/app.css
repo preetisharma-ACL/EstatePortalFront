@@ -22,6 +22,10 @@
 
   --radius-btn: 8px;
   --radius-card: 12px;
+
+  /* Widen the page container a touch: max-w-7xl becomes 83rem (was 80rem),
+     so every section using it gains a little breathing room site-wide. */
+  --container-7xl: 83rem;
 }
 
 /* Base */

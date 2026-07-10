@@ -4,7 +4,7 @@ import ReraSeal from "./ReraSeal";
 export default function Footer() {
   return (
     <footer class="hero-gradient mt-20 text-white/80">
-      <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+      <div class="mx-auto max-w-8xl px-4 py-14 sm:px-6">
         <div class="grid gap-10 md:grid-cols-4">
           <div class="md:col-span-1">
             <div class="flex items-center">
