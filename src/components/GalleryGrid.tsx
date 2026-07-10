@@ -54,7 +54,7 @@ export default function GalleryGrid(props: { media: ProjectMedia[]; name: string
 
   return (
     <Show when={images().length}>
-      <section class="bg-paper py-6 sm:py-8">
+      <section class="bg-paper pt-6 pb-0 sm:pt-8">
         {/* Centred heading */}
         <h2 class="mb-8 text-center font-display text-3xl font-bold text-navy sm:mb-10 sm:text-4xl">
           {props.name} Images

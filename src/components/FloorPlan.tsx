@@ -41,7 +41,7 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
 
   return (
     <Show when={rows().length}>
-      <section class="grid lg:grid-cols-2">
+      <section class="grid border-t border-line lg:grid-cols-2">
         {/* Left — navy panel with the sizes table */}
         <div class="flex flex-col justify-center bg-navy px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
           <div class="mx-auto w-full max-w-xl lg:mx-0 lg:ml-auto lg:mr-12">

@@ -7,12 +7,11 @@ import { projectQuery } from "~/lib/queries";
 import { priceRange, areaRange, statusLabel, typeLabel, possession, formatINR, landArea } from "~/lib/format";
 import GalleryGrid from "~/components/GalleryGrid";
 import FloorPlan from "~/components/FloorPlan";
+import AboutDeveloper from "~/components/AboutDeveloper";
+import ContactBand from "~/components/ContactBand";
 import BannerSlideshow from "~/components/BannerSlideshow";
 import CoverImage from "~/components/CoverImage";
-import ConfigTable from "~/components/ConfigTable";
 import ReraBadges from "~/components/ReraBadges";
-import DeveloperCard from "~/components/DeveloperCard";
-import LeadForm from "~/components/LeadForm";
 import ReraSeal from "~/components/ReraSeal";
 import NotFound from "~/components/NotFound";
 
@@ -346,9 +345,14 @@ export default function ProjectPage() {
                   </div>
                   <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <For each={p().key_features}>
-                      {(feature) => (
-                        <article class="card-lift relative overflow-hidden rounded-[16px] border border-line bg-paper p-6">
-                          <span class="absolute inset-y-0 left-0 w-1 bg-gold/70" aria-hidden="true" />
+                      {(feature, i) => (
+                        <article class="card-lift group relative overflow-hidden rounded-[16px] border border-line bg-card p-7">
+                          {/* Gold top accent */}
+                          <span class="absolute inset-x-0 top-0 h-1 bg-gold/70" aria-hidden="true" />
+                          {/* Navy numbered badge with a gold numeral */}
+                          <span class="mb-5 grid h-11 w-11 place-items-center rounded-full bg-navy font-display text-lg font-semibold text-gold transition-colors group-hover:bg-navy-deep">
+                            {String(i() + 1).padStart(2, "0")}
+                          </span>
                           <h3 class="font-display text-xl font-semibold leading-snug text-navy">
                             {feature.title}
                           </h3>
@@ -382,9 +386,12 @@ export default function ProjectPage() {
                   <ul class="mx-auto mt-12 grid max-w-4xl gap-3.5 sm:grid-cols-2">
                     <For each={p().location_advantages}>
                       {(adv) => (
-                        <li class="flex items-center justify-between gap-4 rounded-[12px] border border-line bg-card px-5 py-4">
-                          <span class="flex items-center gap-3 text-[15px] font-semibold text-navy">
-                            <svg class="shrink-0 text-gold" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                        <li class="card-lift group flex items-center justify-between gap-4 rounded-[12px] border border-line bg-card px-4 py-3.5">
+                          <span class="flex items-center gap-3.5 text-[15px] font-semibold text-navy">
+                            {/* Navy pin badge with a gold marker */}
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-navy text-gold transition-colors group-hover:bg-navy-deep">
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                            </span>
                             {adv.label}
                           </span>
                           <Show when={adv.time_or_distance?.trim()}>
@@ -401,7 +408,7 @@ export default function ProjectPage() {
             </Show>
 
             <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-              <div class="grid gap-10 lg:grid-cols-[1fr_380px]">
+              <div>
                 {/* Main column */}
                 <div class="min-w-0 space-y-10">
                   {/* RERA — the trust signature, prominent */}
@@ -409,64 +416,7 @@ export default function ProjectPage() {
                     <h2 class="mb-4 font-display text-2xl font-semibold text-navy">RERA registration</h2>
                     <ReraBadges registrations={p().rera_registrations} />
                   </section>
-
-                  {/* Configurations */}
-                  <Show when={p().configurations.length}>
-                    <section>
-                      <h2 class="mb-4 font-display text-2xl font-semibold text-navy">Configurations & pricing</h2>
-                      <ConfigTable configurations={p().configurations} />
-                    </section>
-                  </Show>
-
-                  {/* Documents */}
-                  <Show when={p().documents.length}>
-                    <section>
-                      <h2 class="mb-4 font-display text-2xl font-semibold text-navy">Documents</h2>
-                      <ul class="grid gap-3 sm:grid-cols-2">
-                        <For each={p().documents}>
-                          {(doc) => (
-                            <li>
-                              <a href={doc.file} target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-[10px] border border-line bg-card p-3 text-sm text-navy transition-colors hover:border-gold">
-                                <span class="grid h-9 w-9 place-items-center rounded bg-navy/5 text-navy">
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
-                                </span>
-                                <span class="font-medium">{doc.title}</span>
-                              </a>
-                            </li>
-                          )}
-                        </For>
-                      </ul>
-                    </section>
-                  </Show>
-
-                  {/* Developer */}
-                  <section>
-                    <h2 class="mb-4 font-display text-2xl font-semibold text-navy">About the developer</h2>
-                    <DeveloperCard developer={p().developer} />
-                  </section>
                 </div>
-
-                {/* Sticky sidebar: seal + lead form */}
-                <aside id="enquire" class="scroll-mt-24 lg:sticky lg:top-20 lg:h-fit">
-                  <div class="mb-4 flex items-center gap-3 rounded-[12px] border border-green/25 bg-green/[0.05] p-4">
-                    <ReraSeal size="md" />
-                    <div>
-                      <p class="font-semibold text-navy">RERA-verified project</p>
-                      <Show when={p().rera_registrations[0]}>
-                        {(r) => <p class="rera-num text-xs text-green">{r().rera_number}</p>}
-                      </Show>
-                    </div>
-                  </div>
-                  <div class="rounded-[16px] border border-line bg-card p-5 shadow-sm">
-                    <LeadForm
-                      projectSlug={p().slug}
-                      citySlug={p().location.city_slug}
-                      configurations={configLabels()}
-                      heading="Enquire about this project"
-                      subheading="Get verified pricing, the brochure and an assisted site visit."
-                    />
-                  </div>
-                </aside>
               </div>
             </div>
 
@@ -474,47 +424,54 @@ export default function ProjectPage() {
                 FAQs — native <details> accordion: SSR-rendered, keyboard-
                 operable and accessible with zero JS. Hidden when none exist.
             ---------------------------------------------------------------- */}
+            {/* ---------------------------------------------------------------
+                About the developer — full-bleed parallax band (fixed image,
+                navy scrim) with a composed blurb.
+            ---------------------------------------------------------------- */}
+            <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.jpg" />
+
+            {/* ---------------------------------------------------------------
+                FAQs — two-column cards on a navy field, each with a gold
+                question accent. Hidden when none exist.
+            ---------------------------------------------------------------- */}
             <Show when={p().faqs.length}>
-              <section class="border-t border-line bg-card">
-                <div class="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
-                  <div class="text-center">
-                    <p class="eyebrow">Good to know</p>
-                    <div class="gold-rule mx-auto my-3.5" />
-                    <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
-                      Frequently asked questions
-                    </h2>
-                  </div>
-                  <div class="mt-10 space-y-3">
+              <section class="bg-navy">
+                <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+                  <h2 class="text-center font-display text-3xl font-bold text-white sm:text-4xl">
+                    Frequently Asked Questions
+                  </h2>
+                  <div class="mt-10 grid gap-5 md:grid-cols-2">
                     <For each={p().faqs}>
                       {(faq) => (
-                        <details class="group rounded-[12px] border border-line bg-paper open:border-gold/50">
-                          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[15px] font-semibold text-navy [&::-webkit-details-marker]:hidden">
-                            <span>{faq.question}</span>
-                            <svg
-                              class="shrink-0 text-gold transition-transform duration-200 group-open:rotate-45"
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M12 5v14" />
-                              <path d="M5 12h14" />
-                            </svg>
-                          </summary>
-                          <div class="border-t border-line px-5 py-4 text-[15px] leading-[1.75] font-medium text-gray-600">
-                            <p class="whitespace-pre-line">{faq.answer}</p>
-                          </div>
-                        </details>
+                        <div class="border border-white/15 bg-white/[0.03] p-6">
+                          <h3 class="flex items-start gap-3 font-display text-lg font-semibold leading-snug text-white">
+                            <span class="mt-1 h-5 w-1 shrink-0 bg-gold" aria-hidden="true" />
+                            <span>Q: {faq.question}</span>
+                          </h3>
+                          <p class="mt-3 whitespace-pre-line pl-4 text-sm leading-[1.75] text-white/70">
+                            {faq.answer}
+                          </p>
+                        </div>
                       )}
                     </For>
                   </div>
                 </div>
               </section>
             </Show>
+
+            {/* ---------------------------------------------------------------
+                Contact — full-bleed parallax band with a location panel beside
+                an on-image enquiry form.
+            ---------------------------------------------------------------- */}
+            <div id="enquire" class="scroll-mt-24">
+              <ContactBand
+                image="/banner/banner-1.jpg"
+                address={p().address || `${p().location.locality}, ${p().location.city}`}
+                projectSlug={p().slug}
+                citySlug={p().location.city_slug}
+                configurations={configLabels()}
+              />
+            </div>
           </>
           );
         }}
