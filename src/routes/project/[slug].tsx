@@ -282,7 +282,7 @@ export default function ProjectPage() {
                           )}
                         </Show>
                         <figcaption class="absolute bottom-3 right-4 z-10 text-[11px] font-medium uppercase tracking-wider text-white/70">
-                          Artist's impression
+                          {p().name}
                         </figcaption>
                       </div>
                     </figure>
