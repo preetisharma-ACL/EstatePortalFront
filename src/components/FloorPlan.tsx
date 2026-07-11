@@ -26,11 +26,13 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
       .filter((m) => m.media_type === "floor_plan" && m.image)
       .map((m) => m.image!),
   );
-  // The plan image for a given row: its config's own plan, else a media plan.
-  const planFor = (i: number): string | null =>
-    rows()[i]?.floor_plan ?? mediaPlans()[i] ?? null;
-  // Show the right column only when at least one row resolves to a plan.
-  const hasAnyPlan = createMemo(() => rows().some((_, i) => planFor(i)));
+  // The plan image for a given row: its config's own plan, else a media plan,
+  // else the local fallback so the right column always shows a plan.
+  const FALLBACK_PLAN = "/banner/floor-plan.jpeg";
+  const planFor = (i: number): string =>
+    rows()[i]?.floor_plan ?? mediaPlans()[i] ?? FALLBACK_PLAN;
+  // With a fallback in place, the plan panel shows whenever there are rows.
+  const hasAnyPlan = createMemo(() => rows().length > 0);
 
   // Active row drives the right-side plan; clicking a row selects it.
   const [active, setActive] = createSignal(0);
@@ -146,25 +148,12 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
               </Show>
             </div>
 
-            {/* Active plan, or a note when the selected config has no plan */}
-            <Show
-              when={planFor(active())}
-              fallback={
-                <div class="absolute inset-0 grid place-items-center p-10 text-center">
-                  <p class="text-sm font-medium text-slate">
-                    Floor plan for {activeConfig()?.sub_type_display} is available on request.
-                  </p>
-                </div>
-              }
-            >
-              {(src) => (
-                <img
-                  src={src()}
-                  alt={`${props.project.name} — ${activeConfig()?.sub_type_display} floor plan`}
-                  class="absolute inset-0 h-full w-full object-contain p-6 pt-24 sm:p-10 sm:pt-28"
-                />
-              )}
-            </Show>
+            {/* Active plan (real backend plan or local fallback image) */}
+            <img
+              src={planFor(active())}
+              alt={`${props.project.name} — ${activeConfig()?.sub_type_display} floor plan`}
+              class="absolute inset-0 h-full w-full object-contain p-6 pt-24 sm:p-10 sm:pt-28"
+            />
 
             {/* Counter */}
             <Show when={rows().length > 1}>
