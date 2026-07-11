@@ -1,32 +1,34 @@
-import { Show, createSignal, createEffect, onCleanup, onMount } from "solid-js";
+import { Show, createEffect, onCleanup, onMount } from "solid-js";
 import LeadForm from "./LeadForm";
+import { leadModalOpen, openLeadModal, closeLeadModal } from "~/lib/leadModal";
 
-/** sessionStorage key — once set, the popup won't show again this session. */
+/** sessionStorage key — once set, the auto-popup won't show again this session. */
 const SEEN_KEY = "ep_lead_popup_seen";
 /** Delay before the popup appears on the first load of a session. */
 const DELAY_MS = 3000;
 
 /**
- * Lead popup — opens once per browser session, 3s after arrival, then remembers
- * (via sessionStorage) so it won't reappear on refresh/navigation this session;
- * it shows again in a fresh session. Closes on the backdrop, the ✕, or Escape,
- * and locks body scroll while open.
+ * Lead popup — a site-wide modal shared by two triggers: it auto-opens once per
+ * browser session, 3s after arrival (remembered via sessionStorage), and it also
+ * opens on demand from the header "Talk to an advisor" button (via leadModal).
+ * Closes on the backdrop, the ✕, or Escape, and locks body scroll while open.
  */
 export default function LeadPopup() {
-  const [open, setOpen] = createSignal(false);
+  const open = leadModalOpen;
+  const close = closeLeadModal;
 
   onMount(() => {
     let seen = false;
     try {
       seen = sessionStorage.getItem(SEEN_KEY) === "1";
     } catch {
-      // Private mode / storage disabled — treat as seen so we don't loop.
+      // Private mode / storage disabled — treat as seen so we don't auto-loop.
       seen = true;
     }
     if (seen) return;
 
     const timer = setTimeout(() => {
-      setOpen(true);
+      openLeadModal();
       try {
         sessionStorage.setItem(SEEN_KEY, "1");
       } catch {
@@ -35,8 +37,6 @@ export default function LeadPopup() {
     }, DELAY_MS);
     onCleanup(() => clearTimeout(timer));
   });
-
-  const close = () => setOpen(false);
 
   // Lock body scroll + Escape-to-close while the modal is open.
   createEffect(() => {
@@ -68,8 +68,8 @@ export default function LeadPopup() {
           aria-hidden="true"
         />
 
-        {/* Card */}
-        <div class="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[18px] border border-line bg-card p-6 shadow-2xl sm:p-8">
+        {/* Card — wide (landscape) so the form's paired fields sit side by side */}
+        <div class="relative z-10 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[18px] border border-line bg-card p-6 shadow-2xl sm:p-8">
           <button
             type="button"
             onClick={close}

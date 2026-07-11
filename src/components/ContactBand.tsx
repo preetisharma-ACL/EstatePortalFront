@@ -219,7 +219,7 @@ export default function ContactBand(props: {
                     I agree to be contacted by EstatePortal and its verified partners about
                     this enquiry via call, SMS, WhatsApp or email, and I consent to the
                     processing of my personal data for this purpose under the Digital
-                    Personal Data Protection Act. This overrides any DND registration.
+                    Personal Data Protection Act.
                   </span>
                 </label>
                 <Show when={errFor("consent_given")}>

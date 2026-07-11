@@ -1,14 +1,7 @@
 import { createSignal, Show, For, onMount } from "solid-js";
 import { submitLead, ApiError } from "~/lib/api";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
-import type { LeadPayload, LeadTimeline, LeadPurpose } from "~/lib/types";
-
-const TIMELINES: { value: LeadTimeline; label: string }[] = [
-  { value: "immediate", label: "Immediately" },
-  { value: "3_6", label: "3–6 months" },
-  { value: "6_12", label: "6–12 months" },
-  { value: "exploring", label: "Just exploring" },
-];
+import type { LeadPayload, LeadPurpose } from "~/lib/types";
 
 const PURPOSES: { value: LeadPurpose; label: string; hint: string }[] = [
   { value: "investment", label: "Investment", hint: "Yield & appreciation" },
@@ -59,13 +52,10 @@ export default function LeadForm(props: {
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
-      email: strOrUndef(fd.get("email")),
       budget_min: numOrUndef(fd.get("budget_min")),
       budget_max: numOrUndef(fd.get("budget_max")),
-      timeline: (strOrUndef(fd.get("timeline")) as LeadTimeline) || undefined,
       purpose: (purpose() || undefined) as LeadPurpose | undefined,
       configuration_preference: strOrUndef(fd.get("configuration_preference")),
-      message: strOrUndef(fd.get("message")),
       project_slug: props.projectSlug,
       city_slug: props.citySlug,
       ...getAttribution(),
@@ -118,10 +108,6 @@ export default function LeadForm(props: {
           </Field>
         </div>
 
-        <Field label="Email" name="email" error={errFor("email")}>
-          <input name="email" id="email" type="email" class={inputCls(!!errFor("email"))} placeholder="you@email.com" autocomplete="email" />
-        </Field>
-
         {/* Purpose — surfaced prominently for the investor audience */}
         <div>
           <label class="mb-1.5 block text-sm font-medium text-navy">Purpose</label>
@@ -155,28 +141,16 @@ export default function LeadForm(props: {
           </Field>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <Field label="Timeline" name="timeline">
-            <select name="timeline" id="timeline" class={inputCls(false)}>
-              <option value="">Select timeline</option>
-              <For each={TIMELINES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
+        <Field label="Configuration preference" name="configuration_preference">
+          <Show
+            when={props.configurations?.length}
+            fallback={<input name="configuration_preference" id="configuration_preference" class={inputCls(false)} placeholder="e.g. 3 BHK" />}
+          >
+            <select name="configuration_preference" id="configuration_preference" class={inputCls(false)}>
+              <option value="">Any configuration</option>
+              <For each={props.configurations}>{(c) => <option value={c}>{c}</option>}</For>
             </select>
-          </Field>
-          <Field label="Configuration preference" name="configuration_preference">
-            <Show
-              when={props.configurations?.length}
-              fallback={<input name="configuration_preference" id="configuration_preference" class={inputCls(false)} placeholder="e.g. 3 BHK" />}
-            >
-              <select name="configuration_preference" id="configuration_preference" class={inputCls(false)}>
-                <option value="">Any configuration</option>
-                <For each={props.configurations}>{(c) => <option value={c}>{c}</option>}</For>
-              </select>
-            </Show>
-          </Field>
-        </div>
-
-        <Field label="Message" name="message">
-          <textarea name="message" id="message" rows="3" class={inputCls(false)} placeholder="Anything specific you're looking for?" />
+          </Show>
         </Field>
 
         {/* Mandatory DPDP consent */}
@@ -184,10 +158,10 @@ export default function LeadForm(props: {
           <label class="flex cursor-pointer items-start gap-2.5 text-sm text-slate">
             <input type="checkbox" name="consent" class="mt-0.5 h-4 w-4 shrink-0 accent-[#1E7A54]" />
             <span>
-              I agree to be contacted by EstatePortal and its verified partners about
+              I agree to be contacted by Real Estate Aajneeti  and its verified partners about
               this enquiry via call, SMS, WhatsApp or email, and I consent to the
               processing of my personal data for this purpose under the Digital
-              Personal Data Protection Act. This overrides any DND registration.
+              Personal Data Protection Act. 
             </span>
           </label>
           <Show when={errFor("consent_given")}>

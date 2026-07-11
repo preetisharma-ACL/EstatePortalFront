@@ -1,5 +1,6 @@
 import { A, useLocation } from "@solidjs/router";
 import { Show, createSignal } from "solid-js";
+import { openLeadModal } from "~/lib/leadModal";
 
 const NAV = [
   { href: "/search", label: "Search" },
@@ -43,12 +44,13 @@ export default function Header() {
           >
             Explore
           </A>
-          <A
-            href="/#enquire"
+          <button
+            type="button"
+            onClick={() => openLeadModal()}
             class="rounded-[8px] bg-gold px-4 py-2 text-sm font-semibold text-navy shadow-sm transition-transform hover:-translate-y-0.5"
           >
             Talk to an advisor
-          </A>
+          </button>
         </div>
 
         <button
@@ -81,13 +83,13 @@ export default function Header() {
               </li>
             ))}
             <li class="mt-2">
-              <A
-                href="/#enquire"
-                class="block rounded-[8px] bg-gold px-4 py-2 text-center text-sm font-semibold text-navy"
-                onClick={() => setOpen(false)}
+              <button
+                type="button"
+                class="block w-full rounded-[8px] bg-gold px-4 py-2 text-center text-sm font-semibold text-navy"
+                onClick={() => { setOpen(false); openLeadModal(); }}
               >
                 Talk to an advisor
-              </A>
+              </button>
             </li>
           </ul>
         </nav>
