@@ -1,12 +1,12 @@
-import { For, Show, createMemo } from "solid-js";
+import { For, Show, createMemo, createSignal } from "solid-js";
 import type { Configuration, ProjectDetail } from "~/lib/types";
 import { formatINR, num, indianGroup } from "~/lib/format";
-import CoverImage from "./CoverImage";
 
 /**
  * Sizes & Floor Plan — a full-bleed two-column band in the project theme: a
  * navy panel (heading + a gold-ruled Type / Area / Price table + a download
- * button) beside the floor-plan artwork. Hidden when there are no configs.
+ * button) beside a floor-plan slider. Hidden when there are no configs; the
+ * right column shows only when real floor-plan images exist (no placeholder).
  */
 export default function FloorPlan(props: { project: ProjectDetail }) {
   const rows = createMemo(() => props.project.configurations);
@@ -19,29 +19,36 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
   const priceCell = (c: Configuration) =>
     c.price !== null ? `${formatINR(c.price)}*` : "On Request";
 
-  // Floor-plan artwork: a config's plan, else a dedicated floor-plan media item.
-  const floorPlanImage = () =>
-    props.project.configurations.find((c) => c.floor_plan)?.floor_plan ??
-    props.project.media.find((m) => m.media_type === "floor_plan" && m.image)?.image ??
-    null;
-  // Fallback imagery keeps the right column filled when no plan is on file.
-  const galleryFallback = () =>
+  // Floor-plan media (used as a fallback when a config has no plan of its own,
+  // indexed by row order). No frontend placeholder image is ever used.
+  const mediaPlans = createMemo(() =>
     props.project.media
-      .filter((m) => m.media_type !== "video" && m.image)
-      .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order)[0]?.image ??
-    "/banner/banner-2.jpg";
-  const rightImage = () => floorPlanImage() ?? galleryFallback();
-  const isPlan = () => Boolean(floorPlanImage());
+      .filter((m) => m.media_type === "floor_plan" && m.image)
+      .map((m) => m.image!),
+  );
+  // The plan image for a given row: its config's own plan, else a media plan.
+  const planFor = (i: number): string | null =>
+    rows()[i]?.floor_plan ?? mediaPlans()[i] ?? null;
+  // Show the right column only when at least one row resolves to a plan.
+  const hasAnyPlan = createMemo(() => rows().some((_, i) => planFor(i)));
 
-  // Downloadable plan: a PDF document if present, else the plan image itself.
+  // Active row drives the right-side plan; clicking a row selects it.
+  const [active, setActive] = createSignal(0);
+  const activeConfig = () => rows()[active()];
+  const step = (dir: 1 | -1) => {
+    const n = rows().length;
+    if (n) setActive((i) => (i + dir + n) % n);
+  };
+
+  // Downloadable plan: a PDF document if present, else the active plan image.
   const downloadHref = () =>
     props.project.documents.find((d) => d.doc_type === "floor_plan_pdf")?.file ??
-    floorPlanImage() ??
+    planFor(active()) ??
     null;
 
   return (
     <Show when={rows().length}>
-      <section class="grid border-t border-line lg:grid-cols-2">
+      <section class={hasAnyPlan() ? "grid border-t border-line lg:grid-cols-2" : "border-t border-line"}>
         {/* Left — navy panel with the sizes table */}
         <div class="flex flex-col justify-center bg-navy px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
           <div class="mx-auto w-full max-w-xl lg:mx-0 lg:ml-auto lg:mr-12">
@@ -60,9 +67,23 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
                 </thead>
                 <tbody>
                   <For each={rows()}>
-                    {(c) => (
-                      <tr>
-                        <Td class="font-semibold text-white">{c.sub_type_display}</Td>
+                    {(c, i) => (
+                      <tr
+                        onClick={() => setActive(i())}
+                        aria-selected={active() === i()}
+                        class={`cursor-pointer transition-colors ${
+                          active() === i() ? "bg-gold/15" : "hover:bg-white/5"
+                        }`}
+                      >
+                        <Td class="font-semibold text-white">
+                          <span class="inline-flex items-center gap-2">
+                            <span
+                              class={`h-4 w-1 rounded-full ${active() === i() ? "bg-gold" : "bg-transparent"}`}
+                              aria-hidden="true"
+                            />
+                            {c.sub_type_display}
+                          </span>
+                        </Td>
                         <Td>{areaCell(c)}</Td>
                         <Td>{priceCell(c)}</Td>
                       </tr>
@@ -88,15 +109,71 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
           </div>
         </div>
 
-        {/* Right — floor-plan artwork */}
-        <div class="relative min-h-[360px] bg-card lg:min-h-full">
-          <CoverImage
-            src={rightImage()}
-            fallback="/banner/banner-2.jpg"
-            alt={`${props.project.name} floor plan`}
-            class={`absolute inset-0 h-full w-full ${isPlan() ? "object-contain p-6 sm:p-10" : "object-cover"}`}
-          />
-        </div>
+        {/* Right — floor plan for the selected row (only when plans exist) */}
+        <Show when={hasAnyPlan()}>
+          <div class="relative min-h-[380px] bg-card lg:min-h-full">
+            {/* Top bar — active row info (left) + prev/next controls (right) */}
+            <div class="absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4">
+              <Show when={activeConfig()}>
+                {(c) => (
+                  <div class="rounded-[10px] bg-navy/90 px-4 py-2.5 text-white shadow-md backdrop-blur-sm">
+                    <p class="font-display text-lg font-semibold leading-tight">{c().sub_type_display}</p>
+                    <p class="mt-0.5 text-xs text-white/80">
+                      {areaCell(c())} · {priceCell(c())}
+                    </p>
+                  </div>
+                )}
+              </Show>
+              <Show when={rows().length > 1}>
+                <div class="flex shrink-0 gap-2">
+                  <button
+                    type="button"
+                    aria-label="Previous floor plan"
+                    onClick={() => step(-1)}
+                    class="grid h-10 w-10 place-items-center rounded-full bg-navy text-white shadow-md transition-colors hover:bg-navy-deep"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Next floor plan"
+                    onClick={() => step(1)}
+                    class="grid h-10 w-10 place-items-center rounded-full bg-navy text-white shadow-md transition-colors hover:bg-navy-deep"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                  </button>
+                </div>
+              </Show>
+            </div>
+
+            {/* Active plan, or a note when the selected config has no plan */}
+            <Show
+              when={planFor(active())}
+              fallback={
+                <div class="absolute inset-0 grid place-items-center p-10 text-center">
+                  <p class="text-sm font-medium text-slate">
+                    Floor plan for {activeConfig()?.sub_type_display} is available on request.
+                  </p>
+                </div>
+              }
+            >
+              {(src) => (
+                <img
+                  src={src()}
+                  alt={`${props.project.name} — ${activeConfig()?.sub_type_display} floor plan`}
+                  class="absolute inset-0 h-full w-full object-contain p-6 pt-24 sm:p-10 sm:pt-28"
+                />
+              )}
+            </Show>
+
+            {/* Counter */}
+            <Show when={rows().length > 1}>
+              <span class="absolute bottom-4 right-4 z-10 rounded-full bg-navy/85 px-3 py-1 text-xs font-semibold text-white">
+                {active() + 1} / {rows().length}
+              </span>
+            </Show>
+          </div>
+        </Show>
       </section>
     </Show>
   );
