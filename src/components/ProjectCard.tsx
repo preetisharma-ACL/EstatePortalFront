@@ -14,10 +14,10 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
   return (
     <A
       href={`/project/${p().slug}`}
-      class="card-lift group flex flex-col overflow-hidden rounded-[12px] border border-line bg-card"
+      class="card-lift group flex flex-col overflow-hidden rounded-[14px] border border-line bg-card"
     >
       {/* Cover */}
-      <div class="img-scrim relative aspect-[4/3] overflow-hidden bg-navy/5">
+      <div class="relative aspect-[4/3] overflow-hidden bg-navy/5">
         <Show
           when={p().cover_image}
           fallback={
@@ -30,56 +30,67 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
             src={p().cover_image!}
             alt={`${p().name} by ${p().developer}`}
             loading="lazy"
-            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            class="h-full w-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.05]"
           />
         </Show>
 
-        {/* status pill (top-left) */}
-        <span class="absolute left-3 top-3 z-10 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-navy shadow-sm">
+        {/* Elegant bottom-up gradient */}
+        <div
+          class="absolute inset-0"
+          aria-hidden="true"
+          style="background:linear-gradient(to top,rgba(14,27,51,0.9) 0%,rgba(14,27,51,0.28) 46%,rgba(14,27,51,0) 70%);"
+        />
+
+        {/* status — glass pill, uppercase tracked */}
+        <span class="absolute left-3.5 top-3.5 z-10 rounded-full border border-white/20 bg-navy-deep/40 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-md">
           {statusLabel(p().status)}
         </span>
 
         {/* RERA seal (top-right) */}
-        <div class="absolute right-3 top-3 z-10">
+        <div class="absolute right-3.5 top-3.5 z-10">
           <ReraSeal size="sm" />
         </div>
 
-        {/* name + location over scrim */}
-        <div class="absolute inset-x-0 bottom-0 z-10 p-4">
-          <h3 class="font-display text-xl font-semibold leading-tight text-white">
+        {/* name + location */}
+        <div class="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5">
+          <h3 class="font-display text-[1.4rem] font-semibold leading-tight text-white drop-shadow-sm">
             {p().name}
           </h3>
-          <p class="mt-0.5 flex items-center gap-1 text-sm text-white/85">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0">
+          <p class="mt-1.5 flex items-center gap-1.5 text-sm text-white/85">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0 text-gold-soft">
               <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" />
             </svg>
-            {loc().locality}, {loc().city}
+            <span class="truncate">{loc().locality}, {loc().city}</span>
           </p>
         </div>
       </div>
 
       {/* Body */}
-      <div class="flex flex-1 flex-col p-4">
-        <div class="flex items-center gap-1.5 text-sm text-slate">
-          <span class="font-medium text-navy/90">{p().developer}</span>
-          <VerifiedTick size={14} />
+      <div class="flex flex-1 flex-col p-4 sm:p-5">
+        {/* developer — refined eyebrow label */}
+        <div class="flex items-center gap-1.5">
+          <span class="truncate text-[11px] font-semibold uppercase tracking-[0.14em] text-slate">
+            {p().developer}
+          </span>
+          <VerifiedTick size={13} />
         </div>
 
-        <div class="mt-2 flex items-baseline justify-between gap-2">
-          <p class="font-display text-lg font-semibold text-navy">
+        {/* price */}
+        <div class="mt-2.5 flex items-end justify-between gap-3">
+          <p class="font-display text-[1.55rem] font-semibold leading-none text-navy">
             {priceRange(p().price_min, p().price_max)}
           </p>
           <Show when={area()}>
-            <span class="text-xs text-slate">{area()}</span>
+            <span class="mb-0.5 shrink-0 text-xs font-medium text-slate">{area()}</span>
           </Show>
         </div>
 
         {/* config chips */}
         <Show when={chips().length}>
-          <div class="mt-3 flex flex-wrap gap-1.5">
+          <div class="mt-3.5 flex flex-wrap gap-1.5">
             <For each={chips()}>
               {(c) => (
-                <span class="rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-medium text-navy/80">
+                <span class="rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-medium text-navy/75">
                   {c}
                 </span>
               )}
@@ -87,7 +98,8 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
           </div>
         </Show>
 
-        <div class="mt-3 flex items-center justify-between border-t border-line pt-3">
+        {/* footer */}
+        <div class="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3.5">
           <Show
             when={p().primary_rera}
             fallback={<span class="text-xs text-slate">RERA on request</span>}
@@ -96,7 +108,7 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
               {p().primary_rera}
             </span>
           </Show>
-          <span class="rounded-full bg-navy/5 px-2.5 py-1 text-xs font-medium text-navy/70">
+          <span class="shrink-0 rounded-full bg-navy/5 px-2.5 py-1 text-xs font-medium text-navy/70">
             {typeLabel(p().project_type)}
           </span>
         </div>
