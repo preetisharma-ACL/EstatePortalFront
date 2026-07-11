@@ -1,22 +1,18 @@
 import { A } from "@solidjs/router";
-import ReraSeal from "./ReraSeal";
 
 export default function Footer() {
   return (
     <footer class="hero-gradient mt-20 text-white/80">
-      <div class="mx-auto max-w-8xl px-4 py-14 sm:px-6">
+      <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <div class="grid gap-10 md:grid-cols-4">
           <div class="md:col-span-1">
             <div class="flex items-center">
-              <img src="/logo/acl-logo.png" alt="Aajneeti" class="h-10 w-auto shrink-0 rounded bg-white/95 px-2 py-1" />
+              <img src="/logo/V2-aajneeti-logo.png" alt="Aajneeti" class="h-14 w-auto shrink-0" />
             </div>
             <p class="mt-3 max-w-xs text-sm leading-relaxed text-white/65">
               A RERA-verifiable, content-rich portal for serious residential and
               commercial property discovery across India.
             </p>
-            <div class="mt-5">
-              <ReraSeal label size="md" />
-            </div>
           </div>
 
           <FooterCol
@@ -47,12 +43,12 @@ export default function Footer() {
           />
         </div>
 
-        <div class="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} EstatePortal. All rights reserved.</p>
-          <p class="max-w-xl">
+        <div class="mt-12 flex flex-col items-center gap-3 border-t border-white/10 pt-6 text-center text-xs text-white/50">
+          <p class="max-w-3xl">
             Property information is indicative. Always verify RERA registration
             details on the official state authority portal before transacting.
           </p>
+          <p>© {new Date().getFullYear()} EstatePortal. All rights reserved.</p>
         </div>
       </div>
     </footer>
