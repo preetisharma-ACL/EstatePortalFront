@@ -46,9 +46,19 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
           {statusLabel(p().status)}
         </span>
 
-        {/* RERA seal (top-right) */}
+        {/* RERA badge (top-right) — seal when verified, else an "Upcoming" flag */}
         <div class="absolute right-3.5 top-3.5 z-10">
-          <ReraSeal size="sm" />
+          <Show
+            when={p().primary_rera}
+            fallback={
+              <span class="inline-flex items-center gap-1 rounded-full border border-white/25 bg-navy-deep/40 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white backdrop-blur-md">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                RERA Upcoming
+              </span>
+            }
+          >
+            <ReraSeal size="sm" />
+          </Show>
         </div>
 
         {/* name + location */}
@@ -77,7 +87,7 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
 
         {/* price */}
         <div class="mt-2.5 flex items-end justify-between gap-3">
-          <p class="font-display text-[1.55rem] font-semibold leading-none text-navy">
+          <p class="font-display text-[20px] font-semibold leading-none text-navy">
             {priceRange(p().price_min, p().price_max)}
           </p>
           <Show when={area()}>
@@ -102,7 +112,7 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
         <div class="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3.5">
           <Show
             when={p().primary_rera}
-            fallback={<span class="text-xs text-slate">RERA on request</span>}
+            fallback={<span class="text-xs font-medium text-slate">RERA Upcoming</span>}
           >
             <span class="rera-num text-xs text-green" title="RERA registration number">
               {p().primary_rera}

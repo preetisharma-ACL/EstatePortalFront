@@ -170,7 +170,15 @@ export default function ProjectPage() {
                   <div class="mb-4 flex flex-wrap items-center gap-2">
                     <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">{statusLabel(p().status)}</span>
                     <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">{typeLabel(p().project_type)}</span>
-                    <Show when={p().rera_registrations.length}>
+                    <Show
+                      when={p().rera_registrations.length}
+                      fallback={
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white/85 backdrop-blur-sm">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                          RERA Upcoming
+                        </span>
+                      }
+                    >
                       <span class="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/15 px-3 py-1 text-xs font-semibold text-gold-soft backdrop-blur-sm">
                         <ReraSeal size="sm" /> RERA Verified
                       </span>
