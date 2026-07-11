@@ -5,6 +5,7 @@ import { Suspense, ErrorBoundary } from "solid-js";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import DataError from "~/components/DataError";
+import LeadPopup from "~/components/LeadPopup";
 import "./app.css";
 
 export default function App() {
@@ -24,6 +25,8 @@ export default function App() {
             </main>
             <Footer />
           </div>
+          {/* First-visit lead popup (opens once, 3s after arrival) */}
+          <LeadPopup />
         </MetaProvider>
       )}
     >
