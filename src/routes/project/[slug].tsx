@@ -10,7 +10,7 @@ import FloorPlan from "~/components/FloorPlan";
 import AboutDeveloper from "~/components/AboutDeveloper";
 import ContactBand from "~/components/ContactBand";
 import BannerSlideshow from "~/components/BannerSlideshow";
-import CoverImage from "~/components/CoverImage";
+import VideoPanel from "~/components/VideoPanel";
 import ReraBadges from "~/components/ReraBadges";
 import ReraSeal from "~/components/ReraSeal";
 import NotFound from "~/components/NotFound";
@@ -73,7 +73,9 @@ export default function ProjectPage() {
           // Decorative image for the About media panel; a promo video if one exists.
           const promoVideo = () =>
             p().media.find((m) => m.media_type === "video" && m.video_url)?.video_url ?? null;
-          const aboutImage = () => backendImages()[0] ?? "/banner/banner-2.jpg";
+          // The About media column shows only when there's a promo video or a
+          // real backend image — never a frontend placeholder banner.
+          const aboutHasMedia = () => Boolean(promoVideo() || backendImages()[0]);
 
           // A short backend blurb leaves the About column looking bare. When it's
           // thin, compose a factual overview purely from known fields (no invented
@@ -244,7 +246,7 @@ export default function ProjectPage() {
                     </h2>
                   </div>
 
-                  <div class="mt-12 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+                  <div class={aboutHasMedia() ? "mt-12 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start" : "mt-12"}>
                     {/* Narrative */}
                     <div>
                       <div class="space-y-4 text-[15px] leading-[1.85] font-medium text-gray-600">
@@ -257,35 +259,29 @@ export default function ProjectPage() {
                       </div>
                     </div>
 
-                    {/* Media panel */}
-                    <figure class="group relative overflow-hidden rounded-[18px] border border-line bg-navy shadow-sm lg:sticky lg:top-24">
-                      <div class="img-scrim relative aspect-[4/3] w-full overflow-hidden">
-                        <CoverImage
-                          src={aboutImage()}
-                          fallback="/banner/banner-2.jpg"
-                          alt={`${p().name} — artist's impression`}
-                          class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <Show when={promoVideo()}>
-                          {(url) => (
-                            <a
-                              href={url()}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              class="absolute inset-0 grid place-items-center"
-                              aria-label={`Play ${p().name} video`}
-                            >
-                              <span class="grid h-16 w-16 place-items-center rounded-full bg-white/90 text-navy shadow-lg transition-transform duration-200 group-hover:scale-110">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="ml-1"><path d="M8 5v14l11-7z" /></svg>
-                              </span>
-                            </a>
-                          )}
-                        </Show>
-                        <figcaption class="absolute bottom-3 right-4 z-10 text-[11px] font-medium uppercase tracking-wider text-white/70">
-                          {p().name}
-                        </figcaption>
-                      </div>
-                    </figure>
+                    {/* Media panel — inline video if one exists, else a real
+                        backend image. No frontend placeholder banner. */}
+                    <Show when={promoVideo()}>
+                      {(url) => (
+                        <VideoPanel url={url()} poster={backendImages()[0]} name={p().name} />
+                      )}
+                    </Show>
+                    <Show when={!promoVideo() && backendImages()[0]}>
+                      {(img) => (
+                        <figure class="group relative overflow-hidden rounded-[18px] border border-line bg-navy shadow-sm lg:sticky lg:top-24">
+                          <div class="img-scrim relative aspect-[4/3] w-full overflow-hidden">
+                            <img
+                              src={img()}
+                              alt={`${p().name} — artist's impression`}
+                              class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                            <figcaption class="absolute bottom-3 right-4 z-10 text-[11px] font-medium uppercase tracking-wider text-white/70">
+                              {p().name}
+                            </figcaption>
+                          </div>
+                        </figure>
+                      )}
+                    </Show>
                   </div>
 
                   {/* Key facts */}
