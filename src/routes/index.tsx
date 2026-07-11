@@ -201,12 +201,56 @@ export default function Home() {
       </Show>
 
       {/* LEAD / ENQUIRE */}
-      <section id="enquire" class="mx-auto max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6">
-        <div class="rounded-[16px] border border-line bg-card p-6 shadow-sm sm:p-10">
-          <LeadForm
-            heading="Speak to a property advisor"
-            subheading="Tell us what you're looking for. A verified advisor will help you shortlist RERA-verified options."
-          />
+      <section id="enquire" class="scroll-mt-20 bg-paper py-16 sm:py-24">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6">
+          <div class="overflow-hidden rounded-[22px] border border-line bg-card shadow-[0_40px_90px_-50px_rgba(14,27,51,0.45)] lg:grid lg:grid-cols-[0.92fr_1.08fr]">
+            {/* Left — navy panel with the pitch and trust points */}
+            <div class="hero-gradient relative overflow-hidden p-8 text-white sm:p-10 lg:p-12">
+              <div class="blueprint pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
+              <div class="relative flex h-full flex-col">
+                <p class="eyebrow text-gold-soft">Advisory</p>
+                <h2 class="mt-3 font-display text-3xl font-semibold leading-tight sm:text-4xl">
+                  Speak to a <span class="italic text-gold-soft">property advisor</span>
+                </h2>
+                <p class="mt-4 max-w-md text-white/70">
+                  Tell us what you're looking for. A verified advisor will help you
+                  shortlist RERA-verified options — with no pressure, no spam.
+                </p>
+
+                <ul class="mt-8 space-y-4">
+                  <For each={[
+                    "RERA-verified projects, every time",
+                    "Transparent, developer-sourced pricing",
+                    "Assisted site visits & documentation",
+                  ]}>
+                    {(point) => (
+                      <li class="flex items-start gap-3 text-sm text-white/85">
+                        <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold/15 text-gold-soft">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                        </span>
+                        {point}
+                      </li>
+                    )}
+                  </For>
+                </ul>
+
+                <div class="mt-auto hidden items-center gap-3 pt-10 lg:flex">
+                  <ReraSeal size="md" />
+                  <p class="text-xs leading-relaxed text-white/60">
+                    Your details stay private and are used only to assist your enquiry.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — the form on a clean card */}
+            <div class="p-6 sm:p-8 lg:p-10">
+              <LeadForm
+                heading="Send your enquiry"
+                subheading="It takes under a minute — we'll take it from there."
+              />
+            </div>
+          </div>
         </div>
       </section>
     </>
