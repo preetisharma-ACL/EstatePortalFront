@@ -6,11 +6,18 @@ import { createMemo, Show } from "solid-js";
 import FilterPanel from "~/components/FilterPanel";
 import ResultsGrid from "~/components/ResultsGrid";
 import NotFound from "~/components/NotFound";
+import BannerSlideshow from "~/components/BannerSlideshow";
 import { cityQuery, projectsQuery } from "~/lib/queries";
 import { filtersFromParams } from "~/lib/filters";
 import type { ProjectFilters } from "~/lib/types";
 
 const PAGE_SIZE = 12;
+
+const LOCAL_BANNERS = [
+  "/banner/banner-1.jpg",
+  "/banner/banner-2.jpg",
+  "/banner/banner-3.jpg",
+];
 
 export const route = {
   preload: ({ params, location }) => {
@@ -63,21 +70,27 @@ export default function CityPage() {
       </Show>
       <Link rel="canonical" href={`/${params.city}`} />
 
-      {/* City hero */}
-      <section class="hero-gradient relative overflow-hidden text-white">
-        <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6">
+      {/* City hero banner — crossfading slideshow (city photo, else local
+          banners) under the same navy scrim as the project detail hero. */}
+      <section class="relative isolate overflow-hidden bg-navy-deep">
+        <BannerSlideshow images={city()?.image ? [city()!.image!] : []} fallback={LOCAL_BANNERS} />
+        <div
+          class="absolute inset-0"
+          aria-hidden="true"
+          style="background:linear-gradient(180deg,rgba(14,27,51,0.72) 0%,rgba(14,27,51,0.32) 34%,rgba(14,27,51,0.66) 74%,rgba(14,27,51,0.94) 100%);"
+        />
+        <div class="relative mx-auto flex min-h-[340px] max-w-7xl flex-col justify-end px-4 pb-10 pt-14 text-white sm:px-6">
           <nav class="mb-3 flex items-center gap-1.5 text-xs text-white/60" aria-label="Breadcrumb">
             <A href="/" class="hover:text-white">Home</A><span>/</span>
             <span class="text-white/80">{city()?.name ?? params.city}</span>
           </nav>
           <p class="eyebrow text-gold-soft">City</p>
-          <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">
+          <h1 class="mt-2 font-display text-4xl font-semibold drop-shadow-sm sm:text-5xl">
             Property in <span class="italic text-gold-soft">{city()?.name ?? params.city}</span>
           </h1>
           <Show when={city()}>
             {(c) => (
-              <p class="mt-2 text-white/70">
+              <p class="mt-2 text-white/80">
                 {c().state} · {c().locality_count} localities · RERA-verified inventory
               </p>
             )}
