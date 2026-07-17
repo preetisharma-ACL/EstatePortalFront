@@ -2,7 +2,6 @@ import { A } from "@solidjs/router";
 import { Show, For } from "solid-js";
 import type { ProjectListItem } from "~/lib/types";
 import { priceRange, areaRange, statusLabel, typeLabel } from "~/lib/format";
-import ReraSeal from "./ReraSeal";
 import VerifiedTick from "./VerifiedTick";
 
 export default function ProjectCard(props: { project: ProjectListItem }) {
@@ -57,7 +56,15 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
               </span>
             }
           >
-            <ReraSeal size="sm" />
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full border border-gold-soft/60 bg-green px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white shadow-[0_0_0_1.5px_var(--color-gold)]"
+              title="RERA-verified project"
+            >
+              <span class="grid h-[15px] w-[15px] shrink-0 place-items-center rounded-full bg-white text-green-deep" aria-hidden="true">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              </span>
+              RERA-verified
+            </span>
           </Show>
         </div>
 
