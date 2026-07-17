@@ -40,24 +40,26 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
           style="background:linear-gradient(to top,rgba(14,27,51,0.9) 0%,rgba(14,27,51,0.28) 46%,rgba(14,27,51,0) 70%);"
         />
 
-        {/* status — glass pill, uppercase tracked */}
-        <span class="absolute left-3.5 top-3.5 z-10 rounded-full border border-white/20 bg-navy-deep/40 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-md">
-          {statusLabel(p().status)}
-        </span>
+        {/* Status (left) and RERA badge (right) share one row rather than being
+            pinned to opposite corners, which collide on a narrow card. The RERA
+            badge holds its size; the status pill gives way. */}
+        <div class="absolute inset-x-3.5 top-3.5 z-10 flex items-start justify-between gap-2">
+          <span class="min-w-0 truncate rounded-full border border-white/20 bg-navy-deep/40 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-md">
+            {statusLabel(p().status)}
+          </span>
 
-        {/* RERA badge (top-right) — seal when verified, else an "Upcoming" flag */}
-        <div class="absolute right-3.5 top-3.5 z-10">
+          {/* seal when verified, else an "Upcoming" flag */}
           <Show
             when={p().primary_rera}
             fallback={
-              <span class="inline-flex items-center gap-1 rounded-full border border-white/25 bg-navy-deep/40 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white backdrop-blur-md">
+              <span class="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/25 bg-navy-deep/40 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white backdrop-blur-md">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
                 RERA Upcoming
               </span>
             }
           >
             <span
-              class="inline-flex items-center gap-1.5 rounded-full border border-gold-soft/60 bg-green px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white shadow-[0_0_0_1.5px_var(--color-gold)]"
+              class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-gold-soft/60 bg-green px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-white shadow-[0_0_0_1.5px_var(--color-gold)]"
               title="RERA-verified project"
             >
               <span class="grid h-[15px] w-[15px] shrink-0 place-items-center rounded-full bg-white text-green-deep" aria-hidden="true">

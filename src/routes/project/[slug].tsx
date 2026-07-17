@@ -13,6 +13,8 @@ import BannerSlideshow from "~/components/BannerSlideshow";
 import VideoPanel from "~/components/VideoPanel";
 import ReraBadges from "~/components/ReraBadges";
 import ReraSeal from "~/components/ReraSeal";
+import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
+import BrochureButton from "~/components/BrochureButton";
 import NotFound from "~/components/NotFound";
 
 export const route = {
@@ -165,8 +167,10 @@ export default function ProjectPage() {
                   <span class="text-gold-soft">{p().name}</span>
                 </nav>
 
-                {/* Title block, pushed to the bottom of the frame */}
-                <div class="mt-auto pt-16">
+                {/* Title block, pushed to the bottom of the frame, with the
+                    glass enquiry card alongside it on wide screens. */}
+                <div class="mt-auto grid gap-8 pt-16 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-end">
+                <div>
                   <div class="mb-4 flex flex-wrap items-center gap-2">
                     <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">{statusLabel(p().status)}</span>
                     <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">{typeLabel(p().project_type)}</span>
@@ -193,8 +197,8 @@ export default function ProjectPage() {
                   <Show when={primaryRera()}>
                     {(r) => (
                       <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-white/70">
-                        <span class="eyebrow text-gold-soft">RERA No.</span>
-                        <span class="text-white/90">{r().rera_number}</span>
+                        <span class="eyebrow shrink-0 text-gold-soft">RERA No.</span>
+                        <span class="min-w-0 break-words text-white/90">{r().rera_number}</span>
                       </p>
                     )}
                   </Show>
@@ -215,6 +219,28 @@ export default function ProjectPage() {
                     </dl>
                   </Show>
                 </div>
+
+                {/* Glass enquiry card. Hidden below lg — the full-width form in
+                    the contact band already serves narrow screens, and two
+                    copies stacked would be noise. */}
+                <aside class="hidden rounded-[14px] border border-white/20 bg-white/[0.07] p-5 shadow-[0_8px_32px_rgba(14,27,51,0.37)] backdrop-blur-xl lg:block">
+                  <h2 class="font-display text-lg font-semibold leading-tight text-white">
+                    Enquire about this project
+                  </h2>
+                  <p class="mt-1 text-xs text-white/70">
+                    Verified pricing, brochure &amp; assisted site visit.
+                  </p>
+                  <ProjectEnquiryForm
+                    idPrefix="banner"
+                    compact
+                    class="mt-4"
+                    submitLabel="Request a callback"
+                    projectSlug={p().slug}
+                    citySlug={p().location.city_slug}
+                    configurations={configLabels()}
+                  />
+                </aside>
+                </div>
               </div>
 
               {/* Stat strip */}
@@ -228,14 +254,38 @@ export default function ProjectPage() {
                     </Show>
                     <Stat label="Status" value={statusLabel(p().status)} />
                   </dl>
-                  <a
-                    href="#enquire"
-                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-gold px-6 py-3 text-sm font-semibold text-navy-deep shadow-lg transition-colors hover:bg-gold-soft"
-                  >
-                    Schedule site visit
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                  </a>
+                  <div class="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
+                    <BrochureButton variant="outline" />
+                    <a
+                      href="#enquire"
+                      class="inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-gold px-6 py-3 text-sm font-semibold text-navy-deep shadow-lg transition-colors hover:bg-gold-soft"
+                    >
+                      Schedule site visit
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                    </a>
+                  </div>
                 </div>
+              </div>
+            </section>
+
+            {/* Mobile enquiry card — the banner card is lg-only, so below that
+                breakpoint the same form lands here, directly under the hero. */}
+            <section class="border-b border-white/10 bg-navy-deep px-4 py-8 sm:px-6 lg:hidden">
+              <div class="mx-auto max-w-lg rounded-[14px] border border-white/20 bg-white/[0.07] p-5 shadow-[0_8px_32px_rgba(14,27,51,0.37)] backdrop-blur-xl">
+                <h2 class="font-display text-lg font-semibold leading-tight text-white">
+                  Enquire about this project
+                </h2>
+                <p class="mt-1 text-xs text-white/70">
+                  Verified pricing, brochure &amp; assisted site visit.
+                </p>
+                <ProjectEnquiryForm
+                  idPrefix="mobile"
+                  class="mt-4"
+                  submitLabel="Request a callback"
+                  projectSlug={p().slug}
+                  citySlug={p().location.city_slug}
+                  configurations={configLabels()}
+                />
               </div>
             </section>
 
@@ -265,6 +315,7 @@ export default function ProjectPage() {
                           <For each={generatedAbout()}>{(para) => <p>{para}</p>}</For>
                         </Show>
                       </div>
+                      <BrochureButton class="mt-8" />
                     </div>
 
                     {/* Media panel — inline video if one exists, else a real
@@ -299,7 +350,7 @@ export default function ProjectPage() {
                         {(f) => (
                           <div class="card-lift relative overflow-hidden rounded-[14px] border border-line bg-card p-5">
                             <span class="absolute inset-y-0 left-0 w-1 bg-navy/70" aria-hidden="true" />
-                            <dt class="eyebrow" style="color:var(--color-navy)">{f.label}</dt>
+                            <dt class="eyebrow break-words" style="color:var(--color-navy)">{f.label}</dt>
                             <dd class="mt-2 font-display text-xl font-semibold leading-tight text-navy">
                               {f.value}
                             </dd>
@@ -317,6 +368,22 @@ export default function ProjectPage() {
                 grid with a click-to-zoom lightbox. Hidden when no images.
             ---------------------------------------------------------------- */}
             <GalleryGrid media={p().media} name={p().name} />
+
+            {/* Brochure CTA band — sits between the photos and the sizes table,
+                where the visitor is weighing specifics. */}
+            <section class="border-y border-white/10 bg-navy">
+              <div class="mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 py-10 text-center sm:px-6 lg:flex-row lg:justify-between lg:text-left">
+                <div>
+                  <h2 class="font-display text-2xl font-semibold text-white">
+                    Get the complete {p().name} brochure
+                  </h2>
+                  <p class="mt-1.5 text-sm text-white/70">
+                    Floor plans, unit sizes, payment plan and pricing — sent to you by a verified advisor.
+                  </p>
+                </div>
+                <BrochureButton class="shadow-lg" />
+              </div>
+            </section>
 
             {/* ---------------------------------------------------------------
                 Sizes & Floor Plan — navy panel with a gold-ruled sizes table

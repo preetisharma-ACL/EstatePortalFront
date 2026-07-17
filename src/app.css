@@ -68,11 +68,15 @@ body {
   color: var(--color-gold);
 }
 
-/* RERA registration numbers read as official verifiable IDs */
+/* RERA registration numbers read as official verifiable IDs.
+   Browsers never line-break at "/", so a number like
+   RC/REP/HARERA/GGM/922/654/2025/25 is one ~286px unbreakable word and
+   overflows narrow phones — hence the explicit break. */
 .rera-num {
   font-family: var(--font-mono);
   font-weight: 500;
   letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
 }
 
 /* Navy hero / footer gradient with faint gold blueprint line-art behind content */

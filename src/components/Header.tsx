@@ -3,10 +3,11 @@ import { Show, createSignal } from "solid-js";
 import { openLeadModal } from "~/lib/leadModal";
 
 const NAV = [
-  { href: "/search", label: "Search" },
+  { href: "/", label: "Home" },
   { href: "/search?project_type=residential", label: "Residential" },
   { href: "/search?project_type=commercial", label: "Commercial" },
   { href: "/developers", label: "Developers" },
+  { href: "/search", label: "All Properties" },
 ];
 
 export default function Header() {
