@@ -169,7 +169,7 @@ export default function ProjectPage() {
 
                 {/* Title block, pushed to the bottom of the frame, with the
                     glass enquiry card alongside it on wide screens. */}
-                <div class="mt-auto grid gap-8 pt-16 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-end">
+                <div class="mt-auto grid gap-8 pt-16 lg:mb-16 lg:grid-cols-[minmax(0,1fr)_500px] lg:items-end">
                 <div>
                   <div class="mb-4 flex flex-wrap items-center gap-2">
                     <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">{statusLabel(p().status)}</span>
@@ -246,7 +246,7 @@ export default function ProjectPage() {
               {/* Stat strip */}
               <div class="relative border-t border-white/15 bg-navy-deep/45 backdrop-blur-md">
                 <div class="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:gap-8">
-                  <dl class="grid flex-1 grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-center lg:gap-0">
+                  <dl class="grid flex-1 grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-nowrap lg:items-center lg:gap-0">
                     <Stat label="Price" value={priceRange(p().price_min, p().price_max)} />
                     <Stat label="Sizes" value={areaRange(p().area_min, p().area_max) ?? "On request"} />
                     <Show when={configSummary()}>
