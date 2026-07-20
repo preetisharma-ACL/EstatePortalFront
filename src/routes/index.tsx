@@ -34,6 +34,11 @@ export default function Home() {
   const premium = createAsync(() => projectsQuery(PREMIUM));
   const cities = createAsync(() => citiesQuery(CITIES));
 
+  // Premium rail — arrow-driven horizontal scroll (native scrollbar hidden).
+  let premiumScroller: HTMLDivElement | undefined;
+  const scrollPremium = (dir: 1 | -1) =>
+    premiumScroller?.scrollBy({ left: dir * 380, behavior: "smooth" });
+
   return (
     <>
       <Title>EstatePortal — RERA-verified property across India</Title>
@@ -118,19 +123,44 @@ export default function Home() {
       <section class="hero-gradient relative overflow-hidden py-16 text-white">
         <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="max-w-2xl">
-            <p class="eyebrow text-gold-soft">For the discerning investor</p>
-            <h2 class="mt-3 font-display text-3xl font-semibold sm:text-4xl">
-              The premium & investor <span class="italic text-gold-soft">collection</span>
-            </h2>
-            <p class="mt-3 text-white/70">
-              Landmark residences and grade-A commercial assets — curated for capital
-              appreciation and rental yield, with full RERA and pricing transparency.
-            </p>
+          <div class="flex items-end justify-between gap-4">
+            <div class="max-w-2xl">
+              <p class="eyebrow text-gold-soft">For the discerning investor</p>
+              <h2 class="mt-3 font-display text-3xl font-semibold sm:text-4xl">
+                The premium & investor <span class="italic text-gold-soft">collection</span>
+              </h2>
+              <p class="mt-3 text-white/70">
+                Landmark residences and grade-A commercial assets — curated for capital
+                appreciation and rental yield, with full RERA and pricing transparency.
+              </p>
+            </div>
+
+            {/* Prev/next arrows — drive the rail below (scrollbar hidden) */}
+            <div class="hidden shrink-0 items-center gap-3 sm:flex">
+              <button
+                type="button"
+                aria-label="Previous"
+                onClick={() => scrollPremium(-1)}
+                class="grid h-10 w-10 place-items-center rounded-full border border-white/25 text-white transition-colors hover:border-gold hover:bg-gold hover:text-navy-deep"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <button
+                type="button"
+                aria-label="Next"
+                onClick={() => scrollPremium(1)}
+                class="grid h-10 w-10 place-items-center rounded-full border border-white/25 text-white transition-colors hover:border-gold hover:bg-gold hover:text-navy-deep"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+              </button>
+            </div>
           </div>
 
           <Show when={premium()} fallback={<div class="mt-8 h-64" />}>
-            <div class="mt-8 flex snap-x gap-5 overflow-x-auto pb-4">
+            <div
+              ref={premiumScroller}
+              class="mt-8 flex snap-x gap-5 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               <For each={premium()!.results}>
                 {(p) => (
                   <A
