@@ -23,8 +23,8 @@ export default function Footer() {
             </div>
           </div>
 
-          <div class="grid gap-x-8 gap-y-8 lg:pl-6 sm:grid-cols-2 xl:grid-cols-3">
-            <div>
+          <div class="grid justify-items-center gap-x-8 gap-y-8 lg:pl-14 sm:grid-cols-2 xl:grid-cols-3">
+            <div class="text-center">
               <FooterTitle>Feel free to contact us</FooterTitle>
               <ul class="mt-3.5 space-y-3 text-sm font-medium text-navy/85">
                 <li><a href="mailto:info@estateportal.in" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><MailIcon /> info@estateportal.in</a></li>
@@ -33,7 +33,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            <div>
+            
               <FooterCol title="Discover" links={[
                 { href: "/search", label: "All projects" },
                 { href: "/search?status=ready_to_move", label: "Ready to move" },
@@ -41,15 +41,15 @@ export default function Footer() {
                 { href: "/search?project_type=commercial", label: "Commercial" },
                 { href: "/developers", label: "Developers" },
               ]} />
-            </div>
+            
 
-            <div>
+            
               <FooterCol title="Investor" links={[
                 { href: "/search?min_price=50000000&ordering=-price_min", label: "Luxury 5 Cr+" },
                 { href: "/search?max_price=10000000", label: "Under 1 Cr" },
                 { href: "/search?purpose=investment", label: "Investment picks" },
               ]} />
-            </div>
+            
 
             <div class="sm:col-start-2 xl:col-start-2">
               <FooterCol title="Legal & policy" links={[
@@ -58,7 +58,7 @@ export default function Footer() {
               ]} />
             </div>
 
-            <div class="sm:col-start-1 xl:col-start-3">
+            <div class=" sm:col-start-1 xl:col-start-3">
               <FooterCol title="Company" links={[
                 { href: "/#trust", label: "Why EstatePortal" },
                 { href: "/#enquire", label: "Talk to an advisor" },
@@ -85,7 +85,7 @@ function FooterCol(props: { title: string; links: { href: string; label: string 
   return (
     <div>
       <FooterTitle>{props.title}</FooterTitle>
-      <ul class="mt-3.5 flex flex-col gap-2.5 text-sm font-medium">
+      <ul class="mt-3.5 flex flex-col  gap-2.5 text-sm font-medium">
         {props.links.map((link) => <li><A href={link.href} class="text-navy/85 transition-colors hover:text-gold">{link.label}</A></li>)}
       </ul>
     </div>
