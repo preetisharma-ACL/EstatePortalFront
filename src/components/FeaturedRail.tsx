@@ -38,12 +38,12 @@ export default function FeaturedRail(props: {
       {/* Architect's-sketch backdrop — faint, behind everything, with a paper
           wash over it so the cards and copy keep full contrast. */}
       <div
-        class="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-[0.14]"
+        class="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-60 mix-blend-multiply"
         style="background-image:url('/banner/sketch.jpg')"
         aria-hidden="true"
       />
       <div
-        class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-paper via-paper/60 to-paper"
+        class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-paper/45 via-paper/20 to-paper/55"
         aria-hidden="true"
       />
 
@@ -60,7 +60,7 @@ export default function FeaturedRail(props: {
       </div>
 
       {/* Intro panel + rail */}
-      <div class="reveal relative mt-10 lg:grid lg:grid-cols-[262px_minmax(0,1fr)] lg:gap-5">
+      <div class="reveal relative mt-10 lg:grid lg:grid-cols-[262px_minmax(0,1fr)] lg:gap-3">
         {/* Standing panel — the shelf's caption and its "view all" action */}
         <div class="mb-4 flex flex-col rounded-[14px] border border-line bg-card/75 p-3 backdrop-blur-sm lg:mb-0 lg:p-4">
           <span class="grid h-11 w-11 place-items-center rounded-[12px] bg-gold/12 text-gold">

@@ -106,28 +106,33 @@ export default function Home() {
       <FeaturedRail projects={featured()?.results ?? null} />
 
       {/* 4. PREMIUM & INVESTOR COLLECTION */}
-      <section class="hero-gradient relative overflow-hidden py-16 text-white">
-        <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />
+      <section class="relative overflow-hidden border-y border-line bg-[#f8f5f2] py-14 sm:py-16">
+        <div
+          class="pointer-events-none absolute inset-0 bg-right-bottom bg-no-repeat opacity-80"
+          style="background-image:url('/banner/professional_bg.png'); background-size:720px auto;"
+          aria-hidden="true"
+        />
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="flex items-end justify-between gap-4">
-            <div class="max-w-2xl">
-              <p class="eyebrow text-gold-soft">For the discerning investor</p>
-              <h2 class="mt-3 font-display text-3xl font-semibold sm:text-4xl">
-                The premium & investor <span class="italic text-gold-soft">collection</span>
+          <div class="relative">
+            <div class="mx-auto max-w-2xl text-center">
+              <p class="eyebrow">For the discerning investor</p>
+              <h2 class="mt-2 font-display text-3xl font-semibold text-navy sm:text-4xl">
+                The premium & investor <span class="italic text-gold">collection</span>
               </h2>
-              <p class="mt-3 text-white/70">
+              <div class="gold-rule mx-auto mt-4" />
+              <p class="mt-4 text-slate">
                 Landmark residences and grade-A commercial assets — curated for capital
                 appreciation and rental yield, with full RERA and pricing transparency.
               </p>
             </div>
 
             {/* Prev/next arrows — drive the rail below (scrollbar hidden) */}
-            <div class="hidden shrink-0 items-center gap-3 sm:flex">
+            <div class="absolute right-0 top-0 hidden items-center gap-2 lg:flex">
               <button
                 type="button"
                 aria-label="Previous"
                 onClick={() => scrollPremium(-1)}
-                class="grid h-10 w-10 place-items-center rounded-full border border-white/25 text-white transition-colors hover:border-gold hover:bg-gold hover:text-navy-deep"
+                class="grid h-10 w-10 place-items-center rounded-full border border-line bg-card text-navy shadow-sm transition-colors hover:border-gold hover:bg-gold hover:text-navy-deep"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
               </button>
@@ -135,7 +140,7 @@ export default function Home() {
                 type="button"
                 aria-label="Next"
                 onClick={() => scrollPremium(1)}
-                class="grid h-10 w-10 place-items-center rounded-full border border-white/25 text-white transition-colors hover:border-gold hover:bg-gold hover:text-navy-deep"
+                class="grid h-10 w-10 place-items-center rounded-full border border-line bg-card text-navy shadow-sm transition-colors hover:border-gold hover:bg-gold hover:text-navy-deep"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
               </button>
@@ -145,31 +150,31 @@ export default function Home() {
           <Show when={premium()} fallback={<div class="mt-8 h-64" />}>
             <div
               ref={premiumScroller}
-              class="mt-8 flex snap-x gap-5 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              class="mt-10 flex snap-x gap-5 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <For each={premium()!.results}>
                 {(p) => (
                   <A
                     href={`/project/${p.slug}`}
-                    class="group w-[300px] shrink-0 snap-start overflow-hidden rounded-[12px] border border-white/10 bg-white/[0.04] sm:w-[360px]"
+                    class="card-lift group w-[80%] shrink-0 snap-start overflow-hidden rounded-[14px] border border-line bg-card sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)]"
                   >
-                    <div class="img-scrim relative aspect-[16/10] overflow-hidden bg-white/5">
-                      <Show when={p.cover_image} fallback={<div class="grid h-full place-items-center font-display text-white/40">{p.name}</div>}>
+                    <div class="img-scrim relative aspect-[16/10] overflow-hidden bg-navy/5">
+                      <Show when={p.cover_image} fallback={<div class="grid h-full place-items-center font-display text-navy/40">{p.name}</div>}>
                         <img src={p.cover_image!} alt={p.name} loading="lazy" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       </Show>
                       <div class="absolute right-3 top-3 z-10"><ReraSeal size="sm" /></div>
                     </div>
                     <div class="p-4">
-                      <h3 class="font-display text-xl font-semibold text-white">{p.name}</h3>
-                      <p class="mt-0.5 text-sm text-white/60">{p.location.locality}, {p.location.city}</p>
-                      <p class="mt-2 font-display text-lg text-gold-soft">{priceRange(p.price_min, p.price_max)}</p>
+                      <h3 class="font-display text-xl font-semibold text-navy">{p.name}</h3>
+                      <p class="mt-0.5 text-sm text-slate">{p.location.locality}, {p.location.city}</p>
+                      <p class="mt-2 font-display font-semibold text-lg text-navy">{priceRange(p.price_min, p.price_max)}</p>
                     </div>
                   </A>
                 )}
               </For>
             </div>
           </Show>
-          <A href="/search?min_price=50000000&ordering=-price_min" class="mt-4 inline-block text-sm font-semibold text-gold-soft hover:underline">
+          <A href="/search?min_price=50000000&ordering=-price_min" class="mt-4 inline-block text-sm font-semibold text-gold hover:underline">
             Explore the full collection →
           </A>
         </div>
