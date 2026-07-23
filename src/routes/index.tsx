@@ -2,7 +2,7 @@ import { createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { Title, Meta, Link } from "@solidjs/meta";
 import { For, Show } from "solid-js";
 import SearchBar from "~/components/SearchBar";
-import ProjectCard from "~/components/ProjectCard";
+import FeaturedRail from "~/components/FeaturedRail";
 import CityCarousel from "~/components/CityCarousel";
 import ReraSeal from "~/components/ReraSeal";
 import LeadForm from "~/components/LeadForm";
@@ -103,21 +103,7 @@ export default function Home() {
       </section>
 
       {/* 3. FEATURED PROJECTS */}
-      <Section
-        eyebrow="Handpicked"
-        title="Featured projects"
-        subtitle="Verified, well-documented launches our advisory team stands behind."
-        cta={{ href: "/search?is_featured=true", label: "View all featured" }}
-      >
-        <Show when={featured()} fallback={<GridSkeleton />}>
-          <div class="reveal grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <For each={featured()!.results}>{(p) => <ProjectCard project={p} />}</For>
-          </div>
-          <Show when={!featured()!.results.length}>
-            <EmptyNote />
-          </Show>
-        </Show>
-      </Section>
+      <FeaturedRail projects={featured()?.results ?? null} />
 
       {/* 4. PREMIUM & INVESTOR COLLECTION */}
       <section class="hero-gradient relative overflow-hidden py-16 text-white">
@@ -287,31 +273,6 @@ export default function Home() {
   );
 }
 
-function Section(props: {
-  eyebrow: string; title: string; subtitle?: string;
-  cta?: { href: string; label: string }; children: any;
-}) {
-  return (
-    <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-      <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div class="max-w-2xl">
-          <p class="eyebrow">{props.eyebrow}</p>
-          <h2 class="mt-2 font-display text-3xl font-semibold text-navy sm:text-4xl">{props.title}</h2>
-          <Show when={props.subtitle}>
-            <p class="mt-2 text-slate">{props.subtitle}</p>
-          </Show>
-        </div>
-        <Show when={props.cta}>
-          <A href={props.cta!.href} class="text-sm font-semibold text-gold hover:underline">
-            {props.cta!.label} →
-          </A>
-        </Show>
-      </div>
-      {props.children}
-    </section>
-  );
-}
-
 function TrustCol(props: { title: string; body: string; seal?: boolean; icon?: "rupee" | "visit" }) {
   return (
     <div class="rounded-[12px] border border-white/10 bg-white/[0.03] p-6">
@@ -360,13 +321,5 @@ function GridSkeleton() {
         )}
       </For>
     </div>
-  );
-}
-
-function EmptyNote() {
-  return (
-    <p class="rounded-[12px] border border-dashed border-line bg-card p-8 text-center text-slate">
-      Featured projects will appear here once the catalogue is populated.
-    </p>
   );
 }
