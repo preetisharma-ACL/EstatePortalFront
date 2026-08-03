@@ -204,6 +204,64 @@ body {
   animation: reveal-up 0.6s ease both;
 }
 
+/* ---------------------------------------------------------------------------
+   Legal long-form pages (/privacy-policy, /terms). One prose scope so the
+   route files carry content, not class soup.
+--------------------------------------------------------------------------- */
+.legal p {
+  color: var(--color-slate);
+  font-size: 15px;
+  line-height: 1.75;
+}
+.legal p + p,
+.legal ul + p,
+.legal ol + p,
+.legal p + ul,
+.legal p + ol,
+.legal h3 + p {
+  margin-top: 0.85rem;
+}
+.legal h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-navy);
+}
+.legal ul,
+.legal ol {
+  padding-left: 1.15rem;
+  color: var(--color-slate);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.legal ul {
+  list-style: disc;
+}
+.legal ol {
+  list-style: decimal;
+}
+.legal li + li {
+  margin-top: 0.45rem;
+}
+.legal li::marker {
+  color: var(--color-gold);
+}
+.legal strong {
+  font-weight: 700;
+  color: var(--color-navy);
+}
+.legal a:not([class]) {
+  color: var(--color-navy);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 3px;
+}
+.legal a:not([class]):hover {
+  color: var(--color-gold);
+}
+
 /* Visible keyboard focus everywhere */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--color-gold);
