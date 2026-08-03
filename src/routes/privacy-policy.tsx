@@ -163,10 +163,9 @@ const SECTIONS: LegalSection[] = [
         <p>
           <strong>Your consent is specific, informed and freely given, and you can withdraw
           it at any time.</strong> To withdraw, write to{" "}
-          <a href={`mailto:${COMPANY.grievanceEmail}`}>{COMPANY.grievanceEmail}</a> or call{" "}
-          <a href={`tel:${COMPANY.phoneHref}`}>{COMPANY.phone}</a> and ask to be removed. We
-          will stop contacting you and delete or anonymise your details unless we are
-          required by law to keep them.
+          <a href={`mailto:${COMPANY.grievanceEmail}`}>{COMPANY.grievanceEmail}</a> and ask to
+          be removed. We will stop contacting you and delete or anonymise your details unless
+          we are required by law to keep them.
         </p>
         <p>
           Withdrawing consent does not affect processing already carried out while consent
@@ -379,10 +378,9 @@ const SECTIONS: LegalSection[] = [
         <p>
           To exercise any of these, email{" "}
           <a href={`mailto:${COMPANY.grievanceEmail}`}>{COMPANY.grievanceEmail}</a> from the
-          address you enquired with, or call{" "}
-          <a href={`tel:${COMPANY.phoneHref}`}>{COMPANY.phone}</a>. We may ask you to verify
-          your identity — usually by confirming the phone number used in the enquiry — before
-          we act, so that nobody else can access or delete your data.
+          address you enquired with. We may ask you to verify your identity — usually by
+          confirming the phone number used in the enquiry — before we act, so that nobody
+          else can access or delete your data.
         </p>
         <p>
           You also have a duty under the DPDP Act not to impersonate anyone else, not to

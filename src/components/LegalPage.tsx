@@ -137,11 +137,13 @@ export function LegalContact(props: { role: string; name?: string; email: string
             {props.email}
           </a>
         </li>
+        {/* Phone hidden for now — mirrors the footer. Restore when the number is live.
         <li>
           <a href={`tel:${COMPANY.phoneHref}`} class="font-medium text-navy hover:text-gold">
             {COMPANY.phone}
           </a>
         </li>
+        */}
       </ul>
       <p class="mt-3 text-xs text-slate">
         We acknowledge every request within 24 hours and aim to resolve it within 15 days.

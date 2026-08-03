@@ -23,7 +23,8 @@ export const COMPANY = {
 
   /** DPDP Act, 2023 s.13 + IT Rules, 2021 r.3(2) require a named officer. */
   grievanceOfficer: "«Name of Grievance Officer»",
-  grievanceEmail: "grievance@aajneeti.social",
+  /** Same inbox as `email` for now — split it out if grievances get their own desk. */
+  grievanceEmail: "realestate@aajneeti.social",
 
   /** Courts named in the governing-law clause of the Terms. */
   jurisdiction: "New Delhi",

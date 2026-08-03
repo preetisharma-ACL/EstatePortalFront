@@ -401,8 +401,7 @@ const SECTIONS: LegalSection[] = [
         />
         <p>
           For general enquiries, reach us at{" "}
-          <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> or{" "}
-          <a href={`tel:${COMPANY.phoneHref}`}>{COMPANY.phone}</a>.
+          <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
         </p>
       </>
     ),
