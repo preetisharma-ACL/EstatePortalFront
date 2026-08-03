@@ -405,11 +405,13 @@ export default function WhyEstatePortalPage() {
             </div>
 
             <dl class="grid gap-4 rounded-[14px] border border-line bg-card p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-1">
+              {/* Phone hidden for now — mirrors the footer. Restore when the number is live.
               <ContactRow label="Call us">
                 <a href={`tel:${COMPANY.phoneHref}`} class="hover:text-gold">
                   {COMPANY.phone}
                 </a>
               </ContactRow>
+              */}
               <ContactRow label="Email">
                 <a href={`mailto:${COMPANY.email}`} class="hover:text-gold">
                   {COMPANY.email}

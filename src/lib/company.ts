@@ -14,14 +14,16 @@ export const COMPANY = {
   /** Company identification number / GSTIN, if the entity is incorporated. */
   cin: "«CIN / LLPIN / GSTIN»",
 
-  email: "info@estateportal.in",
+  email: "realestate@aajneeti.social",
+  /** Not displayed anywhere at the moment — the footer and the Why page both
+      have their phone rows commented out. Kept for when the number goes live. */
   phone: "+91 98990 55893",
   phoneHref: "+919899055893",
-  website: "www.estateportal.in",
+  website: "realestate.aajneeti.social",
 
   /** DPDP Act, 2023 s.13 + IT Rules, 2021 r.3(2) require a named officer. */
   grievanceOfficer: "«Name of Grievance Officer»",
-  grievanceEmail: "grievance@estateportal.in",
+  grievanceEmail: "grievance@aajneeti.social",
 
   /** Courts named in the governing-law clause of the Terms. */
   jurisdiction: "New Delhi",
