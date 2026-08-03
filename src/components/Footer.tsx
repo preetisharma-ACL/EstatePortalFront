@@ -64,7 +64,7 @@ export default function Footer() {
               <FooterCol title="Company" links={[
                 { href: "/why-estateportal", label: "Why EstatePortal" },
                 { href: "/#enquire", label: "Talk to an advisor" },
-                { href: "/sitemap.xml", label: "Sitemap" },
+                // { href: "/sitemap.xml", label: "Sitemap" },
               ]} />
             </div>
           </div>
