@@ -60,7 +60,7 @@ export default function Footer() {
 
             <div class=" sm:col-start-1 xl:col-start-3">
               <FooterCol title="Company" links={[
-                { href: "/#trust", label: "Why EstatePortal" },
+                { href: "/why-estateportal", label: "Why EstatePortal" },
                 { href: "/#enquire", label: "Talk to an advisor" },
                 { href: "/sitemap.xml", label: "Sitemap" },
               ]} />
