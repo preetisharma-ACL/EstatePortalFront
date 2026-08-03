@@ -27,8 +27,10 @@ export default function Footer() {
             <div class="text-center">
               <FooterTitle>Feel free to contact us</FooterTitle>
               <ul class="mt-3.5 space-y-3 text-sm font-medium text-navy/85">
-                <li><a href="mailto:info@estateportal.in" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><MailIcon /> info@estateportal.in</a></li>
+                <li><a href="mailto:realestate@aajneeti.social" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><MailIcon /> realestate@aajneeti.social</a></li>
+                {/* Phone hidden for now — restore this line (and PhoneIcon below) when the number is live.
                 <li><a href="tel:+919899055893" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><PhoneIcon /> +91 98990 55893</a></li>
+                */}
                 <li><a href="https://realestate.aajneeti.social/" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><GlobeIcon /> realestate.aajneeti.social</a></li>
               </ul>
             </div>
