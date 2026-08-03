@@ -59,6 +59,19 @@ export function priceRange(
 }
 
 /**
+ * priceRange() split into segments that must not break internally.
+ * "₹2.14 Cr – ₹4.79 Cr" -> ["₹2.14 Cr", "₹4.79 Cr"]
+ * Render each in a nowrap span so a narrow card breaks at the dash rather than
+ * orphaning the "Cr" on its own line.
+ */
+export function priceRangeSegments(
+  min: number | null | undefined,
+  max: number | null | undefined,
+): string[] {
+  return priceRange(min, max).split(" – ");
+}
+
+/**
  * Area range using string decimals + a unit (e.g. "sq.ft.").
  *  ("1250.00", "1875.50", "sq.ft.") -> "1,250 – 1,876 sq.ft."
  */

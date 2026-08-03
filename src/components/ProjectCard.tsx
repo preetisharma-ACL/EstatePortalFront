@@ -1,7 +1,7 @@
 import { A } from "@solidjs/router";
 import { Show, For } from "solid-js";
 import type { ProjectListItem } from "~/lib/types";
-import { priceRange, areaRange, statusLabel, typeLabel } from "~/lib/format";
+import { priceRangeSegments, areaRange, statusLabel, typeLabel } from "~/lib/format";
 import VerifiedTick from "./VerifiedTick";
 
 export default function ProjectCard(props: { project: ProjectListItem }) {
@@ -9,6 +9,7 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
   const loc = () => p().location;
   const chips = () => p().configurations_summary?.slice(0, 4) ?? [];
   const area = () => areaRange(p().area_min, p().area_max);
+  const priceSegments = () => priceRangeSegments(p().price_min, p().price_max);
 
   return (
     <A
@@ -44,7 +45,9 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
             pinned to opposite corners, which collide on a narrow card. The RERA
             badge holds its size; the status pill gives way. */}
         <div class="absolute inset-x-3.5 top-3.5 z-10 flex items-start justify-between gap-2">
-          <span class="min-w-0 truncate rounded-full border border-white/20 bg-navy-deep/40 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-md">
+          {/* Tighter tracking/padding than the RERA badge so "Under Construction"
+              fits whole — it was truncating to "UNDER CONSTR…" on 3-up grids. */}
+          <span class="min-w-0 truncate rounded-full border border-white/20 bg-navy-deep/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-white backdrop-blur-md">
             {statusLabel(p().status)}
           </span>
 
@@ -94,19 +97,31 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
           <VerifiedTick size={13} />
         </div>
 
-        {/* price */}
-        <div class="mt-2.5 flex items-end justify-between gap-3">
-          <p class="font-display text-[20px] font-semibold leading-none text-navy">
-            {priceRange(p().price_min, p().price_max)}
+        {/* price — each amount is nowrap so a narrow card breaks at the dash
+            instead of stranding the "Cr". Area sits on its own line rather than
+            competing with the price for width. */}
+        <div class="mt-2.5">
+          <p class="font-display text-[20px] font-semibold leading-tight text-navy">
+            <For each={priceSegments()}>
+              {(seg, i) => (
+                <>
+                  <Show when={i()}>
+                    <span class="font-sans font-normal text-slate/70"> – </span>
+                  </Show>
+                  <span class="whitespace-nowrap">{seg}</span>
+                </>
+              )}
+            </For>
           </p>
           <Show when={area()}>
-            <span class="mb-0.5 shrink-0 text-xs font-medium text-slate">{area()}</span>
+            <p class="mt-1 text-xs font-medium text-slate">{area()}</p>
           </Show>
         </div>
 
-        {/* config chips */}
+        {/* config chips — pb keeps breathing room above the pinned footer even
+            when mt-auto collapses to zero on a full card. */}
         <Show when={chips().length}>
-          <div class="mt-3.5 flex flex-wrap gap-1.5">
+          <div class="mt-3.5 flex flex-wrap gap-1.5 pb-4">
             <For each={chips()}>
               {(c) => (
                 <span class="rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-medium text-navy/75">
@@ -117,13 +132,17 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
           </div>
         </Show>
 
-        {/* footer */}
-        <div class="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3.5">
+        {/* footer — mt-auto pins it to the card bottom so every footer in a row
+            lines up regardless of how much body content sits above it. */}
+        <div class="mt-auto flex items-center justify-between gap-2 border-t border-line pt-3.5">
           <Show
             when={p().primary_rera}
-            fallback={<span class="text-xs font-medium text-slate">RERA Upcoming</span>}
+            fallback={<span class="shrink-0 text-xs font-medium text-slate">RERA Upcoming</span>}
           >
-            <span class="rera-num text-xs text-green" title="RERA registration number">
+            <span
+              class="rera-num min-w-0 truncate text-xs text-green"
+              title={p().primary_rera!}
+            >
               {p().primary_rera}
             </span>
           </Show>
