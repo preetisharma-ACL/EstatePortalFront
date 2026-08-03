@@ -146,7 +146,7 @@ export default function ProjectCard(props: { project: ProjectListItem }) {
               {p().primary_rera}
             </span>
           </Show>
-          <span class="shrink-0 rounded-full bg-navy/5 px-2.5 py-1 text-xs font-medium text-navy/70">
+          <span class="shrink-0 rounded-full  bg-navy/5 px-2.5 py-1 text-xs font-medium text-navy/70">
             {typeLabel(p().project_type)}
           </span>
         </div>
