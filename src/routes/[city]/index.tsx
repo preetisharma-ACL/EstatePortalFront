@@ -3,6 +3,7 @@ import {
 } from "@solidjs/router";
 import { Title, Meta, Link } from "@solidjs/meta";
 import { createMemo, Show } from "solid-js";
+import { openLeadModal } from "~/lib/leadModal";
 import FilterPanel from "~/components/FilterPanel";
 import ResultsGrid from "~/components/ResultsGrid";
 import NotFound from "~/components/NotFound";
@@ -71,34 +72,88 @@ export default function CityPage() {
       <Link rel="canonical" href={`/${params.city}`} />
 
       {/* City hero banner — crossfading slideshow (city photo, else local
-          banners) under the same navy scrim as the project detail hero. */}
+          banners). Two scrims: a vertical one for the page transition, and a
+          left-to-right one so the copy column stays legible over busy aerial
+          photography instead of competing with flyovers and rooftops. */}
       <section class="relative isolate overflow-hidden bg-navy-deep">
         <BannerSlideshow images={city()?.image ? [city()!.image!] : []} fallback={LOCAL_BANNERS} />
         <div
           class="absolute inset-0"
           aria-hidden="true"
-          style="background:linear-gradient(180deg,rgba(14,27,51,0.72) 0%,rgba(14,27,51,0.32) 34%,rgba(14,27,51,0.66) 74%,rgba(14,27,51,0.94) 100%);"
+          style="background:linear-gradient(180deg,rgba(14,27,51,0.74) 0%,rgba(14,27,51,0.38) 36%,rgba(14,27,51,0.72) 76%,rgba(14,27,51,0.95) 100%);"
         />
-        <div class="relative mx-auto flex min-h-[340px] max-w-7xl flex-col justify-end px-4 pb-10 pt-14 text-white sm:px-6">
-          <nav class="mb-3 flex items-center gap-1.5 text-xs text-white/60" aria-label="Breadcrumb">
-            <A href="/" class="hover:text-white">Home</A><span>/</span>
-            <span class="text-white/80">{city()?.name ?? params.city}</span>
+        <div
+          class="absolute inset-0"
+          aria-hidden="true"
+          style="background:linear-gradient(90deg,rgba(14,27,51,0.88) 0%,rgba(14,27,51,0.62) 42%,rgba(14,27,51,0.12) 82%,rgba(14,27,51,0) 100%);"
+        />
+
+        <div class="relative mx-auto flex min-h-[300px] max-w-7xl flex-col px-4 pb-8 pt-5 text-white sm:min-h-[340px] sm:px-6">
+          <nav class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/60" aria-label="Breadcrumb">
+            <A href="/" class="transition-colors hover:text-gold-soft">Home</A>
+            <span class="text-white/30">/</span>
+            <span class="text-gold-soft">{city()?.name ?? params.city}</span>
           </nav>
-          <p class="eyebrow text-gold-soft">City</p>
-          <h1 class="mt-2 font-display text-4xl font-semibold drop-shadow-sm sm:text-5xl">
-            Property in <span class="italic text-gold-soft">{city()?.name ?? params.city}</span>
-          </h1>
-          <Show when={city()}>
-            {(c) => (
-              <p class="mt-2 text-white/80">
-                {c().state} · {c().locality_count} localities · RERA-verified inventory
-              </p>
-            )}
-          </Show>
+
+          {/* Title block pinned to the bottom of the frame. Location and stats
+              share one row to keep the banner compact. */}
+          <div class="mt-auto max-w-3xl pt-6">
+            <p class="eyebrow text-gold-soft">City guide</p>
+            <h1 class="mt-2 font-display text-[32px] font-semibold leading-[1.05] drop-shadow-sm sm:text-[42px]">
+              Property in{" "}
+              <span class="italic text-gold-soft">{city()?.name ?? params.city}</span>
+            </h1>
+            <div class="gold-rule mt-3.5" />
+
+            <Show when={city()}>
+              {(c) => (
+                <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2.5">
+                  <p class="flex items-center gap-1.5 text-sm text-white/80">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 text-gold-soft" aria-hidden="true">
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <span>{c().state}, India</span>
+                  </p>
+                  <span class="hidden h-4 w-px bg-white/25 sm:block" aria-hidden="true" />
+                  <dl class="flex flex-wrap gap-2">
+                    <Show when={c().locality_count}>
+                      <HeroStat label="Localities" value={String(c().locality_count)} />
+                    </Show>
+                    <Show when={data()}>
+                      <HeroStat label="Projects" value={String(data()!.count)} />
+                    </Show>
+                    <HeroStat label="Inventory" value="RERA-verified" />
+                  </dl>
+                </div>
+              )}
+            </Show>
+
+            <div class="mt-5 flex flex-wrap items-center gap-2.5">
+              <a
+                href="#results"
+                class="rounded-[8px] bg-gold px-4.5 py-2.5 text-sm font-semibold text-navy transition-transform hover:-translate-y-0.5"
+              >
+                Browse projects
+              </a>
+              <button
+                type="button"
+                onClick={() => openLeadModal()}
+                class="rounded-[8px] border border-white/25 bg-white/5 px-4.5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:border-gold-soft hover:text-gold-soft"
+              >
+                Talk to an advisor
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* Signature gold hairline at the base */}
+        <div
+          class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent"
+          aria-hidden="true"
+        />
       </section>
 
-      <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div id="results" class="mx-auto max-w-7xl scroll-mt-20 px-4 py-8 sm:px-6">
         <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
           <FilterPanel filters={filters()} setParam={setParam} clearAll={clearAll} />
           <ResultsGrid data={data()} ordering={filters().ordering} page={filters().page ?? 1} setParam={setParam} />
@@ -109,14 +164,45 @@ export default function CityPage() {
   );
 }
 
+/**
+ * Compact glass stat pill in the city hero. Single-line rather than a stacked
+ * tile — the stacked version was the tallest element in the banner.
+ * flex-row-reverse shows the value first while keeping dt before dd in the DOM.
+ */
+function HeroStat(props: { label: string; value: string }) {
+  return (
+    <div class="inline-flex flex-row-reverse items-baseline gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 backdrop-blur-sm">
+      <dt class="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/70">
+        {props.label}
+      </dt>
+      <dd class="font-display text-[15px] font-semibold text-white">{props.value}</dd>
+    </div>
+  );
+}
+
 function CityLoading() {
   return (
-    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-      <div class="h-10 w-1/2 animate-pulse rounded bg-navy/5" />
-      <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="aspect-[4/3] animate-pulse rounded-[12px] bg-navy/5" />
-        <div class="aspect-[4/3] animate-pulse rounded-[12px] bg-navy/5" />
-        <div class="aspect-[4/3] animate-pulse rounded-[12px] bg-navy/5" />
+    <div>
+      {/* Navy hero-shaped skeleton so the banner doesn't flash white before the
+          city resolves. */}
+      <div class="hero-gradient relative min-h-[300px] overflow-hidden sm:min-h-[340px]">
+        <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />
+        <div class="relative mx-auto flex h-full min-h-[300px] max-w-7xl flex-col justify-end px-4 pb-8 sm:min-h-[340px] sm:px-6">
+          <div class="h-3 w-20 animate-pulse rounded bg-white/10" />
+          <div class="mt-3 h-10 w-2/3 animate-pulse rounded bg-white/10" />
+          <div class="mt-4 flex gap-2">
+            <div class="h-7 w-32 animate-pulse rounded-full bg-white/10" />
+            <div class="h-7 w-28 animate-pulse rounded-full bg-white/10" />
+          </div>
+          <div class="mt-5 h-10 w-56 animate-pulse rounded-[8px] bg-white/10" />
+        </div>
+      </div>
+      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="aspect-[4/3] animate-pulse rounded-[12px] bg-navy/5" />
+          <div class="aspect-[4/3] animate-pulse rounded-[12px] bg-navy/5" />
+          <div class="aspect-[4/3] animate-pulse rounded-[12px] bg-navy/5" />
+        </div>
       </div>
     </div>
   );
