@@ -17,9 +17,9 @@ export default function Footer() {
             </p>
             <p class="mt-6 eyebrow">Stay connected</p>
             <div class="mt-2.5 flex items-center gap-3">
-              <SocialIcon label="Facebook"><path d="M14 8h3V4h-3c-3.1 0-5 1.9-5 5v3H6v4h3v4h4v-4h3l1-4h-4V9c0-.6.4-1 1-1Z" /></SocialIcon>
-              <SocialIcon label="Instagram"><rect x="4" y="4" width="16" height="16" rx="4" /><circle cx="12" cy="12" r="3.5" /><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none" /></SocialIcon>
-              <SocialIcon label="LinkedIn"><path d="M7 9v8M7 6.5v.1M11 17v-4.5a3 3 0 0 1 6 0V17M11 10v7" /></SocialIcon>
+              <SocialIcon label="Facebook" href="https://www.facebook.com/people/Property-Updates-By-Alok/61572409943458/"><path d="M14 8h3V4h-3c-3.1 0-5 1.9-5 5v3H6v4h3v4h4v-4h3l1-4h-4V9c0-.6.4-1 1-1Z" /></SocialIcon>
+              <SocialIcon label="Instagram" href="https://www.instagram.com/propertyupdatesbyalok/?hl=en"><rect x="4" y="4" width="16" height="16" rx="4" /><circle cx="12" cy="12" r="3.5" /><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none" /></SocialIcon>
+              <SocialIcon label="YouTube" href="https://www.youtube.com/channel/UC3UIZD32SLOr-B67Dhhby0Q"><rect x="3" y="6" width="18" height="12" rx="3.5" /><path d="m11 9.75 3.75 2.25L11 14.25v-4.5Z" fill="currentColor" stroke="none" /></SocialIcon>
             </div>
           </div>
 
@@ -31,7 +31,6 @@ export default function Footer() {
                 {/* Phone hidden for now — restore this line (and PhoneIcon below) when the number is live.
                 <li><a href="tel:+919899055893" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><PhoneIcon /> +91 98990 55893</a></li>
                 */}
-                <li><a href="https://realestate.aajneeti.social/" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><GlobeIcon /> realestate.aajneeti.social</a></li>
               </ul>
             </div>
 
@@ -94,8 +93,8 @@ function FooterCol(props: { title: string; links: { href: string; label: string 
   );
 }
 
-function SocialIcon(props: { label: string; children: JSX.Element }) {
-  return <a href="#" aria-label={props.label} class="grid h-11 w-11 place-items-center rounded-full border border-navy bg-navy text-white shadow-[0_8px_18px_-10px_rgba(14,27,51,0.85)] transition-all hover:-translate-y-0.5 hover:border-gold hover:bg-gold hover:text-navy-deep"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{props.children}</svg></a>;
+function SocialIcon(props: { label: string; href: string; children: JSX.Element }) {
+  return <a href={props.href} target="_blank" rel="noopener noreferrer" aria-label={props.label} class="grid h-11 w-11 place-items-center rounded-full border border-navy bg-navy text-white shadow-[0_8px_18px_-10px_rgba(14,27,51,0.85)] transition-all hover:-translate-y-0.5 hover:border-gold hover:bg-gold hover:text-navy-deep"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{props.children}</svg></a>;
 }
 
 function MailIcon() { return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>; }
