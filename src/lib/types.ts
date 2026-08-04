@@ -20,6 +20,7 @@ export type ConfigSubType =
 export type ReraStatus = "registered" | "applied" | "expired";
 export type LeadTimeline = "immediate" | "3_6" | "6_12" | "exploring";
 export type LeadPurpose = "investment" | "end_use" | "both";
+export type LeadPropertyType = "residential" | "commercial" | "mixed";
 export type MediaType =
   | "gallery" | "floor_plan" | "master_plan" | "location_map" | "video";
 export type DocType =
@@ -198,7 +199,8 @@ export interface ProjectFilters {
 export interface LeadPayload {
   name: string; phone: string; email?: string;
   project_slug?: string; city_slug?: string;
-  budget_min?: number; budget_max?: number;
+  budget?: number; // single budget figure, INR
+  property_type?: LeadPropertyType;
   timeline?: LeadTimeline; purpose?: LeadPurpose;
   configuration_preference?: string; message?: string;
   utm_source?: string; utm_medium?: string; utm_campaign?: string;

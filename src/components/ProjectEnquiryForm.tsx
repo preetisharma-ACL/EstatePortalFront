@@ -1,7 +1,7 @@
 import { createSignal, Show, For, onMount } from "solid-js";
 import { submitLead, ApiError } from "~/lib/api";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
-import type { LeadPayload, LeadTimeline, LeadPurpose } from "~/lib/types";
+import type { LeadPayload, LeadTimeline, LeadPurpose, LeadPropertyType } from "~/lib/types";
 
 const TIMELINES: { value: LeadTimeline; label: string }[] = [
   { value: "immediate", label: "Immediately" },
@@ -14,6 +14,12 @@ const PURPOSES: { value: LeadPurpose; label: string; hint: string }[] = [
   { value: "investment", label: "Investment", hint: "Yield & appreciation" },
   { value: "end_use", label: "End use", hint: "To live / operate" },
   { value: "both", label: "Both", hint: "Invest & use" },
+];
+
+const PROPERTY_TYPES: { value: LeadPropertyType; label: string }[] = [
+  { value: "residential", label: "Residential" },
+  { value: "commercial", label: "Commercial" },
+  { value: "mixed", label: "Mixed" },
 ];
 
 /**
@@ -52,11 +58,12 @@ export default function ProjectEnquiryForm(props: {
     const form = e.currentTarget as HTMLFormElement;
     const fd = new FormData(form);
 
-    const numOrUndef = (v: FormDataEntryValue | null) => {
+    // budget is an int64 on the backend — round and omit when blank/unparseable.
+    const intOrUndef = (v: FormDataEntryValue | null) => {
       const s = (v as string)?.trim();
       if (!s) return undefined;
       const n = Number(s);
-      return Number.isFinite(n) ? n : undefined;
+      return Number.isFinite(n) ? Math.round(n) : undefined;
     };
     const strOrUndef = (v: FormDataEntryValue | null) => {
       const s = (v as string)?.trim();
@@ -72,8 +79,8 @@ export default function ProjectEnquiryForm(props: {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
       email: strOrUndef(fd.get("email")),
-      budget_min: numOrUndef(fd.get("budget_min")),
-      budget_max: numOrUndef(fd.get("budget_max")),
+      budget: intOrUndef(fd.get("budget")),
+      property_type: strOrUndef(fd.get("property_type")) as LeadPropertyType | undefined,
       timeline: (strOrUndef(fd.get("timeline")) as LeadTimeline) || undefined,
       purpose: (purpose() || undefined) as LeadPurpose | undefined,
       configuration_preference: strOrUndef(fd.get("configuration_preference")),
@@ -181,14 +188,29 @@ export default function ProjectEnquiryForm(props: {
           </div>
         </div>
 
-        {/* Budget and timeline/config stay two-across at every width — these
-            pairs read as one control and the fields are short. */}
+        {/* Budget/property type and timeline/config stay two-across at every
+            width — these pairs read as one control and the fields are short. */}
         <div class={`grid grid-cols-2 ${compact() ? "gap-2.5" : "gap-4"}`}>
-          <Field label="Budget min (₹)" for={id("budget_min")} compact={compact()}>
-            <input name="budget_min" id={id("budget_min")} type="number" min="0" step="100000" class={input(false)} placeholder="e.g. 5000000" />
+          <Field label="Budget (₹)" for={id("budget")} compact={compact()}>
+            <div class="relative">
+              <span class={`pointer-events-none absolute inset-y-0 grid place-items-center text-white/60 ${compact() ? "left-2.5 text-[13px]" : "left-3 text-sm"}`}>₹</span>
+              <input
+                name="budget"
+                id={id("budget")}
+                type="number"
+                min="0"
+                step="100000"
+                inputmode="numeric"
+                class={`${input(false)} ${compact() ? "pl-6" : "pl-7"}`}
+                placeholder="e.g. 15000000"
+              />
+            </div>
           </Field>
-          <Field label="Budget max (₹)" for={id("budget_max")} compact={compact()}>
-            <input name="budget_max" id={id("budget_max")} type="number" min="0" step="100000" class={input(false)} placeholder="e.g. 20000000" />
+          <Field label="Property type" for={id("property_type")} compact={compact()}>
+            <select name="property_type" id={id("property_type")} class={input(false)}>
+              <option value="">Any type</option>
+              <For each={PROPERTY_TYPES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
+            </select>
           </Field>
         </div>
 

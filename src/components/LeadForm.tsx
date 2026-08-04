@@ -1,12 +1,18 @@
 import { createSignal, Show, For, onMount } from "solid-js";
 import { submitLead, ApiError } from "~/lib/api";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
-import type { LeadPayload, LeadPurpose } from "~/lib/types";
+import type { LeadPayload, LeadPurpose, LeadPropertyType } from "~/lib/types";
 
 const PURPOSES: { value: LeadPurpose; label: string; hint: string }[] = [
   { value: "investment", label: "Investment", hint: "Yield & appreciation" },
   { value: "end_use", label: "End use", hint: "To live / operate" },
   { value: "both", label: "Both", hint: "Invest & use" },
+];
+
+const PROPERTY_TYPES: { value: LeadPropertyType; label: string }[] = [
+  { value: "residential", label: "Residential" },
+  { value: "commercial", label: "Commercial" },
+  { value: "mixed", label: "Mixed" },
 ];
 
 export default function LeadForm(props: {
@@ -33,11 +39,12 @@ export default function LeadForm(props: {
     const form = e.currentTarget as HTMLFormElement;
     const fd = new FormData(form);
 
-    const numOrUndef = (v: FormDataEntryValue | null) => {
+    // budget is an int64 on the backend — round and omit when blank/unparseable.
+    const intOrUndef = (v: FormDataEntryValue | null) => {
       const s = (v as string)?.trim();
       if (!s) return undefined;
       const n = Number(s);
-      return Number.isFinite(n) ? n : undefined;
+      return Number.isFinite(n) ? Math.round(n) : undefined;
     };
     const strOrUndef = (v: FormDataEntryValue | null) => {
       const s = (v as string)?.trim();
@@ -52,8 +59,8 @@ export default function LeadForm(props: {
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
-      budget_min: numOrUndef(fd.get("budget_min")),
-      budget_max: numOrUndef(fd.get("budget_max")),
+      budget: intOrUndef(fd.get("budget")),
+      property_type: strOrUndef(fd.get("property_type")) as LeadPropertyType | undefined,
       purpose: (purpose() || undefined) as LeadPurpose | undefined,
       configuration_preference: strOrUndef(fd.get("configuration_preference")),
       project_slug: props.projectSlug,
@@ -133,11 +140,26 @@ export default function LeadForm(props: {
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <Field label="Budget min (₹)" name="budget_min">
-            <input name="budget_min" id="budget_min" type="number" min="0" step="100000" class={inputCls(false)} placeholder="e.g. 5000000" />
+          <Field label="Budget (₹)" name="budget" error={errFor("budget")}>
+            <div class="relative">
+              <span class="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-sm text-slate">₹</span>
+              <input
+                name="budget"
+                id="budget"
+                type="number"
+                min="0"
+                step="100000"
+                inputmode="numeric"
+                class={`${inputCls(!!errFor("budget"))} pl-7`}
+                placeholder="e.g. 15000000"
+              />
+            </div>
           </Field>
-          <Field label="Budget max (₹)" name="budget_max">
-            <input name="budget_max" id="budget_max" type="number" min="0" step="100000" class={inputCls(false)} placeholder="e.g. 20000000" />
+          <Field label="Property type" name="property_type" error={errFor("property_type")}>
+            <select name="property_type" id="property_type" class={inputCls(!!errFor("property_type"))}>
+              <option value="">Any property type</option>
+              <For each={PROPERTY_TYPES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
+            </select>
           </Field>
         </div>
 
