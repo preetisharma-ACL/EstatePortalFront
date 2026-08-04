@@ -17,9 +17,9 @@ export default function Footer() {
             </p>
             <p class="mt-6 eyebrow">Stay connected</p>
             <div class="mt-2.5 flex items-center gap-3">
-              <SocialIcon label="Facebook" href="https://www.facebook.com/people/Property-Updates-By-Alok/61572409943458/"><path d="M14 8h3V4h-3c-3.1 0-5 1.9-5 5v3H6v4h3v4h4v-4h3l1-4h-4V9c0-.6.4-1 1-1Z" /></SocialIcon>
-              <SocialIcon label="Instagram" href="https://www.instagram.com/propertyupdatesbyalok/?hl=en"><rect x="4" y="4" width="16" height="16" rx="4" /><circle cx="12" cy="12" r="3.5" /><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none" /></SocialIcon>
-              <SocialIcon label="YouTube" href="https://www.youtube.com/channel/UC3UIZD32SLOr-B67Dhhby0Q"><rect x="3" y="6" width="18" height="12" rx="3.5" /><path d="m11 9.75 3.75 2.25L11 14.25v-4.5Z" fill="currentColor" stroke="none" /></SocialIcon>
+              <SocialIcon label="Facebook" href="https://www.facebook.com/people/Property-Updates-By-Alok/61572409943458/" brand="bg-[#1877F2]" viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z" /></SocialIcon>
+              <SocialIcon label="Instagram" href="https://www.instagram.com/propertyupdatesbyalok/?hl=en" brand="bg-[radial-gradient(circle_at_28%_106%,#fdf497_0%,#fd5949_45%,#d6249f_60%,#285AEB_90%)]" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" /></SocialIcon>
+              <SocialIcon label="YouTube" href="https://www.youtube.com/channel/UC3UIZD32SLOr-B67Dhhby0Q" brand="bg-[#FF0000]" viewBox="0 0 576 512"><path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z" /></SocialIcon>
             </div>
           </div>
 
@@ -93,8 +93,9 @@ function FooterCol(props: { title: string; links: { href: string; label: string 
   );
 }
 
-function SocialIcon(props: { label: string; href: string; children: JSX.Element }) {
-  return <a href={props.href} target="_blank" rel="noopener noreferrer" aria-label={props.label} class="grid h-11 w-11 place-items-center rounded-full border border-navy bg-navy text-white shadow-[0_8px_18px_-10px_rgba(14,27,51,0.85)] transition-all hover:-translate-y-0.5 hover:border-gold hover:bg-gold hover:text-navy-deep"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{props.children}</svg></a>;
+/* Brand glyphs are the official logo paths (Font Awesome Free 6, CC BY 4.0). */
+function SocialIcon(props: { label: string; href: string; brand: string; viewBox: string; children: JSX.Element }) {
+  return <a href={props.href} target="_blank" rel="noopener noreferrer" aria-label={props.label} class={`grid h-11 w-11 place-items-center rounded-full text-white shadow-[0_8px_18px_-10px_rgba(14,27,51,0.85)] transition-all hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_12px_22px_-10px_rgba(14,27,51,0.9)] ${props.brand}`}><svg height="18" viewBox={props.viewBox} fill="currentColor" class="max-w-[18px]" aria-hidden="true">{props.children}</svg></a>;
 }
 
 function MailIcon() { return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>; }
