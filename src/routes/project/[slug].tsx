@@ -31,7 +31,10 @@ export default function ProjectPage() {
     <Show when={project() !== undefined} fallback={<Loading />}>
       <Show when={project()} fallback={<NotFound kind="project" />}>
         {(p) => {
-          const configLabels = () => p().configurations.map((c) => c.sub_type_display);
+          // A project has one configuration row per unit variant, so the same
+          // sub_type ("3 BHK") repeats across towers/carpet areas. The enquiry
+          // dropdown wants the distinct labels only.
+          const configLabels = () => [...new Set(p().configurations.map((c) => c.sub_type_display))];
           const desc = () => p().meta_description || p().description?.slice(0, 160) || "";
           // Hero imagery: prefer backend media (cover first, then gallery order);
           // BannerSlideshow falls back to these local banners when the backend

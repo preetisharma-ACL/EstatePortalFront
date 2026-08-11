@@ -117,6 +117,11 @@ export default function ProjectEnquiryForm(props: {
       compact() ? "px-2.5 py-1.5 text-[13px]" : "px-3 py-2.5 text-sm"
     } ${hasError ? "border-red-400" : "border-white/30"}`;
 
+  // The native option popup is painted white by the OS, so the inherited
+  // `text-white` above made the list unreadable. Options get explicit colours.
+  const select = (hasError: boolean) =>
+    `${input(hasError)} [&>option]:bg-white [&>option]:text-navy`;
+
   // Declared once, arranged differently per layout below.
   const NameField = () => (
     <Field label="Full Name" for={id("name")} compact={compact()} error={errFor("name")}>
@@ -207,7 +212,7 @@ export default function ProjectEnquiryForm(props: {
             </div>
           </Field>
           <Field label="Property type" for={id("property_type")} compact={compact()}>
-            <select name="property_type" id={id("property_type")} class={input(false)}>
+            <select name="property_type" id={id("property_type")} class={select(false)}>
               <option value="">Any type</option>
               <For each={PROPERTY_TYPES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
             </select>
@@ -216,7 +221,7 @@ export default function ProjectEnquiryForm(props: {
 
         <div class={`grid grid-cols-2 ${compact() ? "gap-2.5" : "gap-4"}`}>
           <Field label="Timeline" for={id("timeline")} compact={compact()}>
-            <select name="timeline" id={id("timeline")} class={input(false)}>
+            <select name="timeline" id={id("timeline")} class={select(false)}>
               <option value="">Select timeline</option>
               <For each={TIMELINES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
             </select>
@@ -242,7 +247,7 @@ export default function ProjectEnquiryForm(props: {
               when={props.configurations?.length}
               fallback={<input name="configuration_preference" id={id("configuration_preference")} class={input(false)} placeholder="e.g. 3 BHK" />}
             >
-              <select name="configuration_preference" id={id("configuration_preference")} class={input(false)}>
+              <select name="configuration_preference" id={id("configuration_preference")} class={select(false)}>
                 <option value="">Any configuration</option>
                 <For each={props.configurations}>{(c) => <option value={c}>{c}</option>}</For>
               </select>

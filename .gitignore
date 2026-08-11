@@ -5,3 +5,4 @@ dist
 .solid
 *.log
 .DS_Store
+.env
