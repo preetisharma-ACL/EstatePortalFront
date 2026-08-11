@@ -1,14 +1,7 @@
 import { createSignal, Show, For, onMount } from "solid-js";
 import { submitLead, ApiError } from "~/lib/api";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
-import type { LeadPayload, LeadTimeline, LeadPurpose, LeadPropertyType } from "~/lib/types";
-
-const TIMELINES: { value: LeadTimeline; label: string }[] = [
-  { value: "immediate", label: "Immediately" },
-  { value: "3_6", label: "3–6 months" },
-  { value: "6_12", label: "6–12 months" },
-  { value: "exploring", label: "Just exploring" },
-];
+import type { LeadPayload, LeadPurpose, LeadPropertyType } from "~/lib/types";
 
 const PURPOSES: { value: LeadPurpose; label: string; hint: string }[] = [
   { value: "investment", label: "Investment", hint: "Yield & appreciation" },
@@ -78,13 +71,10 @@ export default function ProjectEnquiryForm(props: {
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
-      email: strOrUndef(fd.get("email")),
       budget: intOrUndef(fd.get("budget")),
       property_type: strOrUndef(fd.get("property_type")) as LeadPropertyType | undefined,
-      timeline: (strOrUndef(fd.get("timeline")) as LeadTimeline) || undefined,
       purpose: (purpose() || undefined) as LeadPurpose | undefined,
       configuration_preference: strOrUndef(fd.get("configuration_preference")),
-      message: strOrUndef(fd.get("message")),
       project_slug: props.projectSlug,
       city_slug: props.citySlug,
       ...getAttribution(),
@@ -122,7 +112,6 @@ export default function ProjectEnquiryForm(props: {
   const select = (hasError: boolean) =>
     `${input(hasError)} [&>option]:bg-white [&>option]:text-navy`;
 
-  // Declared once, arranged differently per layout below.
   const NameField = () => (
     <Field label="Full Name" for={id("name")} compact={compact()} error={errFor("name")}>
       <input name="name" id={id("name")} required class={input(!!errFor("name"))} placeholder="Your name" autocomplete="name" />
@@ -133,11 +122,6 @@ export default function ProjectEnquiryForm(props: {
       <input name="phone" id={id("phone")} required type="tel" inputmode="tel" class={input(!!errFor("phone"))} placeholder={compact() ? "98xxxxxxxx" : "+91 98xxxxxxxx"} autocomplete="tel" />
     </Field>
   );
-  const EmailField = () => (
-    <Field label="Email" for={id("email")} compact={compact()} error={errFor("email")}>
-      <input name="email" id={id("email")} type="email" class={input(!!errFor("email"))} placeholder="you@email.com" autocomplete="email" />
-    </Field>
-  );
 
   return (
     <Show when={!done()} fallback={<ThankYou compact={compact()} />}>
@@ -146,26 +130,11 @@ export default function ProjectEnquiryForm(props: {
           <p class="rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-200">{formError()}</p>
         </Show>
 
-        {/* Compact packs name/phone/email onto one row; the roomier band form
-            keeps email on its own line. */}
-        <Show
-          when={compact()}
-          fallback={
-            <>
-              <div class="grid gap-4 sm:grid-cols-2">
-                <NameField />
-                <PhoneField />
-              </div>
-              <EmailField />
-            </>
-          }
-        >
-          <div class="grid grid-cols-3 gap-2.5">
-            <NameField />
-            <PhoneField />
-            <EmailField />
-          </div>
-        </Show>
+        {/* Name and phone sit two-across; compact just tightens the gutter. */}
+        <div class={`grid grid-cols-2 ${compact() ? "gap-2.5" : "gap-4"}`}>
+          <NameField />
+          <PhoneField />
+        </div>
 
         {/* Purpose */}
         <div>
@@ -193,8 +162,8 @@ export default function ProjectEnquiryForm(props: {
           </div>
         </div>
 
-        {/* Budget/property type and timeline/config stay two-across at every
-            width — these pairs read as one control and the fields are short. */}
+        {/* Budget and property type stay two-across at every width — the pair
+            reads as one control and both fields are short. */}
         <div class={`grid grid-cols-2 ${compact() ? "gap-2.5" : "gap-4"}`}>
           <Field label="Budget (₹)" for={id("budget")} compact={compact()}>
             <div class="relative">
@@ -219,44 +188,18 @@ export default function ProjectEnquiryForm(props: {
           </Field>
         </div>
 
-        <div class={`grid grid-cols-2 ${compact() ? "gap-2.5" : "gap-4"}`}>
-          <Field label="Timeline" for={id("timeline")} compact={compact()}>
-            <select name="timeline" id={id("timeline")} class={select(false)}>
-              <option value="">Select timeline</option>
-              <For each={TIMELINES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
-            </select>
-          </Field>
-          {/* "Configuration preference" wraps to two lines in a half-width
-              column and knocks this select out of line with Timeline, so the
-              label shortens wherever the column is narrow. */}
-          <Field
-            label={
-              compact() ? (
-                "Configuration"
-              ) : (
-                <>
-                  <span class="sm:hidden">Configuration</span>
-                  <span class="hidden sm:inline">Configuration preference</span>
-                </>
-              )
-            }
-            for={id("configuration_preference")}
-            compact={compact()}
+        {/* Now full-width, so the label no longer needs to shorten to stay on
+            one line beside a neighbouring field. */}
+        <Field label="Configuration preference" for={id("configuration_preference")} compact={compact()}>
+          <Show
+            when={props.configurations?.length}
+            fallback={<input name="configuration_preference" id={id("configuration_preference")} class={input(false)} placeholder="e.g. 3 BHK" />}
           >
-            <Show
-              when={props.configurations?.length}
-              fallback={<input name="configuration_preference" id={id("configuration_preference")} class={input(false)} placeholder="e.g. 3 BHK" />}
-            >
-              <select name="configuration_preference" id={id("configuration_preference")} class={select(false)}>
-                <option value="">Any configuration</option>
-                <For each={props.configurations}>{(c) => <option value={c}>{c}</option>}</For>
-              </select>
-            </Show>
-          </Field>
-        </div>
-
-        <Field label="Message" for={id("message")} compact={compact()}>
-          <textarea name="message" id={id("message")} rows={compact() ? "2" : "3"} class={input(false)} placeholder="Anything specific you're looking for?" />
+            <select name="configuration_preference" id={id("configuration_preference")} class={select(false)}>
+              <option value="">Any configuration</option>
+              <For each={props.configurations}>{(c) => <option value={c}>{c}</option>}</For>
+            </select>
+          </Show>
         </Field>
 
         {/* Mandatory DPDP consent */}
@@ -282,7 +225,7 @@ export default function ProjectEnquiryForm(props: {
             compact() ? "w-full px-4 py-2.5 text-xs" : "px-7 py-3.5 text-sm"
           }`}
         >
-          {submitting() ? "Sending…" : props.submitLabel ?? "Send Message"}
+          {submitting() ? "Sending…" : props.submitLabel ?? "Request a callback"}
         </button>
       </form>
     </Show>
