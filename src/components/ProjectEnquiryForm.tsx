@@ -117,7 +117,7 @@ export default function ProjectEnquiryForm(props: {
     } ${hasError ? "border-red-400" : "border-white/30"}`;
 
   const NameField = () => (
-    <Field label="Full Name" for={id("name")} compact={compact()} error={errFor("name")}>
+    <Field label="Full Name" for={id("name")} required compact={compact()} error={errFor("name")}>
       <input name="name" id={id("name")} required class={input(!!errFor("name"))} placeholder="Your name" autocomplete="name" />
     </Field>
   );
