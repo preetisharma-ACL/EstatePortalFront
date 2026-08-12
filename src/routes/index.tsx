@@ -48,7 +48,10 @@ export default function Home() {
       <Link rel="canonical" href="/" />
 
       {/* 1. HERO */}
-      <section class="hero-gradient relative overflow-hidden text-white">
+      {/* No `overflow-hidden` here: the gradient and blueprint overlays are
+          backgrounds that can't bleed, and clipping cropped the search bar's
+          autocomplete panel at the section edge. */}
+      <section class="hero-gradient relative text-white">
         <div class="blueprint pointer-events-none absolute inset-0 opacity-100" aria-hidden="true" />
         <div class="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pt-24">
           <div class="mx-auto max-w-5xl text-center">

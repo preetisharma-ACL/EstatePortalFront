@@ -14,7 +14,6 @@ export default function ContactBand(props: {
   address: string;
   projectSlug?: string;
   citySlug?: string;
-  configurations?: string[];
 }) {
   return (
     <section class="relative isolate overflow-hidden">
@@ -54,7 +53,6 @@ export default function ContactBand(props: {
             class="mt-6"
             projectSlug={props.projectSlug}
             citySlug={props.citySlug}
-            configurations={props.configurations}
           />
         </div>
       </div>

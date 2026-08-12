@@ -1,6 +1,7 @@
 import { For, Show, createMemo, createSignal } from "solid-js";
 import type { Configuration, ProjectDetail } from "~/lib/types";
 import { formatINR, num, indianGroup } from "~/lib/format";
+import BrochureButton from "./BrochureButton";
 
 /**
  * Sizes & Floor Plan — a full-bleed two-column band in the project theme: a
@@ -41,12 +42,6 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
     const n = rows().length;
     if (n) setActive((i) => (i + dir + n) % n);
   };
-
-  // Downloadable plan: a PDF document if present, else the active plan image.
-  const downloadHref = () =>
-    props.project.documents.find((d) => d.doc_type === "floor_plan_pdf")?.file ??
-    planFor(active()) ??
-    null;
 
   return (
     <Show when={rows().length}>
@@ -95,19 +90,9 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
               </table>
             </div>
 
-            <Show when={downloadHref()}>
-              {(href) => (
-                <a
-                  href={href()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="mt-8 inline-flex items-center gap-2 rounded-[var(--radius-btn)] bg-gold px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-navy-deep transition-colors hover:bg-gold-soft"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" /></svg>
-                  Download Floor Plan
-                </a>
-              )}
-            </Show>
+            {/* Lead-gated like every other download on the site — the click
+                opens the enquiry popup instead of linking to a file. */}
+            <BrochureButton class="mt-8" />
           </div>
         </div>
 

@@ -1,30 +1,29 @@
-import { createSignal, Show, For, onMount } from "solid-js";
+import { createSignal, Show, onMount } from "solid-js";
+import { createAsync } from "@solidjs/router";
 import { submitLead, ApiError } from "~/lib/api";
+import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
-import type { LeadPayload, LeadPurpose, LeadPropertyType } from "~/lib/types";
+import type { LeadPayload } from "~/lib/types";
 
-const PURPOSES: { value: LeadPurpose; label: string; hint: string }[] = [
-  { value: "investment", label: "Investment", hint: "Yield & appreciation" },
-  { value: "end_use", label: "End use", hint: "To live / operate" },
-  { value: "both", label: "Both", hint: "Invest & use" },
-];
+// First page of /cities/ backs the typed-city -> slug lookup on submit.
+const CITY_PARAMS = { page: 1 } as const;
 
-const PROPERTY_TYPES: { value: LeadPropertyType; label: string }[] = [
-  { value: "residential", label: "Residential" },
-  { value: "commercial", label: "Commercial" },
-  { value: "mixed", label: "Mixed" },
-];
+/** Lowercase, collapse punctuation/whitespace — "New  Delhi!" -> "new-delhi". */
+const normalizeCity = (s: string) =>
+  s.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /**
  * The project enquiry fieldset, styled on-image (transparent inputs, white text).
  * Rendered both in the contact band and in the hero banner, so every field id is
  * namespaced by `idPrefix` — two instances share a page and duplicate ids would
  * point each label at the wrong input.
+ *
+ * Deliberately short: name, phone and city only. Everything else the backend
+ * accepts on a lead is optional, and a three-field form converts better.
  */
 export default function ProjectEnquiryForm(props: {
   projectSlug?: string;
   citySlug?: string;
-  configurations?: string[];
   /** Unique per instance on a page. */
   idPrefix: string;
   /** Tightens spacing and type for the narrow banner card. */
@@ -34,9 +33,27 @@ export default function ProjectEnquiryForm(props: {
 }) {
   const [submitting, setSubmitting] = createSignal(false);
   const [done, setDone] = createSignal(false);
-  const [purpose, setPurpose] = createSignal<LeadPurpose | "">("investment");
   const [formError, setFormError] = createSignal<string | null>(null);
   const [fieldErrors, setFieldErrors] = createSignal<Record<string, string>>({});
+
+  const cities = createAsync(() => citiesQuery(CITY_PARAMS));
+
+  /**
+   * The lead endpoint stores a city *slug* tied to a real city record — there
+   * is no free-text city field on it. So whatever is typed gets matched back to
+   * a known city; anything unrecognised is carried in `message` instead of
+   * being silently dropped.
+   */
+  const resolveCity = (typed: string | undefined) => {
+    if (!typed) return { city_slug: props.citySlug, message: undefined };
+    const key = normalizeCity(typed);
+    const hit = (cities()?.results ?? []).find(
+      (c) => c.slug === key || normalizeCity(c.name) === key,
+    );
+    return hit
+      ? { city_slug: hit.slug, message: undefined }
+      : { city_slug: props.citySlug, message: `City entered by user: ${typed}` };
+  };
 
   onMount(() => captureAttribution());
 
@@ -51,13 +68,6 @@ export default function ProjectEnquiryForm(props: {
     const form = e.currentTarget as HTMLFormElement;
     const fd = new FormData(form);
 
-    // budget is an int64 on the backend — round and omit when blank/unparseable.
-    const intOrUndef = (v: FormDataEntryValue | null) => {
-      const s = (v as string)?.trim();
-      if (!s) return undefined;
-      const n = Number(s);
-      return Number.isFinite(n) ? Math.round(n) : undefined;
-    };
     const strOrUndef = (v: FormDataEntryValue | null) => {
       const s = (v as string)?.trim();
       return s ? s : undefined;
@@ -68,15 +78,14 @@ export default function ProjectEnquiryForm(props: {
       return;
     }
 
+    const city = resolveCity(strOrUndef(fd.get("city")));
+
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
-      budget: intOrUndef(fd.get("budget")),
-      property_type: strOrUndef(fd.get("property_type")) as LeadPropertyType | undefined,
-      purpose: (purpose() || undefined) as LeadPurpose | undefined,
-      configuration_preference: strOrUndef(fd.get("configuration_preference")),
       project_slug: props.projectSlug,
-      city_slug: props.citySlug,
+      city_slug: city.city_slug,
+      message: city.message,
       ...getAttribution(),
       consent_given: true,
     };
@@ -107,19 +116,14 @@ export default function ProjectEnquiryForm(props: {
       compact() ? "px-2.5 py-1.5 text-[13px]" : "px-3 py-2.5 text-sm"
     } ${hasError ? "border-red-400" : "border-white/30"}`;
 
-  // The native option popup is painted white by the OS, so the inherited
-  // `text-white` above made the list unreadable. Options get explicit colours.
-  const select = (hasError: boolean) =>
-    `${input(hasError)} [&>option]:bg-white [&>option]:text-navy`;
-
   const NameField = () => (
     <Field label="Full Name" for={id("name")} compact={compact()} error={errFor("name")}>
       <input name="name" id={id("name")} required class={input(!!errFor("name"))} placeholder="Your name" autocomplete="name" />
     </Field>
   );
   const PhoneField = () => (
-    <Field label="Phone" for={id("phone")} required compact={compact()} error={errFor("phone")}>
-      <input name="phone" id={id("phone")} required type="tel" inputmode="tel" class={input(!!errFor("phone"))} placeholder={compact() ? "98xxxxxxxx" : "+91 98xxxxxxxx"} autocomplete="tel" />
+    <Field label="Mobile Number" for={id("phone")} required compact={compact()} error={errFor("phone")}>
+      <input name="phone" id={id("phone")} required type="tel" inputmode="tel" class={input(!!errFor("phone"))} placeholder="+91 98xxxxxxxx" autocomplete="tel" />
     </Field>
   );
 
@@ -130,76 +134,21 @@ export default function ProjectEnquiryForm(props: {
           <p class="rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-200">{formError()}</p>
         </Show>
 
-        {/* Name and phone sit two-across; compact just tightens the gutter. */}
-        <div class={`grid grid-cols-2 ${compact() ? "gap-2.5" : "gap-4"}`}>
-          <NameField />
-          <PhoneField />
-        </div>
+        {/* One field per row — the form is short enough that stacking reads
+            cleaner than pairing, and it keeps every control full-width. */}
+        <NameField />
+        <PhoneField />
 
-        {/* Purpose */}
-        <div>
-          <label class={`mb-1.5 block font-medium text-white/85 ${compact() ? "text-xs" : "text-sm"}`}>Purpose</label>
-          <div class="grid grid-cols-3 gap-2">
-            <For each={PURPOSES}>
-              {(pp) => (
-                <button
-                  type="button"
-                  onClick={() => setPurpose(pp.value)}
-                  aria-pressed={purpose() === pp.value}
-                  class={`rounded-[8px] border text-left transition-colors ${compact() ? "px-2 py-1.5" : "px-3 py-2.5"} ${
-                    purpose() === pp.value
-                      ? "border-gold bg-gold/15"
-                      : "border-white/30 bg-white/5 hover:border-gold-soft"
-                  }`}
-                >
-                  <span class={`block font-semibold text-white ${compact() ? "text-[11px] leading-tight" : "text-sm"}`}>{pp.label}</span>
-                  <Show when={!compact()}>
-                    <span class="block text-xs text-white/60">{pp.hint}</span>
-                  </Show>
-                </button>
-              )}
-            </For>
-          </div>
-        </div>
-
-        {/* Budget and property type stay two-across at every width — the pair
-            reads as one control and both fields are short. */}
-        <div class={`grid grid-cols-2 ${compact() ? "gap-2.5" : "gap-4"}`}>
-          <Field label="Budget (₹)" for={id("budget")} compact={compact()}>
-            <div class="relative">
-              <span class={`pointer-events-none absolute inset-y-0 grid place-items-center text-white/60 ${compact() ? "left-2.5 text-[13px]" : "left-3 text-sm"}`}>₹</span>
-              <input
-                name="budget"
-                id={id("budget")}
-                type="number"
-                min="0"
-                step="100000"
-                inputmode="numeric"
-                class={`${input(false)} ${compact() ? "pl-6" : "pl-7"}`}
-                placeholder="e.g. 15000000"
-              />
-            </div>
-          </Field>
-          <Field label="Property type" for={id("property_type")} compact={compact()}>
-            <select name="property_type" id={id("property_type")} class={select(false)}>
-              <option value="">Any type</option>
-              <For each={PROPERTY_TYPES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
-            </select>
-          </Field>
-        </div>
-
-        {/* Now full-width, so the label no longer needs to shorten to stay on
-            one line beside a neighbouring field. */}
-        <Field label="Configuration preference" for={id("configuration_preference")} compact={compact()}>
-          <Show
-            when={props.configurations?.length}
-            fallback={<input name="configuration_preference" id={id("configuration_preference")} class={input(false)} placeholder="e.g. 3 BHK" />}
-          >
-            <select name="configuration_preference" id={id("configuration_preference")} class={select(false)}>
-              <option value="">Any configuration</option>
-              <For each={props.configurations}>{(c) => <option value={c}>{c}</option>}</For>
-            </select>
-          </Show>
+        {/* Plain free text — no suggestion list. What's typed is matched to a
+            city record on submit (see resolveCity). */}
+        <Field label="City" for={id("city")} compact={compact()} error={errFor("city_slug")}>
+          <input
+            name="city"
+            id={id("city")}
+            class={input(!!errFor("city_slug"))}
+            placeholder="Your city"
+            autocomplete="address-level2"
+          />
         </Field>
 
         {/* Mandatory DPDP consent */}

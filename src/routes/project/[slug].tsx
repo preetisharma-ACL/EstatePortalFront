@@ -31,11 +31,7 @@ export default function ProjectPage() {
     <Show when={project() !== undefined} fallback={<Loading />}>
       <Show when={project()} fallback={<NotFound kind="project" />}>
         {(p) => {
-          // A project has one configuration row per unit variant, so the same
-          // sub_type ("3 BHK") repeats across towers/carpet areas. The enquiry
-          // dropdown wants the distinct labels only.
-          const configLabels = () => [...new Set(p().configurations.map((c) => c.sub_type_display))];
-          const desc = () => p().meta_description || p().description?.slice(0, 160) || "";
+          const desc =() => p().meta_description || p().description?.slice(0, 160) || "";
           // Hero imagery: prefer backend media (cover first, then gallery order);
           // BannerSlideshow falls back to these local banners when the backend
           // has no images — or only unusable placeholders (see MIN_HERO_WIDTH).
@@ -240,7 +236,6 @@ export default function ProjectPage() {
                     submitLabel="Request a callback"
                     projectSlug={p().slug}
                     citySlug={p().location.city_slug}
-                    configurations={configLabels()}
                   />
                 </aside>
                 </div>
@@ -287,7 +282,6 @@ export default function ProjectPage() {
                   submitLabel="Request a callback"
                   projectSlug={p().slug}
                   citySlug={p().location.city_slug}
-                  configurations={configLabels()}
                 />
               </div>
             </section>
@@ -534,7 +528,6 @@ export default function ProjectPage() {
                 address={p().address || `${p().location.locality}, ${p().location.city}`}
                 projectSlug={p().slug}
                 citySlug={p().location.city_slug}
-                configurations={configLabels()}
               />
             </div>
           </>
