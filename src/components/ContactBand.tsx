@@ -14,6 +14,10 @@ export default function ContactBand(props: {
   address: string;
   projectSlug?: string;
   citySlug?: string;
+  /** Overrides the form heading — a township band isn't about one project. */
+  heading?: string;
+  /** Passed through to the lead's `message` (see ProjectEnquiryForm). */
+  contextNote?: string;
 }) {
   return (
     <section class="relative isolate overflow-hidden">
@@ -43,7 +47,9 @@ export default function ContactBand(props: {
 
         {/* Project enquiry form — full fieldset, on-image styling */}
         <div>
-          <h3 class="font-display text-3xl font-semibold text-gold">Enquire about this project</h3>
+          <h3 class="font-display text-3xl font-semibold text-gold">
+            {props.heading ?? "Enquire about this project"}
+          </h3>
           <p class="mt-1.5 text-sm text-white/70">
             Get verified pricing, the brochure and an assisted site visit.
           </p>
@@ -53,6 +59,7 @@ export default function ContactBand(props: {
             class="mt-6"
             projectSlug={props.projectSlug}
             citySlug={props.citySlug}
+            contextNote={props.contextNote}
           />
         </div>
       </div>

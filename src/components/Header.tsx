@@ -1,6 +1,7 @@
 import { A, useLocation } from "@solidjs/router";
-import { Show, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
 import { openLeadModal } from "~/lib/leadModal";
+import { townshipList } from "~/lib/townships";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -10,14 +11,45 @@ const NAV = [
   { href: "/search", label: "All Properties" },
 ];
 
+// Township pages are content-registry driven, so the nav lists whatever is
+// published — a new entry in src/lib/townships.ts appears here with no edit.
+const TOWNSHIPS = townshipList();
+
 export default function Header() {
   const location = useLocation();
   const [open, setOpen] = createSignal(false);
+  const [townshipsOpen, setTownshipsOpen] = createSignal(false);
   const isActive = (href: string) =>
     location.pathname === href.split("?")[0] &&
     (href.includes("?")
       ? location.search.includes(href.split("?")[1])
       : location.pathname === href);
+  const onTownshipPage = () => location.pathname.startsWith("/township/");
+
+  // Close both menus on navigation — the sticky header survives route changes,
+  // so an open panel would otherwise persist onto the new page.
+  createEffect(() => {
+    location.pathname;
+    setTownshipsOpen(false);
+    setOpen(false);
+  });
+
+  // Dismiss the desktop dropdown on outside click / Escape.
+  createEffect(() => {
+    if (!townshipsOpen()) return;
+    const onDown = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest("[data-townships-menu]")) setTownshipsOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setTownshipsOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    onCleanup(() => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    });
+  });
 
   return (
     <header class="sticky top-0 z-50 border-b border-line bg-card/80 backdrop-blur-md">
@@ -36,6 +68,64 @@ export default function Header() {
               {item.label}
             </A>
           ))}
+
+          {/* Townships — a dropdown rather than a nav link, since there is no
+              township index page: the menu itself is the index. */}
+          <Show when={TOWNSHIPS.length}>
+            <div class="relative" data-townships-menu>
+              <button
+                type="button"
+                class="nav-link flex items-center gap-1.5 text-sm font-medium text-navy/85 transition-colors hover:text-navy"
+                aria-expanded={townshipsOpen()}
+                aria-haspopup="true"
+                onClick={() => setTownshipsOpen((v) => !v)}
+                {...(onTownshipPage() ? { "data-active": "" } : {})}
+              >
+                Townships
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="shrink-0 transition-transform duration-200"
+                  classList={{ "rotate-180": townshipsOpen() }}
+                  aria-hidden="true"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+
+              <Show when={townshipsOpen()}>
+                <div class="absolute left-1/2 top-full z-50 mt-3 w-64 -translate-x-1/2 overflow-hidden rounded-[12px] border border-line bg-card shadow-[0_24px_50px_-24px_rgba(14,27,51,0.45)]">
+                  <p class="border-b border-line bg-paper px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">
+                    Integrated townships
+                  </p>
+                  <ul>
+                    <For each={TOWNSHIPS}>
+                      {(t) => (
+                        <li>
+                          <A
+                            href={`/township/${t.slug}`}
+                            class="block border-b border-line px-4 py-3 transition-colors last:border-b-0 hover:bg-paper"
+                            onClick={() => setTownshipsOpen(false)}
+                          >
+                            <span class="block text-sm font-semibold text-navy">{t.name}</span>
+                            <span class="mt-0.5 block text-xs text-slate">
+                              {t.tagline}, {t.cityName}
+                            </span>
+                          </A>
+                        </li>
+                      )}
+                    </For>
+                  </ul>
+                </div>
+              </Show>
+            </div>
+          </Show>
         </nav>
 
         <div class="hidden items-center gap-3 md:flex">
@@ -83,6 +173,32 @@ export default function Header() {
                 </A>
               </li>
             ))}
+            {/* Townships listed inline rather than behind an accordion — three
+                entries don't justify an extra tap. */}
+            <Show when={TOWNSHIPS.length}>
+              <li class="mt-2 border-t border-line pt-2">
+                <p class="px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">
+                  Townships
+                </p>
+                <ul>
+                  <For each={TOWNSHIPS}>
+                    {(t) => (
+                      <li>
+                        <A
+                          href={`/township/${t.slug}`}
+                          class="block rounded-md px-2 py-2 text-sm font-medium text-navy hover:bg-paper"
+                          onClick={() => setOpen(false)}
+                        >
+                          {t.name}
+                          <span class="ml-1.5 text-xs font-normal text-slate">{t.cityName}</span>
+                        </A>
+                      </li>
+                    )}
+                  </For>
+                </ul>
+              </li>
+            </Show>
+
             <li class="mt-2">
               <button
                 type="button"

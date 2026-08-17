@@ -4,6 +4,7 @@ import { For, Show } from "solid-js";
 import SearchBar from "~/components/SearchBar";
 import FeaturedRail from "~/components/FeaturedRail";
 import CityCarousel from "~/components/CityCarousel";
+import TownshipSection from "~/components/TownshipSection";
 import ReraSeal from "~/components/ReraSeal";
 import LeadForm from "~/components/LeadForm";
 import { priceRange } from "~/lib/format";
@@ -108,7 +109,10 @@ export default function Home() {
       {/* 3. FEATURED PROJECTS */}
       <FeaturedRail projects={featured()?.results ?? null} />
 
-      {/* 4. PREMIUM & INVESTOR COLLECTION */}
+      {/* 4. EXPLORE BY TOWNSHIP — content-driven, no fetch. */}
+      <TownshipSection />
+
+      {/* 5. PREMIUM & INVESTOR COLLECTION */}
       <section class="relative overflow-hidden border-y border-line bg-[#f8f5f2] py-14 sm:py-16">
         <div
           class="pointer-events-none absolute inset-0 bg-right-bottom bg-no-repeat opacity-80"
@@ -183,7 +187,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. TRUST BAND */}
+      {/* 6. TRUST BAND */}
       <section id="trust" class="relative isolate overflow-hidden bg-navy py-16 text-white">
         {/* Fixed parallax background image */}
         <div
@@ -219,7 +223,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. EXPLORE BY CITY */}
+      {/* 7. EXPLORE BY CITY */}
       <Show when={cities()} fallback={<div class="mx-auto max-w-7xl px-4 py-14 sm:px-6"><GridSkeleton /></div>}>
         <CityCarousel cities={cities()!.results} />
       </Show>

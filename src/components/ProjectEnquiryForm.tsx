@@ -24,6 +24,13 @@ const normalizeCity = (s: string) =>
 export default function ProjectEnquiryForm(props: {
   projectSlug?: string;
   citySlug?: string;
+  /**
+   * Free-text note prepended to the lead's `message`, e.g. the township a
+   * landing page is about. The lead schema has no field for that context, and
+   * `landing_page` only records the session's FIRST page — so without this a
+   * township enquiry is indistinguishable from a plain city enquiry.
+   */
+  contextNote?: string;
   /** Unique per instance on a page. */
   idPrefix: string;
   /** Tightens spacing and type for the narrow banner card. */
@@ -79,13 +86,17 @@ export default function ProjectEnquiryForm(props: {
     }
 
     const city = resolveCity(strOrUndef(fd.get("city")));
+    // One message field carries both notes, so an unrecognised city never
+    // silently displaces the page context (or vice versa).
+    const message =
+      [props.contextNote, city.message].filter(Boolean).join(" · ") || undefined;
 
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
       project_slug: props.projectSlug,
       city_slug: city.city_slug,
-      message: city.message,
+      message,
       ...getAttribution(),
       consent_given: true,
     };
