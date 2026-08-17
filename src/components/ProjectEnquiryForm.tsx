@@ -3,14 +3,11 @@ import { createAsync } from "@solidjs/router";
 import { submitLead, ApiError } from "~/lib/api";
 import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
+import { resolveCity } from "~/lib/leadCity";
 import type { LeadPayload } from "~/lib/types";
 
 // First page of /cities/ backs the typed-city -> slug lookup on submit.
 const CITY_PARAMS = { page: 1 } as const;
-
-/** Lowercase, collapse punctuation/whitespace — "New  Delhi!" -> "new-delhi". */
-const normalizeCity = (s: string) =>
-  s.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /**
  * The project enquiry fieldset, styled on-image (transparent inputs, white text).
@@ -45,23 +42,6 @@ export default function ProjectEnquiryForm(props: {
 
   const cities = createAsync(() => citiesQuery(CITY_PARAMS));
 
-  /**
-   * The lead endpoint stores a city *slug* tied to a real city record — there
-   * is no free-text city field on it. So whatever is typed gets matched back to
-   * a known city; anything unrecognised is carried in `message` instead of
-   * being silently dropped.
-   */
-  const resolveCity = (typed: string | undefined) => {
-    if (!typed) return { city_slug: props.citySlug, message: undefined };
-    const key = normalizeCity(typed);
-    const hit = (cities()?.results ?? []).find(
-      (c) => c.slug === key || normalizeCity(c.name) === key,
-    );
-    return hit
-      ? { city_slug: hit.slug, message: undefined }
-      : { city_slug: props.citySlug, message: `City entered by user: ${typed}` };
-  };
-
   onMount(() => captureAttribution());
 
   const errFor = (name: string) => fieldErrors()[name];
@@ -85,7 +65,7 @@ export default function ProjectEnquiryForm(props: {
       return;
     }
 
-    const city = resolveCity(strOrUndef(fd.get("city")));
+    const city = resolveCity(strOrUndef(fd.get("city")), cities()?.results ?? [], props.citySlug);
     // One message field carries both notes, so an unrecognised city never
     // silently displaces the page context (or vice versa).
     const message =

@@ -1,32 +1,34 @@
-import { createSignal, Show, For, onMount } from "solid-js";
+import { createSignal, Show, onMount } from "solid-js";
+import { createAsync } from "@solidjs/router";
 import { submitLead, ApiError } from "~/lib/api";
+import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
-import type { LeadPayload, LeadPurpose, LeadPropertyType } from "~/lib/types";
+import { resolveCity } from "~/lib/leadCity";
+import type { LeadPayload } from "~/lib/types";
 
-const PURPOSES: { value: LeadPurpose; label: string; hint: string }[] = [
-  { value: "investment", label: "Investment", hint: "Yield & appreciation" },
-  { value: "end_use", label: "End use", hint: "To live / operate" },
-  { value: "both", label: "Both", hint: "Invest & use" },
-];
+// First page of /cities/ backs the typed-city -> slug lookup on submit.
+const CITY_PARAMS = { page: 1 } as const;
 
-const PROPERTY_TYPES: { value: LeadPropertyType; label: string }[] = [
-  { value: "residential", label: "Residential" },
-  { value: "commercial", label: "Commercial" },
-  { value: "mixed", label: "Mixed" },
-];
-
+/**
+ * The site-wide lead form (popup, home page, developer and why-us pages).
+ *
+ * Deliberately short: name, mobile number and city only. Everything else the
+ * backend accepts on a lead is optional, and a three-field form converts better.
+ * Matches ProjectEnquiryForm field-for-field — that one is the on-image variant
+ * used inside dark hero banners.
+ */
 export default function LeadForm(props: {
   projectSlug?: string;
   citySlug?: string;
-  configurations?: string[];
   heading?: string;
   subheading?: string;
 }) {
   const [submitting, setSubmitting] = createSignal(false);
   const [done, setDone] = createSignal(false);
-  const [purpose, setPurpose] = createSignal<LeadPurpose | "">("investment");
   const [formError, setFormError] = createSignal<string | null>(null);
   const [fieldErrors, setFieldErrors] = createSignal<Record<string, string>>({});
+
+  const cities = createAsync(() => citiesQuery(CITY_PARAMS));
 
   onMount(() => captureAttribution());
 
@@ -39,13 +41,6 @@ export default function LeadForm(props: {
     const form = e.currentTarget as HTMLFormElement;
     const fd = new FormData(form);
 
-    // budget is an int64 on the backend — round and omit when blank/unparseable.
-    const intOrUndef = (v: FormDataEntryValue | null) => {
-      const s = (v as string)?.trim();
-      if (!s) return undefined;
-      const n = Number(s);
-      return Number.isFinite(n) ? Math.round(n) : undefined;
-    };
     const strOrUndef = (v: FormDataEntryValue | null) => {
       const s = (v as string)?.trim();
       return s ? s : undefined;
@@ -56,15 +51,14 @@ export default function LeadForm(props: {
       return;
     }
 
+    const city = resolveCity(strOrUndef(fd.get("city")), cities()?.results ?? [], props.citySlug);
+
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
-      budget: intOrUndef(fd.get("budget")),
-      property_type: strOrUndef(fd.get("property_type")) as LeadPropertyType | undefined,
-      purpose: (purpose() || undefined) as LeadPurpose | undefined,
-      configuration_preference: strOrUndef(fd.get("configuration_preference")),
       project_slug: props.projectSlug,
-      city_slug: props.citySlug,
+      city_slug: city.city_slug,
+      message: city.message,
       ...getAttribution(),
       consent_given: true,
     };
@@ -107,72 +101,20 @@ export default function LeadForm(props: {
         </Show>
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <Field label="Full name" name="name" error={errFor("name")}>
+          <Field label="Full Name" name="name" required error={errFor("name")}>
             <input name="name" id="name" required class={inputCls(!!errFor("name"))} placeholder="Your name" autocomplete="name" />
           </Field>
-          <Field label="Phone" name="phone" required error={errFor("phone")}>
-            <input name="phone" id="phone" required type="tel" inputmode="tel" class={inputCls(!!errFor("phone"))} placeholder="+91 98xxxxxxxx" autocomplete="tel" />
+          {/* Capped at 10 digits (Indian mobile) — the placeholder drops the
+              +91 prefix to match, since a prefixed number would truncate. */}
+          <Field label="Mobile Number" name="phone" required error={errFor("phone")}>
+            <input name="phone" id="phone" required type="tel" inputmode="tel" maxlength="10" class={inputCls(!!errFor("phone"))} placeholder="98xxxxxxxx" autocomplete="tel" />
           </Field>
         </div>
 
-        {/* Purpose — surfaced prominently for the investor audience */}
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-navy">Purpose</label>
-          <div class="grid grid-cols-3 gap-2">
-            <For each={PURPOSES}>
-              {(p) => (
-                <button
-                  type="button"
-                  onClick={() => setPurpose(p.value)}
-                  aria-pressed={purpose() === p.value}
-                  class={`rounded-[8px] border px-3 py-2.5 text-left transition-colors ${
-                    purpose() === p.value
-                      ? "border-gold bg-gold/10"
-                      : "border-line bg-card hover:border-gold-soft"
-                  }`}
-                >
-                  <span class="block text-sm font-semibold text-navy">{p.label}</span>
-                  <span class="block text-xs text-slate">{p.hint}</span>
-                </button>
-              )}
-            </For>
-          </div>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-          <Field label="Budget (₹)" name="budget" error={errFor("budget")}>
-            <div class="relative">
-              <span class="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-sm text-slate">₹</span>
-              <input
-                name="budget"
-                id="budget"
-                type="number"
-                min="0"
-                step="100000"
-                inputmode="numeric"
-                class={`${inputCls(!!errFor("budget"))} pl-7`}
-                placeholder="e.g. 15000000"
-              />
-            </div>
-          </Field>
-          <Field label="Property type" name="property_type" error={errFor("property_type")}>
-            <select name="property_type" id="property_type" class={inputCls(!!errFor("property_type"))}>
-              <option value="">Any property type</option>
-              <For each={PROPERTY_TYPES}>{(t) => <option value={t.value}>{t.label}</option>}</For>
-            </select>
-          </Field>
-        </div>
-
-        <Field label="Configuration preference" name="configuration_preference">
-          <Show
-            when={props.configurations?.length}
-            fallback={<input name="configuration_preference" id="configuration_preference" class={inputCls(false)} placeholder="e.g. 3 BHK" />}
-          >
-            <select name="configuration_preference" id="configuration_preference" class={inputCls(false)}>
-              <option value="">Any configuration</option>
-              <For each={props.configurations}>{(c) => <option value={c}>{c}</option>}</For>
-            </select>
-          </Show>
+        {/* Plain free text — no suggestion list. What's typed is matched to a
+            city record on submit (see resolveCity). */}
+        <Field label="City" name="city" error={errFor("city_slug")}>
+          <input name="city" id="city" class={inputCls(!!errFor("city_slug"))} placeholder="Your city" autocomplete="address-level2" />
         </Field>
 
         {/* Mandatory DPDP consent */}
