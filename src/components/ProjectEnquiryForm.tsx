@@ -134,7 +134,9 @@ export default function ProjectEnquiryForm(props: {
   );
   const PhoneField = () => (
     <Field label="Mobile Number" for={id("phone")} required compact={compact()} error={errFor("phone")}>
-      <input name="phone" id={id("phone")} required type="tel" inputmode="tel" class={input(!!errFor("phone"))} placeholder="+91 98xxxxxxxx" autocomplete="tel" />
+      {/* Capped at 10 digits (Indian mobile). The placeholder drops the +91
+          prefix to match — a prefixed number would silently truncate. */}
+      <input name="phone" id={id("phone")} required type="tel" inputmode="tel" maxlength="10" class={input(!!errFor("phone"))} placeholder="98xxxxxxxx" autocomplete="tel" />
     </Field>
   );
 
