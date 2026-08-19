@@ -24,6 +24,13 @@ export default function BannerSlideshow(props: {
   fallback: string[];
   /** ms each slide stays before dissolving to the next (default 5500). */
   interval?: number;
+  /**
+   * CSS object-position for the crop, e.g. "top" — for images whose subject
+   * isn't centred (a tall composition in a wide hero). Also drives
+   * transform-origin, so the Ken Burns zoom grows away from the anchored edge
+   * instead of drifting the chosen framing out of view. Default: centre.
+   */
+  objectPosition?: string;
 }) {
   const [useFallback, setUseFallback] = createSignal(false);
   const sources = createMemo(() =>
@@ -71,6 +78,11 @@ export default function BannerSlideshow(props: {
             loading={i() === 0 ? "eager" : "lazy"}
             class="hero-slide absolute inset-0 h-full w-full object-cover"
             classList={{ "is-active": i() === active() }}
+            style={
+              props.objectPosition
+                ? `object-position:${props.objectPosition};transform-origin:${props.objectPosition};`
+                : undefined
+            }
           />
         )}
       </For>

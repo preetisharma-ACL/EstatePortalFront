@@ -7,6 +7,7 @@ import BannerSlideshow from "~/components/BannerSlideshow";
 import ContactBand from "~/components/ContactBand";
 import NotFound from "~/components/NotFound";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
+import ProjectStrip from "~/components/ProjectStrip";
 import ResultsGrid from "~/components/ResultsGrid";
 import { filtersFromParams } from "~/lib/filters";
 import { projectsQuery } from "~/lib/queries";
@@ -32,12 +33,39 @@ const townshipFilters = (
 ): ProjectFilters =>
   filtersFromParams(query, { search: searchTerm, page_size: PAGE_SIZE });
 
+/** How many cards each curated strip shows — one full row on the 3-up grid. */
+const STRIP_SIZE = 3;
+
+/**
+ * Handover approaching: under-construction only, soonest possession first.
+ * Ready-to-move and completed projects are excluded — they have possession
+ * dates in the past, so they'd otherwise monopolise an ascending sort while
+ * being the one thing that is *not* "close to possession".
+ */
+const possessionFilters = (searchTerm: string): ProjectFilters => ({
+  search: searchTerm,
+  status: "under_construction",
+  ordering: "possession_date",
+  page_size: STRIP_SIZE,
+});
+
+/** Newest prelaunch inventory first. */
+const launchFilters = (searchTerm: string): ProjectFilters => ({
+  search: searchTerm,
+  status: "prelaunch",
+  ordering: "-created_at",
+  page_size: STRIP_SIZE,
+});
+
 export const route = {
   preload: ({ params, location }) => {
     // The township comes from a local registry (synchronous), so only the
-    // project listing needs preloading.
+    // project queries need preloading.
     const t = getTownship(params.slug!);
-    if (t) void projectsQuery(townshipFilters(t.searchTerm, location.query as Record<string, string>));
+    if (!t) return;
+    void projectsQuery(townshipFilters(t.searchTerm, location.query as Record<string, string>));
+    void projectsQuery(possessionFilters(t.searchTerm));
+    void projectsQuery(launchFilters(t.searchTerm));
   },
 } satisfies RouteDefinition;
 
@@ -56,6 +84,12 @@ export default function TownshipPage() {
   );
   const data = createAsync(() =>
     township() ? projectsQuery(filters()) : Promise.resolve(undefined),
+  );
+  const nearPossession = createAsync(() =>
+    township() ? projectsQuery(possessionFilters(township()!.searchTerm)) : Promise.resolve(undefined),
+  );
+  const newLaunches = createAsync(() =>
+    township() ? projectsQuery(launchFilters(township()!.searchTerm)) : Promise.resolve(undefined),
   );
 
   const setParam = (key: string, value: string | number | undefined) => {
@@ -89,23 +123,29 @@ export default function TownshipPage() {
                 Hero — township imagery, headline facts, and the enquiry card.
             ---------------------------------------------------------------- */}
             <section class="relative isolate overflow-hidden bg-navy-deep">
-              <BannerSlideshow images={t().heroImages} fallback={LOCAL_BANNERS} />
-              {/* Two scrims: a vertical one for the page transition, and a
-                  left-to-right one so the copy column stays legible over busy
-                  aerial photography. */}
-              <div
-                class="absolute inset-0"
-                aria-hidden="true"
-                style="background:linear-gradient(180deg,rgba(14,27,51,0.74) 0%,rgba(14,27,51,0.34) 34%,rgba(14,27,51,0.68) 74%,rgba(14,27,51,0.95) 100%);"
+              <BannerSlideshow
+                images={t().heroImages}
+                fallback={LOCAL_BANNERS}
+                objectPosition={t().heroPosition}
               />
+              {/* A single vertical scrim — no left-to-right wash, which greyed
+                  one half of the banner and left the other unreadable. These
+                  photos are mostly bright sky, so it carries real weight even at
+                  its lightest point (mid-frame, behind the enquiry card) and
+                  ramps up sharply at the base under the title and CTAs. */}
               <div
                 class="absolute inset-0"
                 aria-hidden="true"
-                style="background:linear-gradient(90deg,rgba(14,27,51,0.86) 0%,rgba(14,27,51,0.58) 44%,rgba(14,27,51,0.1) 84%,rgba(14,27,51,0) 100%);"
+                style="background:linear-gradient(180deg,rgba(14,27,51,0.58) 0%,rgba(14,27,51,0.46) 26%,rgba(14,27,51,0.56) 62%,rgba(14,27,51,0.82) 88%,rgba(14,27,51,0.93) 100%);"
               />
 
               <div class="relative mx-auto flex min-h-[520px] max-w-7xl flex-col px-4 pb-10 pt-6 text-white sm:min-h-[560px] sm:px-6">
-                <nav class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/60" aria-label="Breadcrumb">
+                {/* No scrim up here any more, so the breadcrumb carries its own
+                    shadow to stay readable against bright sky. */}
+                <nav
+                  class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/80 [text-shadow:0_1px_4px_rgba(14,27,51,0.75)]"
+                  aria-label="Breadcrumb"
+                >
                   <A href="/" class="transition-colors hover:text-gold-soft">Home</A>
                   <span class="text-white/30">/</span>
                   <A href={`/${t().citySlug}`} class="transition-colors hover:text-gold-soft">{t().cityName}</A>
@@ -176,7 +216,7 @@ export default function TownshipPage() {
                   {/* Glass enquiry card. Hidden below lg — the copy below the
                       hero serves narrow screens, and two stacked copies of the
                       same form would be noise. */}
-                  <aside class="hidden rounded-[14px] border border-white/20 bg-white/[0.07] p-5 shadow-[0_8px_32px_rgba(14,27,51,0.37)] backdrop-blur-xl lg:block">
+                  <aside class="hidden rounded-[14px] border border-white/25 bg-navy-deep/55 p-5 shadow-[0_8px_32px_rgba(14,27,51,0.45)] backdrop-blur-xl lg:block">
                     <h2 class="font-display text-lg font-semibold leading-tight text-white">
                       Enquire about {t().name}
                     </h2>
@@ -204,7 +244,7 @@ export default function TownshipPage() {
             {/* Mobile enquiry card — the banner card is lg-only, so below that
                 breakpoint the same form lands here, directly under the hero. */}
             <section class="border-b border-white/10 bg-navy-deep px-4 py-8 sm:px-6 lg:hidden">
-              <div class="mx-auto max-w-lg rounded-[14px] border border-white/20 bg-white/[0.07] p-5 shadow-[0_8px_32px_rgba(14,27,51,0.37)] backdrop-blur-xl">
+              <div class="mx-auto max-w-lg rounded-[14px] border border-white/25 bg-navy-deep/55 p-5 shadow-[0_8px_32px_rgba(14,27,51,0.45)] backdrop-blur-xl">
                 <h2 class="font-display text-lg font-semibold leading-tight text-white">
                   Enquire about {t().name}
                 </h2>
@@ -252,6 +292,27 @@ export default function TownshipPage() {
                 </Show>
               </div>
             </section>
+
+            {/* ---------------------------------------------------------------
+                Curated slices — each hides itself when the township has no
+                matching inventory, so a page never shows an empty shelf.
+            ---------------------------------------------------------------- */}
+            <ProjectStrip
+              id="possession"
+              tone="tint"
+              eyebrow="Handover approaching"
+              title="Top properties close to possession"
+              description={`Under-construction homes in ${t().name} with the nearest handover dates — the shortest wait between booking and moving in.`}
+              projects={nearPossession()?.results}
+            />
+
+            <ProjectStrip
+              id="new-launches"
+              eyebrow="Just launched"
+              title="Newly launched properties"
+              description={`The latest launches inside ${t().name}, at entry pricing and with the widest choice of units still open.`}
+              projects={newLaunches()?.results}
+            />
 
             {/* ---------------------------------------------------------------
                 Projects in this township — fetched live via ?search=.

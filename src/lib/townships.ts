@@ -56,6 +56,14 @@ export interface Township {
    */
   heroImages: string[];
 
+  /**
+   * CSS object-position for the hero crop. A wide banner can only show a slim
+   * horizontal band of a tall or square image, so set this when the part worth
+   * showing isn't in the middle — "top", "center 30%", "bottom" etc.
+   * Default: centre.
+   */
+  heroPosition?: string;
+
   /** Address line for the contact band. */
   address: string;
 
@@ -173,7 +181,10 @@ export const TOWNSHIPS: Record<string, Township> = {
     citySlug: "ghaziabad",
     cityName: "Ghaziabad",
     searchTerm: "Aditya World City",
-    heroImages: [],
+    // Landscape entrance photo (1709×920) — composed for a wide crop, with the
+    // gate just below the midline, so the default centre framing keeps sky,
+    // signage and approach road all in frame.
+    heroImages: ["/banner/adityaworldcity.png"],
     address: "Aditya World City, NH-24, Bamheta, Ghaziabad, Uttar Pradesh 201002",
     metaTitle: "Aditya World City, Ghaziabad — Projects, Price & Layouts | EstatePortal",
     metaDescription:
