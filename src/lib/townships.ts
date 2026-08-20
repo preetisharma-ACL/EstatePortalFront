@@ -46,7 +46,34 @@ export interface Township {
    * ("Gaur City" catches 1st/2nd/... Avenue) but narrow enough not to drag in
    * unrelated inventory. Verify what it returns before publishing a page.
    */
+  /**
+   * Backend locality slug, passed as ?township=. Membership is a database
+   * relationship covering the township and all its descendant sectors, so this
+   * is the correct and preferred source. Set it whenever the township exists in
+   * the backend — check GET /localities/?locality_type=township.
+   */
+  townshipSlug?: string;
+
+  /**
+   * FALLBACK ONLY — used when `townshipSlug` is absent because the backend has
+   * no locality record for this township yet.
+   *
+   * `search` is fuzzy text, not membership: DRF splits the query into terms and
+   * ANDs them across name / developer / locality / city, so "Gaur City" matches
+   * a project called "Gaur *" sitting in a locality called "Wave City". Any
+   * township on this path needs `excludeSlugs` policing and should move to
+   * `townshipSlug` as soon as the backend models it.
+   */
   searchTerm: string;
+
+  /** Extra search terms merged in on the fallback path. */
+  extraSearchTerms?: string[];
+
+  /**
+   * Slugs to drop from the fallback path — projects the search provably pulls
+   * in wrongly. Unnecessary once a township moves to `townshipSlug`.
+   */
+  excludeSlugs?: string[];
 
   /**
    * Hero backdrop images, served from src/public (e.g.
@@ -86,7 +113,14 @@ export const TOWNSHIPS: Record<string, Township> = {
     developer: "Gaursons India",
     citySlug: "noida",
     cityName: "Noida",
+    // NO townshipSlug: Gaur City is in Greater Noida West and the backend
+    // cleanup covered Ghaziabad only — ?township=gaur-city returns 0. Stays on
+    // the search fallback until the locality exists. See excludeSlugs below.
     searchTerm: "Gaur City",
+    // Gaur NYC Residences is in Wave City, Ghaziabad — ?township=wave-city
+    // returns it — so it is provably NOT in Gaur City. It matches only because
+    // "Gaur" hits the project name and "City" hits the locality "Wave City".
+    excludeSlugs: ["gaur-nyc-residences"],
     heroImages: [],
     address: "Gaur City, Greater Noida West Link Road, Greater Noida West, Uttar Pradesh 201318",
     metaTitle: "Gaur City, Greater Noida West — Projects, Price & Floor Plans | EstatePortal",
@@ -133,6 +167,7 @@ export const TOWNSHIPS: Record<string, Township> = {
     developer: "Wave Infratech",
     citySlug: "ghaziabad",
     cityName: "Ghaziabad",
+    townshipSlug: "wave-city",
     searchTerm: "Wave City",
     heroImages: [],
     address: "Wave City, NH-9 (Delhi–Meerut Expressway), Ghaziabad, Uttar Pradesh 201002",
@@ -180,6 +215,7 @@ export const TOWNSHIPS: Record<string, Township> = {
     developer: "Aditya Group",
     citySlug: "ghaziabad",
     cityName: "Ghaziabad",
+    townshipSlug: "aditya-world-city",
     searchTerm: "Aditya World City",
     // Landscape entrance photo (1709×920) — composed for a wide crop, with the
     // gate just below the midline, so the default centre framing keeps sky,
@@ -223,6 +259,24 @@ export const TOWNSHIPS: Record<string, Township> = {
     ],
   },
 };
+
+/**
+ * How to fetch a township's projects: the backend relationship when it exists,
+ * otherwise the name-search fallback. See townshipProjectsQuery.
+ */
+export interface TownshipSource {
+  township?: string;
+  terms?: string[];
+  exclude?: string[];
+}
+
+export const sourceFor = (t: Township): TownshipSource =>
+  t.townshipSlug
+    ? { township: t.townshipSlug }
+    : {
+        terms: [t.searchTerm, ...(t.extraSearchTerms ?? [])],
+        exclude: t.excludeSlugs,
+      };
 
 /** All townships, in registry order — for index pages and nav menus. */
 export const townshipList = (): Township[] => Object.values(TOWNSHIPS);

@@ -4,7 +4,8 @@
 import { query } from "@solidjs/router";
 import * as api from "./api";
 import { ApiError } from "./api";
-import type { Locality, ProjectFilters } from "./types";
+import type { TownshipSource } from "./townships";
+import type { Locality, ProjectFilters, ProjectListItem } from "./types";
 
 // A 404 on a detail lookup means "no such slug" — resolve to null instead of
 // throwing, so the route renders a graceful NotFound. A rejected deferStream
@@ -21,6 +22,46 @@ async function orNull404<T>(p: Promise<T>): Promise<T | null> {
 export const projectsQuery = query(
   (filters: ProjectFilters) => api.getProjects(filters),
   "projects",
+);
+
+/**
+ * A township's inventory.
+ *
+ * Preferred path — `source.township`: one ?township= request. Membership is a
+ * database relationship spanning the township and its descendant sectors, so
+ * it is exact.
+ *
+ * Fallback path — `source.terms`: one `search` request per term, merged and
+ * deduplicated by slug, minus `source.exclude`. Only for townships the backend
+ * has no locality record for yet; `search` is fuzzy and pulls in neighbours.
+ *
+ * Either way this fetches one large page rather than following pagination —
+ * townships run to a couple of dozen projects. A township exceeding 100 would
+ * silently truncate, which is worth revisiting if one ever gets that big.
+ */
+export const townshipProjectsQuery = query(
+  async (source: TownshipSource, filters: ProjectFilters) => {
+    const base = { ...filters, page: undefined, page_size: 100 };
+
+    if (source.township) {
+      const page = await api.getProjects({ ...base, township: source.township });
+      return page.results;
+    }
+
+    const pages = await Promise.all(
+      (source.terms ?? []).map((search) => api.getProjects({ ...base, search })),
+    );
+    const exclude = new Set(source.exclude ?? []);
+    const seen = new Set<string>();
+    const results: ProjectListItem[] = [];
+    for (const p of pages.flatMap((page) => page.results)) {
+      if (exclude.has(p.slug) || seen.has(p.slug)) continue;
+      seen.add(p.slug);
+      results.push(p);
+    }
+    return results;
+  },
+  "township-projects",
 );
 
 export const projectQuery = query(

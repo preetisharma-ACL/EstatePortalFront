@@ -25,7 +25,10 @@ export type MediaType =
   | "gallery" | "floor_plan" | "master_plan" | "location_map" | "video";
 export type DocType =
   | "brochure" | "rera_certificate" | "price_sheet" | "floor_plan_pdf";
-export type LocalityType = "locality" | "sector" | "micromarket";
+// "township" spans multiple sectors and multiple developers; its members are
+// resolved through Locality.parent, so use ?township= to list them — never a
+// name search (see ProjectFilters.township).
+export type LocalityType = "locality" | "sector" | "micromarket" | "township";
 export type AmenityCategory =
   | "sports" | "safety" | "convenience" | "leisure" | "environment" | "connectivity";
 
@@ -145,6 +148,9 @@ export interface ProjectListItem {
   primary_rera: string | null;
   configurations_summary: string[];
   is_featured: boolean;
+  // ISO 8601 with offset. Present on the LIST serializer, so `-created_at`
+  // results can be re-sorted client-side after merging several responses.
+  created_at: string;
 }
 export interface ProjectDetail {
   id: number; name: string; slug: string;
@@ -183,6 +189,16 @@ export interface AutocompleteResponse {
 
 export interface ProjectFilters {
   city?: string; state?: string; locality?: string; developer?: string;
+  /**
+   * Locality slug. Returns that locality AND every descendant (sectors,
+   * pockets) via the Locality.parent tree — a database relationship, so a
+   * project merely addressed "opposite <township>" is structurally excluded.
+   * An unknown slug returns 0 results, never an unfiltered list.
+   *
+   * This is the ONLY correct way to list a township's projects. `search` is
+   * fuzzy text for a search box and must never be used for membership.
+   */
+  township?: string;
   project_type?: ProjectType; status?: ProjectStatus;
   bhk?: number; sub_type?: ConfigSubType;
   min_price?: number; max_price?: number;

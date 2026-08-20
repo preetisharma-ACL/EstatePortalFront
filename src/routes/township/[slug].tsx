@@ -10,9 +10,9 @@ import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import ProjectStrip from "~/components/ProjectStrip";
 import ResultsGrid from "~/components/ResultsGrid";
 import { filtersFromParams } from "~/lib/filters";
-import { projectsQuery } from "~/lib/queries";
-import { getTownship } from "~/lib/townships";
-import type { ProjectFilters } from "~/lib/types";
+import { townshipProjectsQuery } from "~/lib/queries";
+import { getTownship, sourceFor } from "~/lib/townships";
+import type { ProjectFilters, ProjectListItem } from "~/lib/types";
 
 const PAGE_SIZE = 12;
 
@@ -24,48 +24,52 @@ const LOCAL_BANNERS = [
 
 /**
  * Filters for the township's project listing. The township itself is the only
- * fixed filter — sort and page still come from the URL, so a shared link lands
- * on the same page of results.
+ * fixed filter. Ordering and paging are deliberately NOT sent: the listing is
+ * the union of several search terms, and a server sort applies within each term
+ * rather than across the merged set — so the merge is sorted and paged on the
+ * client instead. Fine at township scale, which is a few dozen projects at most.
  */
-const townshipFilters = (
-  searchTerm: string,
-  query: Record<string, string>,
-): ProjectFilters =>
-  filtersFromParams(query, { search: searchTerm, page_size: PAGE_SIZE });
+const townshipFilters = (query: Record<string, string>): ProjectFilters => {
+  const { ordering: _ordering, page: _page, ...rest } = filtersFromParams(query);
+  return rest;
+};
 
 /** How many cards each curated strip shows — one full row on the 3-up grid. */
 const STRIP_SIZE = 3;
 
-/**
- * Handover approaching: under-construction only, soonest possession first.
- * Ready-to-move and completed projects are excluded — they have possession
- * dates in the past, so they'd otherwise monopolise an ascending sort while
- * being the one thing that is *not* "close to possession".
- */
-const possessionFilters = (searchTerm: string): ProjectFilters => ({
-  search: searchTerm,
-  status: "under_construction",
-  ordering: "possession_date",
-  page_size: STRIP_SIZE,
-});
+/** Missing dates sort last ascending, first descending — never in the middle. */
+const byPossession = (a: string | null, b: string | null, dir: 1 | -1) =>
+  dir * (a ?? "9999-99-99").localeCompare(b ?? "9999-99-99");
 
-/** Newest prelaunch inventory first. */
-const launchFilters = (searchTerm: string): ProjectFilters => ({
-  search: searchTerm,
-  status: "prelaunch",
-  ordering: "-created_at",
-  page_size: STRIP_SIZE,
-});
+/** Parsed rather than string-compared — created_at carries a timezone offset. */
+const byCreated = (a: ProjectListItem, b: ProjectListItem, dir: 1 | -1) =>
+  dir * (Date.parse(a.created_at) - Date.parse(b.created_at));
+
+/**
+ * Client-side equivalents of every API `ordering` value. Sorting happens here
+ * because the fallback path merges several responses, and a server sort orders
+ * within each response rather than across the merge.
+ */
+const SORTERS: Record<string, (a: ProjectListItem, b: ProjectListItem) => number> = {
+  price_min: (a, b) => (a.price_min ?? Infinity) - (b.price_min ?? Infinity),
+  "-price_min": (a, b) => (b.price_min ?? -Infinity) - (a.price_min ?? -Infinity),
+  possession_date: (a, b) => byPossession(a.possession_date, b.possession_date, 1),
+  "-possession_date": (a, b) => byPossession(a.possession_date, b.possession_date, -1),
+  created_at: (a, b) => byCreated(a, b, 1),
+  "-created_at": (a, b) => byCreated(a, b, -1),
+};
 
 export const route = {
   preload: ({ params, location }) => {
     // The township comes from a local registry (synchronous), so only the
-    // project queries need preloading.
+    // project query needs preloading — every section on the page derives from
+    // this single fetch.
     const t = getTownship(params.slug!);
     if (!t) return;
-    void projectsQuery(townshipFilters(t.searchTerm, location.query as Record<string, string>));
-    void projectsQuery(possessionFilters(t.searchTerm));
-    void projectsQuery(launchFilters(t.searchTerm));
+    void townshipProjectsQuery(
+      sourceFor(t),
+      townshipFilters(location.query as Record<string, string>),
+    );
   },
 } satisfies RouteDefinition;
 
@@ -78,18 +82,53 @@ export default function TownshipPage() {
   const township = createMemo(() => getTownship(params.slug!));
 
   const filters = createMemo<ProjectFilters>(() =>
+    township() ? townshipFilters(sp as Record<string, string>) : {},
+  );
+
+  /** The township's whole inventory — every section on the page derives from it. */
+  const all = createAsync(() =>
     township()
-      ? townshipFilters(township()!.searchTerm, sp as Record<string, string>)
-      : {},
+      ? townshipProjectsQuery(sourceFor(township()!), filters())
+      : Promise.resolve(undefined),
   );
-  const data = createAsync(() =>
-    township() ? projectsQuery(filters()) : Promise.resolve(undefined),
+
+  const ordering = () => filtersFromParams(sp as Record<string, string>).ordering;
+  const page = () => filtersFromParams(sp as Record<string, string>).page ?? 1;
+
+  /** Sorted + paged locally, then shaped as a Paginated for ResultsGrid. */
+  const data = createMemo(() => {
+    const list = all();
+    if (!list) return undefined;
+    const sorter = ordering() ? SORTERS[ordering()!] : undefined;
+    const sorted = sorter ? [...list].sort(sorter) : list;
+    const start = (page() - 1) * PAGE_SIZE;
+    return {
+      count: sorted.length,
+      next: start + PAGE_SIZE < sorted.length ? "more" : null,
+      previous: start > 0 ? "prev" : null,
+      results: sorted.slice(start, start + PAGE_SIZE),
+    };
+  });
+
+  /**
+   * Handover approaching: under-construction only, soonest possession first.
+   * Ready-to-move and completed are excluded — their possession dates are in
+   * the past, so they'd monopolise an ascending sort while being the one thing
+   * that is *not* close to possession.
+   */
+  const nearPossession = createMemo(() =>
+    all()
+      ?.filter((p) => p.status === "under_construction")
+      .sort((a, b) => byPossession(a.possession_date, b.possession_date, 1))
+      .slice(0, STRIP_SIZE),
   );
-  const nearPossession = createAsync(() =>
-    township() ? projectsQuery(possessionFilters(township()!.searchTerm)) : Promise.resolve(undefined),
-  );
-  const newLaunches = createAsync(() =>
-    township() ? projectsQuery(launchFilters(township()!.searchTerm)) : Promise.resolve(undefined),
+
+  /** Newest prelaunch inventory first — created_at is on the list serializer. */
+  const newLaunches = createMemo(() =>
+    all()
+      ?.filter((p) => p.status === "prelaunch")
+      .sort((a, b) => byCreated(a, b, -1))
+      .slice(0, STRIP_SIZE),
   );
 
   const setParam = (key: string, value: string | number | undefined) => {
@@ -358,7 +397,7 @@ export default function TownshipPage() {
               eyebrow="Handover approaching"
               title="Top properties close to possession"
               description={`Under-construction homes in ${t().name} with the nearest handover dates — the shortest wait between booking and moving in.`}
-              projects={nearPossession()?.results}
+              projects={nearPossession()}
             />
 
             <ProjectStrip
@@ -366,7 +405,7 @@ export default function TownshipPage() {
               eyebrow="Just launched"
               title="Newly launched properties"
               description={`The latest launches inside ${t().name}, at entry pricing and with the widest choice of units still open.`}
-              projects={newLaunches()?.results}
+              projects={newLaunches()}
             />
 
             {/* ---------------------------------------------------------------
