@@ -8,6 +8,7 @@ import ResultsGrid from "~/components/ResultsGrid";
 import { localityQuery, projectsQuery } from "~/lib/queries";
 import { filtersFromParams } from "~/lib/filters";
 import { titleCase } from "~/lib/format";
+import { townshipByLocalitySlug } from "~/lib/townships";
 import NotFound from "~/components/NotFound";
 import type { ProjectFilters } from "~/lib/types";
 
@@ -66,7 +67,18 @@ export default function LocalityPage() {
               name="description"
               content={l().meta_description || `RERA-verified projects in ${l().name}, ${l().city}.`}
             />
-            <Link rel="canonical" href={`/${params.city}/${params.locality}`} />
+            {/* Township localities are also served by a dedicated
+                /township/<slug> landing page — same inventory, richer content.
+                Both URLs return 200, so the canonical points at the township
+                page to stop them competing. Self-canonical otherwise. */}
+            <Link
+              rel="canonical"
+              href={
+                townshipByLocalitySlug(l().slug)
+                  ? `/township/${townshipByLocalitySlug(l().slug)!.slug}`
+                  : `/${params.city}/${params.locality}`
+              }
+            />
 
             <section class="hero-gradient relative overflow-hidden text-white">
               <div class="blueprint pointer-events-none absolute inset-0" aria-hidden="true" />

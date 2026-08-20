@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://api.realestate.aajneeti.social/sitemap.xml"
+    },
+    {
+      "source": "/sitemap-:section.xml",
+      "destination": "https://api.realestate.aajneeti.social/sitemap-:section.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://api.realestate.aajneeti.social/robots.txt"
+    }
+  ]
+}

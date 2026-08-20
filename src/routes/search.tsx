@@ -72,6 +72,11 @@ export default function SearchPage() {
     <>
       <Title>Search RERA-verified projects across India | EstatePortal</Title>
       <Meta name="description" content="Filter and compare RERA-verified residential and commercial projects across India by budget, configuration, status and amenities." />
+      {/* Search result pages are thin, near-duplicate and filter-combinatorial —
+          indexing them invites a thin-content penalty. `follow` still lets the
+          crawler reach the project pages linked from here. Also excluded from
+          the sitemap. */}
+      <Meta name="robots" content="noindex,follow" />
       <Link rel="canonical" href="/search" />
 
       {/* ---------------------------------------------------------------

@@ -278,6 +278,18 @@ export const sourceFor = (t: Township): TownshipSource =>
         exclude: t.excludeSlugs,
       };
 
+/**
+ * The township landing page fed by a given backend locality slug, if any.
+ *
+ * A township locality is reachable at BOTH /<city>/<locality> and
+ * /township/<slug>, with the same inventory on each. The locality route uses
+ * this to point its canonical at the township page so the two don't compete in
+ * search. Matching on `townshipSlug` means it only ever resolves to a page that
+ * actually exists and is fed by that exact locality.
+ */
+export const townshipByLocalitySlug = (slug: string): Township | null =>
+  Object.values(TOWNSHIPS).find((t) => t.townshipSlug === slug) ?? null;
+
 /** All townships, in registry order — for index pages and nav menus. */
 export const townshipList = (): Township[] => Object.values(TOWNSHIPS);
 
