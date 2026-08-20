@@ -264,33 +264,88 @@ export default function TownshipPage() {
             {/* ---------------------------------------------------------------
                 About the township.
             ---------------------------------------------------------------- */}
-            <section id="about" class="scroll-mt-20 border-b border-line bg-paper">
-              <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
-                <div class="mx-auto max-w-3xl text-center">
-                  <p class="eyebrow">Overview</p>
-                  <div class="gold-rule mx-auto my-3.5" />
-                  <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
-                    About {t().name}
-                  </h2>
-                </div>
+            {/* `isolate` keeps the -z-10 shapes inside this section's stacking
+                context: they paint over the white background but under the copy,
+                and can't slide behind the page itself. */}
+            <section id="about" class="relative isolate scroll-mt-20 overflow-hidden border-b border-line bg-card">
+              {/* Copy block. The dotted-mesh flourishes anchor to the BOTTOM of
+                  this wrapper — i.e. where the prose ends — rather than to the
+                  section, which would strand them behind the highlight cards.
+                  The wrapper is full-bleed so they reach the viewport edges. */}
+              <div class="relative">
+                {/* Decorative only — empty alt + aria-hidden keep them out of
+                    the accessibility tree. */}
+                <img
+                  src="/banner/left-shape.png"
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  class="pointer-events-none absolute bottom-0 left-0 -z-10 w-[150px] select-none sm:w-[240px] lg:w-[330px]"
+                />
+                <img
+                  src="/banner/right-shape.png"
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  class="pointer-events-none absolute bottom-0 right-0 -z-10 w-[150px] select-none sm:w-[240px] lg:w-[330px]"
+                />
 
-                <div class="mx-auto mt-9 max-w-3xl space-y-5 text-[15px] leading-relaxed text-slate">
-                  <For each={t().about}>{(para) => <p>{para}</p>}</For>
-                </div>
+                <div class="mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6 sm:pb-16 sm:pt-20">
+                  <div class="mx-auto max-w-3xl text-center">
+                    <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
+                      About {t().name}
+                    </h2>
+                    <div class="gold-rule mx-auto mt-4" />
+                  </div>
 
-                <Show when={t().highlights.length}>
-                  <div class="mt-12 grid gap-5 sm:grid-cols-2">
+                  <div class="mx-auto mt-9 max-w-4xl space-y-5 text-center text-[15px] leading-relaxed text-slate">
+                    <For each={t().about}>{(para) => <p>{para}</p>}</For>
+                  </div>
+                </div>
+              </div>
+
+              <Show when={t().highlights.length}>
+                <div class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20">
+                  <div class="grid gap-5 sm:grid-cols-2">
                     <For each={t().highlights}>
-                      {(h) => (
-                        <div class="rounded-[12px] border border-line bg-card p-6 transition-colors hover:border-gold/50">
-                          <h3 class="font-display text-lg font-semibold text-navy">{h.title}</h3>
-                          <p class="mt-2 text-sm leading-relaxed text-slate">{h.description}</p>
-                        </div>
-                      )}
+                      {(h, i) => {
+                        const n = () => String(i() + 1).padStart(2, "0");
+                        return (
+                          // bg-paper, not bg-card — the section itself is white
+                          // now, so a white card would read as a bare outline.
+                          <div class="card-lift group relative overflow-hidden rounded-[14px] border border-line bg-paper p-7">
+                            {/* Oversized index, bled into the corner as a
+                                watermark. Decorative, so it stays out of the
+                                accessibility tree. */}
+                            <span
+                              aria-hidden="true"
+                              class="pointer-events-none absolute -right-3 -top-5 select-none font-display text-[86px] font-semibold leading-none text-navy/[0.05] transition-colors duration-300 group-hover:text-gold/15"
+                            >
+                              {n()}
+                            </span>
+
+                            <div class="relative">
+                              <span
+                                aria-hidden="true"
+                                class="inline-grid h-11 w-11 place-items-center rounded-[10px] border border-gold/35 bg-gold/10 font-display text-[15px] font-semibold text-gold transition-colors duration-300 group-hover:border-gold/60 group-hover:bg-gold/20"
+                              >
+                                {n()}
+                              </span>
+                              <h3 class="mt-4 font-display text-lg font-semibold leading-snug text-navy">
+                                {h.title}
+                              </h3>
+                              <div class="mt-3 h-[3px] w-9 rounded-full bg-gold/70 transition-all duration-300 group-hover:w-14" />
+                              <p class="mt-3.5 text-sm leading-relaxed text-slate">
+                                {h.description}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      }}
                     </For>
                   </div>
-                </Show>
-              </div>
+                </div>
+              </Show>
             </section>
 
             {/* ---------------------------------------------------------------
