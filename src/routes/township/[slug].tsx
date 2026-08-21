@@ -7,15 +7,13 @@ import BannerSlideshow from "~/components/BannerSlideshow";
 import ContactBand from "~/components/ContactBand";
 import NotFound from "~/components/NotFound";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
+import ProjectRail from "~/components/ProjectRail";
 import ProjectStrip from "~/components/ProjectStrip";
-import ResultsGrid from "~/components/ResultsGrid";
 import { filtersFromParams } from "~/lib/filters";
 import { townshipProjectsQuery } from "~/lib/queries";
 import { getTownship, sourceFor } from "~/lib/townships";
 import type { ProjectFilters, ProjectListItem } from "~/lib/types";
 import { canonical } from "~/lib/seo";
-
-const PAGE_SIZE = 12;
 
 const LOCAL_BANNERS = [
   "/banner/banner-1.jpg",
@@ -27,16 +25,17 @@ const LOCAL_BANNERS = [
  * Filters for the township's project listing. The township itself is the only
  * fixed filter. Ordering and paging are deliberately NOT sent: the listing is
  * the union of several search terms, and a server sort applies within each term
- * rather than across the merged set — so the merge is sorted and paged on the
- * client instead. Fine at township scale, which is a few dozen projects at most.
+ * rather than across the merged set — so the merge is sorted on the client
+ * instead, and rides in a single rail. Fine at township scale, which is a few
+ * dozen projects at most.
  */
 const townshipFilters = (query: Record<string, string>): ProjectFilters => {
   const { ordering: _ordering, page: _page, ...rest } = filtersFromParams(query);
   return rest;
 };
 
-/** How many cards each curated strip shows — one full row on the 3-up grid. */
-const STRIP_SIZE = 3;
+/** How many cards each curated strip shows — one full row on the 4-up grid. */
+const STRIP_SIZE = 4;
 
 /** Missing dates sort last ascending, first descending — never in the middle. */
 const byPossession = (a: string | null, b: string | null, dir: 1 | -1) =>
@@ -94,21 +93,13 @@ export default function TownshipPage() {
   );
 
   const ordering = () => filtersFromParams(sp as Record<string, string>).ordering;
-  const page = () => filtersFromParams(sp as Record<string, string>).page ?? 1;
 
-  /** Sorted + paged locally, then shaped as a Paginated for ResultsGrid. */
-  const data = createMemo(() => {
+  /** The whole inventory in the chosen order — the rail scrolls it in one go. */
+  const sorted = createMemo(() => {
     const list = all();
     if (!list) return undefined;
     const sorter = ordering() ? SORTERS[ordering()!] : undefined;
-    const sorted = sorter ? [...list].sort(sorter) : list;
-    const start = (page() - 1) * PAGE_SIZE;
-    return {
-      count: sorted.length,
-      next: start + PAGE_SIZE < sorted.length ? "more" : null,
-      previous: start > 0 ? "prev" : null,
-      results: sorted.slice(start, start + PAGE_SIZE),
-    };
+    return sorter ? [...list].sort(sorter) : list;
   });
 
   /**
@@ -133,11 +124,7 @@ export default function TownshipPage() {
   );
 
   const setParam = (key: string, value: string | number | undefined) => {
-    const patch: Record<string, string | null> = {
-      [key]: value === undefined ? null : String(value),
-    };
-    if (key !== "page") patch.page = null;
-    setParams(patch, { scroll: false });
+    setParams({ [key]: value === undefined ? null : String(value) }, { scroll: false });
   };
 
   return (
@@ -227,11 +214,11 @@ export default function TownshipPage() {
                         )}
                       </For>
                       {/* Live project count — the one hero stat that isn't authored. */}
-                      <Show when={data()}>
+                      <Show when={sorted()}>
                         <div class="rounded-[10px] border border-white/20 bg-white/10 px-4 py-2.5 backdrop-blur-sm">
                           <dt class="eyebrow text-gold-soft">Projects</dt>
                           <dd class="mt-1 font-display text-base font-semibold leading-tight text-white">
-                            {data()!.count}
+                            {sorted()!.length}
                           </dd>
                         </div>
                       </Show>
@@ -426,10 +413,11 @@ export default function TownshipPage() {
                   </p>
                 </div>
 
-                <ResultsGrid
-                  data={data()}
-                  ordering={filters().ordering}
-                  page={filters().page ?? 1}
+                {/* A rail, not a grid: four cards across on a wide screen, the
+                    rest reachable through the prev/next arrows. */}
+                <ProjectRail
+                  projects={sorted()}
+                  ordering={ordering()}
                   setParam={setParam}
                 />
               </div>

@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import type { ProjectListItem } from "~/lib/types";
-import ProjectCard from "./ProjectCard";
+import ProjectShelfCard from "./ProjectShelfCard";
 
 /**
  * A titled row of project cards — a curated slice of a larger listing
@@ -45,8 +45,12 @@ export default function ProjectStrip(props: {
             </Show>
           </div>
 
-          <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <For each={props.projects}>{(p) => <ProjectCard project={p} />}</For>
+          {/* Same card and same four-across rhythm as the inventory rail below,
+              so a strip reads as a slice of that shelf rather than its own
+              format. A grid, not a rail: a strip is one row by definition, so
+              there is nothing for arrows to scroll to. */}
+          <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <For each={props.projects}>{(p) => <ProjectShelfCard project={p} />}</For>
           </div>
         </div>
       </section>
