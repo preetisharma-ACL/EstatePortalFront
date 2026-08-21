@@ -13,7 +13,7 @@ import { filtersFromParams } from "~/lib/filters";
 import { townshipProjectsQuery } from "~/lib/queries";
 import { getTownship, sourceFor } from "~/lib/townships";
 import type { ProjectFilters, ProjectListItem } from "~/lib/types";
-import { canonical } from "~/lib/seo";
+import { canonical, absoluteUrl } from "~/lib/seo";
 
 const LOCAL_BANNERS = [
   "/banner/banner-1.jpg",
@@ -142,7 +142,7 @@ export default function TownshipPage() {
             <Meta property="og:title" content={t().metaTitle} />
             <Meta property="og:description" content={t().metaDescription} />
             <Show when={t().heroImages[0]}>
-              <Meta property="og:image" content={t().heroImages[0]} />
+              <Meta property="og:image" content={absoluteUrl(t().heroImages[0])} />
             </Show>
             <Link rel="canonical" href={canonical(`/township/${t().slug}`)} />
 

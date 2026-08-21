@@ -16,7 +16,7 @@ import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
 import NotFound from "~/components/NotFound";
-import { canonical } from "~/lib/seo";
+import { canonical, absoluteUrl } from "~/lib/seo";
 
 export const route = {
   preload: ({ params }) => {
@@ -139,7 +139,7 @@ export default function ProjectPage() {
             <Meta property="og:description" content={desc()} />
             <Meta property="og:type" content="website" />
             <Show when={p().og_image}>
-              <Meta property="og:image" content={p().og_image!} />
+              <Meta property="og:image" content={absoluteUrl(p().og_image!)} />
             </Show>
             <Link rel="canonical" href={canonical(`/project/${p().slug}`)} />
 

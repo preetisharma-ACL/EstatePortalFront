@@ -76,9 +76,12 @@ export default function CityTypeListing(props: { type: TypePage }) {
           {`${props.type.label} Property in ${cityName()} — RERA-verified projects | EstatePortal`}
         </Title>
         <Meta name="description" content={props.type.metaDescription(cityName())} />
-        {/* Emitted unconditionally with a computed value rather than wrapped in
-            a <Show>: a conditionally-rendered <Meta> is not reliably collected
-            into the SSR head, which shipped thin pages indexable. */}
+        {/* Unconditional with a computed value, NOT wrapped in <Show>.
+            thin() reads data(), which resolves after this head renders, so a
+            <Show> here evaluated false and the tag never reached the SSR head —
+            shipping thin pages indexable, intermittently and silently.
+            (<Show> around a head tag is fine when its condition reads
+            already-resolved data; the hazard is specifically an async one.) */}
         <Meta name="robots" content={thin() ? "noindex,follow" : "index,follow"} />
         <Link rel="canonical" href={canonical(path())} />
 

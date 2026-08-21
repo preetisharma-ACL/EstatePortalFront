@@ -12,7 +12,7 @@ import HeroStat from "~/components/HeroStat";
 import { cityQuery, projectsQuery } from "~/lib/queries";
 import { filtersFromParams } from "~/lib/filters";
 import type { ProjectFilters } from "~/lib/types";
-import { canonical } from "~/lib/seo";
+import { canonical, absoluteUrl } from "~/lib/seo";
 
 const PAGE_SIZE = 12;
 
@@ -69,7 +69,7 @@ export default function CityPage() {
       />
       <Meta property="og:title" content={city()?.meta_title || `Property in ${city()?.name ?? params.city}`} />
       <Show when={city()?.og_image}>
-        <Meta property="og:image" content={city()!.og_image!} />
+        <Meta property="og:image" content={absoluteUrl(city()!.og_image!)} />
       </Show>
       <Link rel="canonical" href={canonical(`/${params.city}`)} />
 

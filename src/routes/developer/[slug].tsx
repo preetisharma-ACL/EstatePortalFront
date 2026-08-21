@@ -12,7 +12,7 @@ import ReraSeal from "~/components/ReraSeal";
 import LeadForm from "~/components/LeadForm";
 import NotFound from "~/components/NotFound";
 import type { ProjectListItem } from "~/lib/types";
-import { canonical } from "~/lib/seo";
+import { canonical, absoluteUrl } from "~/lib/seo";
 
 export const route = {
   preload: ({ params }) => {
@@ -79,7 +79,7 @@ export default function DeveloperPage() {
           <Title>{d().meta_title || `${d().name} — projects & RERA details | EstatePortal`}</Title>
           <Meta name="description" content={d().meta_description || d().description?.slice(0, 160) || ""} />
           <Meta property="og:title" content={d().meta_title || d().name} />
-          <Show when={d().og_image}><Meta property="og:image" content={d().og_image!} /></Show>
+          <Show when={d().og_image}><Meta property="og:image" content={absoluteUrl(d().og_image!)} /></Show>
           <Link rel="canonical" href={canonical(`/developer/${d().slug}`)} />
 
           {/* ── HERO ─────────────────────────────────────────────────────── */}
