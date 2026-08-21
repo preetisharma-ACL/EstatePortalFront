@@ -10,6 +10,7 @@ import { projectsQuery } from "~/lib/queries";
 import { filtersFromParams } from "~/lib/filters";
 import { typeLabel } from "~/lib/format";
 import type { ProjectFilters } from "~/lib/types";
+import { canonical } from "~/lib/seo";
 
 const PAGE_SIZE = 12;
 
@@ -77,7 +78,7 @@ export default function SearchPage() {
           crawler reach the project pages linked from here. Also excluded from
           the sitemap. */}
       <Meta name="robots" content="noindex,follow" />
-      <Link rel="canonical" href="/search" />
+      <Link rel="canonical" href={canonical("/search")} />
 
       {/* ---------------------------------------------------------------
           Hero banner — compact version of the city banner: slideshow under a

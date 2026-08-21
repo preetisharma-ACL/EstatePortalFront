@@ -9,6 +9,7 @@ import { localityQuery, projectsQuery } from "~/lib/queries";
 import { filtersFromParams } from "~/lib/filters";
 import { titleCase } from "~/lib/format";
 import { townshipByLocalitySlug } from "~/lib/townships";
+import { canonical } from "~/lib/seo";
 import NotFound from "~/components/NotFound";
 import type { ProjectFilters } from "~/lib/types";
 
@@ -73,11 +74,11 @@ export default function LocalityPage() {
                 page to stop them competing. Self-canonical otherwise. */}
             <Link
               rel="canonical"
-              href={
+              href={canonical(
                 townshipByLocalitySlug(l().slug)
                   ? `/township/${townshipByLocalitySlug(l().slug)!.slug}`
-                  : `/${params.city}/${params.locality}`
-              }
+                  : `/${params.city}/${params.locality}`,
+              )}
             />
 
             <section class="hero-gradient relative overflow-hidden text-white">

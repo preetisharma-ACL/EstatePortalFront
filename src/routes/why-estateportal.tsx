@@ -4,6 +4,7 @@ import { For, Show, type JSX } from "solid-js";
 import ReraSeal from "~/components/ReraSeal";
 import LeadForm from "~/components/LeadForm";
 import { COMPANY } from "~/lib/company";
+import { canonical } from "~/lib/seo";
 
 /* Module-level data stays plain (no JSX) — JSX built at module scope would
    construct <A> outside the Router context and break SSR. */
@@ -99,7 +100,7 @@ export default function WhyEstatePortalPage() {
       />
       <Meta property="og:title" content={`Why ${COMPANY.brand}`} />
       <Meta property="og:type" content="website" />
-      <Link rel="canonical" href="/why-estateportal" />
+      <Link rel="canonical" href={canonical("/why-estateportal")} />
 
       {/* 1. HERO */}
       <section class="hero-gradient relative overflow-hidden text-white">

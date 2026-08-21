@@ -12,6 +12,7 @@ import HeroStat from "~/components/HeroStat";
 import { cityQuery, projectsQuery } from "~/lib/queries";
 import { filtersFromParams } from "~/lib/filters";
 import type { ProjectFilters } from "~/lib/types";
+import { canonical } from "~/lib/seo";
 
 const PAGE_SIZE = 12;
 
@@ -70,7 +71,7 @@ export default function CityPage() {
       <Show when={city()?.og_image}>
         <Meta property="og:image" content={city()!.og_image!} />
       </Show>
-      <Link rel="canonical" href={`/${params.city}`} />
+      <Link rel="canonical" href={canonical(`/${params.city}`)} />
 
       {/* City hero banner — crossfading slideshow (city photo, else local
           banners). Two scrims: a vertical one for the page transition, and a

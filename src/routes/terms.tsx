@@ -2,6 +2,7 @@ import { Title, Meta, Link } from "@solidjs/meta";
 import { A } from "@solidjs/router";
 import LegalPage, { LegalContact, type LegalSection } from "~/components/LegalPage";
 import { COMPANY } from "~/lib/company";
+import { canonical } from "~/lib/seo";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -417,7 +418,7 @@ export default function TermsPage() {
         content={`The terms governing your use of ${COMPANY.website} — our role as a property discovery platform, how listing and RERA information should be treated, enquiry consent, acceptable use and liability.`}
       />
       <Meta name="robots" content="index,follow" />
-      <Link rel="canonical" href="/terms" />
+      <Link rel="canonical" href={canonical("/terms")} />
 
       <LegalPage
         eyebrow="Legal & policy"

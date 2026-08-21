@@ -16,6 +16,7 @@ import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
 import NotFound from "~/components/NotFound";
+import { canonical } from "~/lib/seo";
 
 export const route = {
   preload: ({ params }) => {
@@ -140,7 +141,7 @@ export default function ProjectPage() {
             <Show when={p().og_image}>
               <Meta property="og:image" content={p().og_image!} />
             </Show>
-            <Link rel="canonical" href={`/project/${p().slug}`} />
+            <Link rel="canonical" href={canonical(`/project/${p().slug}`)} />
 
             {/* ---------------------------------------------------------------
                 Hero banner — full-bleed cover with a navy scrim, breadcrumb,

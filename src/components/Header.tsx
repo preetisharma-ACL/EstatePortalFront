@@ -3,10 +3,13 @@ import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
 import { openLeadModal } from "~/lib/leadModal";
 import { townshipList } from "~/lib/townships";
 
+// Residential and Commercial point at the indexable hub routes, not
+// /search?project_type=… — /search is noindex, so query-string destinations
+// would leave two main nav entries unindexable.
 const NAV = [
   { href: "/", label: "Home" },
-  { href: "/search?project_type=residential", label: "Residential" },
-  { href: "/search?project_type=commercial", label: "Commercial" },
+  { href: "/residential", label: "Residential" },
+  { href: "/commercial", label: "Commercial" },
   { href: "/developers", label: "Developers" },
   { href: "/search", label: "All Properties" },
 ];

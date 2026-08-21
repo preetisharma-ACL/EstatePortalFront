@@ -2,6 +2,7 @@ import { Title, Meta, Link } from "@solidjs/meta";
 import { A } from "@solidjs/router";
 import LegalPage, { LegalContact, type LegalSection } from "~/components/LegalPage";
 import { COMPANY } from "~/lib/company";
+import { canonical } from "~/lib/seo";
 
 const SECTIONS: LegalSection[] = [
   {
@@ -476,7 +477,7 @@ export default function PrivacyPolicyPage() {
         content={`How ${COMPANY.brand} collects, uses, shares and protects your personal data when you browse projects or submit a property enquiry — written for India's DPDP Act, 2023.`}
       />
       <Meta name="robots" content="index,follow" />
-      <Link rel="canonical" href="/privacy-policy" />
+      <Link rel="canonical" href={canonical("/privacy-policy")} />
 
       <LegalPage
         eyebrow="Legal & policy"

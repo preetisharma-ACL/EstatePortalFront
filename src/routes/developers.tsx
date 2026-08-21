@@ -5,6 +5,7 @@ import { Title, Meta, Link } from "@solidjs/meta";
 import { createMemo, For, Show } from "solid-js";
 import { developersQuery } from "~/lib/queries";
 import DeveloperCard from "~/components/DeveloperCard";
+import { canonical } from "~/lib/seo";
 
 export const route = {
   preload: ({ location }) => {
@@ -25,7 +26,7 @@ export default function DevelopersPage() {
     <>
       <Title>RERA-verified developers across India | EstatePortal</Title>
       <Meta name="description" content="Browse verified real-estate developers across India — their track record, project count and live inventory." />
-      <Link rel="canonical" href="/developers" />
+      <Link rel="canonical" href={canonical("/developers")} />
 
       <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <header class="mb-8">

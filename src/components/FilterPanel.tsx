@@ -32,6 +32,8 @@ export default function FilterPanel(props: {
   filters: ProjectFilters;
   setParam: (key: string, value: string | number | undefined) => void;
   clearAll: () => void;
+  /** Set on routes where the project type is fixed by the URL — hides the type chips. */
+  lockedType?: boolean;
 }) {
   const amenities = createAsync(() => amenitiesQuery(undefined));
   const [open, setOpen] = createSignal(false);
@@ -42,10 +44,15 @@ export default function FilterPanel(props: {
     <div class="space-y-6">
       <Section title="Property type">
         <div class="flex flex-wrap gap-2">
-          <Chip active={!f().project_type} onClick={() => props.setParam("project_type", undefined)}>All</Chip>
-          <Chip active={f().project_type === "residential"} onClick={() => props.setParam("project_type", "residential")}>Residential</Chip>
-          <Chip active={f().project_type === "commercial"} onClick={() => props.setParam("project_type", "commercial")}>Commercial</Chip>
-          <Chip active={f().project_type === "mixed"} onClick={() => props.setParam("project_type", "mixed")}>Mixed</Chip>
+          {/* Hidden where the route itself fixes the type (/<city>/residential):
+              offering the control there would either lie about the filter or
+              navigate the user out of the page they chose. */}
+          <Show when={!props.lockedType}>
+            <Chip active={!f().project_type} onClick={() => props.setParam("project_type", undefined)}>All</Chip>
+            <Chip active={f().project_type === "residential"} onClick={() => props.setParam("project_type", "residential")}>Residential</Chip>
+            <Chip active={f().project_type === "commercial"} onClick={() => props.setParam("project_type", "commercial")}>Commercial</Chip>
+            <Chip active={f().project_type === "mixed"} onClick={() => props.setParam("project_type", "mixed")}>Mixed</Chip>
+          </Show>
         </div>
       </Section>
 

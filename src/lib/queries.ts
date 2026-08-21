@@ -64,6 +64,36 @@ export const townshipProjectsQuery = query(
   "township-projects",
 );
 
+/**
+ * Project count per city for one project type, for the /<type> hub.
+ *
+ * There is no aggregate endpoint, so this walks the type's projects and tallies
+ * by city. page_size is capped at 100 server-side, so page 1 establishes the
+ * total and the remaining pages are fetched in parallel rather than in series.
+ * ~300 residential projects is 4 requests; commercial is 1.
+ */
+export const cityTypeCountsQuery = query(
+  async (projectType: "residential" | "commercial") => {
+    const first = await api.getProjects({ project_type: projectType, page_size: 100 });
+    const pages = Math.ceil(first.count / 100);
+    const rest = await Promise.all(
+      Array.from({ length: Math.max(0, pages - 1) }, (_, i) =>
+        api.getProjects({ project_type: projectType, page: i + 2, page_size: 100 }),
+      ),
+    );
+
+    const counts = new Map<string, { slug: string; name: string; count: number }>();
+    for (const p of [first, ...rest].flatMap((r) => r.results)) {
+      const { city_slug, city } = p.location;
+      const hit = counts.get(city_slug) ?? { slug: city_slug, name: city, count: 0 };
+      hit.count += 1;
+      counts.set(city_slug, hit);
+    }
+    return [...counts.values()].sort((a, b) => b.count - a.count);
+  },
+  "city-type-counts",
+);
+
 export const projectQuery = query(
   (slug: string) => orNull404(api.getProject(slug)),
   "project",

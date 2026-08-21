@@ -9,6 +9,7 @@ import ReraSeal from "~/components/ReraSeal";
 import LeadForm from "~/components/LeadForm";
 import { priceRange } from "~/lib/format";
 import { projectsQuery, citiesQuery } from "~/lib/queries";
+import { canonical } from "~/lib/seo";
 
 const FEATURED = { is_featured: true, page_size: 6 } as const;
 const PREMIUM = { min_price: 50000000, ordering: "-price_min", page_size: 6 } as const;
@@ -46,7 +47,7 @@ export default function Home() {
       <Meta name="description" content="Discover RERA-verified residential and commercial projects across India. Verified pricing, trusted developers, and assisted site visits for investors and end-users." />
       <Meta property="og:title" content="EstatePortal — RERA-verified property across India" />
       <Meta property="og:type" content="website" />
-      <Link rel="canonical" href="/" />
+      <Link rel="canonical" href={canonical("/")} />
 
       {/* 1. HERO */}
       {/* No `overflow-hidden` here: the gradient and blueprint overlays are

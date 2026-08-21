@@ -13,6 +13,7 @@ import { filtersFromParams } from "~/lib/filters";
 import { townshipProjectsQuery } from "~/lib/queries";
 import { getTownship, sourceFor } from "~/lib/townships";
 import type { ProjectFilters, ProjectListItem } from "~/lib/types";
+import { canonical } from "~/lib/seo";
 
 const PAGE_SIZE = 12;
 
@@ -156,7 +157,7 @@ export default function TownshipPage() {
             <Show when={t().heroImages[0]}>
               <Meta property="og:image" content={t().heroImages[0]} />
             </Show>
-            <Link rel="canonical" href={`/township/${t().slug}`} />
+            <Link rel="canonical" href={canonical(`/township/${t().slug}`)} />
 
             {/* ---------------------------------------------------------------
                 Hero — township imagery, headline facts, and the enquiry card.
