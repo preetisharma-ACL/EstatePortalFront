@@ -1,9 +1,9 @@
 # Fails loudly when a URL in the sitemap stops being indexable.
 #
-# Guards the case the two-sided >=3 threshold can't guard itself against: someone
-# editing MIN_INDEXABLE here or TYPE_PAGE_MIN_PROJECTS on the backend without the
-# other, producing a sitemap entry for a noindex page. Also catches route
-# renames, pages that start 404ing, and any future noindex rule.
+# Guards the case the two-sided >=3 threshold cannot guard itself against:
+# someone editing MIN_INDEXABLE here or TYPE_PAGE_MIN_PROJECTS on the backend
+# without the other, producing a sitemap entry for a noindex page. Also catches
+# route renames, pages that start 404ing, and any future noindex rule.
 #
 # The backend command does the fetching; this only triggers it and reports.
 # Deliberately NOT a full sweep: the validator SSR-renders every URL it checks,
@@ -16,7 +16,7 @@ on:
   # check runs against the build that just shipped rather than the previous one.
   deployment_status:
   schedule:
-    # Daily, offset from the backend's 03:23 cron so the two don't overlap.
+    # Daily, offset from the backend's 03:23 IST cron so the two don't overlap.
     - cron: "40 22 * * *"
   workflow_dispatch:
     inputs:
@@ -30,14 +30,13 @@ concurrency:
 
 jobs:
   validate:
-    # Skip preview deployments — they are not what the sitemap points at.
-    # Vercel reports production as "Production"; the lowercase variant is
-    # tolerated in case that ever changes.
+    # Only the state filter lives here. The PRODUCTION filter deliberately does
+    # not: a job skipped by `if` runs no steps, so it cannot log why. Vercel's
+    # exact environment string is the thing we are unsure of, so that decision
+    # is made in the step below where it can be recorded.
     if: >-
       github.event_name != 'deployment_status' ||
-      (github.event.deployment_status.state == 'success' &&
-       (github.event.deployment_status.environment == 'Production' ||
-        github.event.deployment_status.environment == 'production'))
+      github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -46,8 +45,25 @@ jobs:
           TOKEN: ${{ secrets.SITEMAP_VALIDATION_TOKEN }}
           # A deploy is a spot-check; the scheduled run samples wider.
           LIMIT: ${{ github.event.inputs.limit || (github.event_name == 'schedule' && '50' || '5') }}
+          EVENT: ${{ github.event_name }}
+          DEPLOY_ENV: ${{ github.event.deployment_status.environment }}
+          DEPLOY_STATE: ${{ github.event.deployment_status.state }}
         run: |
           set -uo pipefail
+
+          # Logged unconditionally: if a production deploy ever stops triggering
+          # this, the run still exists and names the string it actually saw.
+          if [ "${EVENT}" = "deployment_status" ]; then
+            echo "deployment_status: environment='${DEPLOY_ENV}' state='${DEPLOY_STATE}'"
+            case "${DEPLOY_ENV}" in
+              Production|production) ;;
+              *)
+                echo "::notice::Skipping — '${DEPLOY_ENV}' is not the production environment." \
+                     "If this WAS a production deploy, add that string to the case above."
+                exit 0
+                ;;
+            esac
+          fi
 
           if [ -z "${TOKEN}" ]; then
             echo "::error::SITEMAP_VALIDATION_TOKEN is not set. Add it under" \
