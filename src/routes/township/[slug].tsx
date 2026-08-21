@@ -337,16 +337,30 @@ export default function TownshipPage() {
                     <For each={t().highlights}>
                       {(h, i) => {
                         const n = () => String(i() + 1).padStart(2, "0");
+                        // The second card wears the navy palette — same card,
+                        // dark ground — so the row has one accent panel rather
+                        // than four identical pale ones.
+                        const dark = () => i() === 1;
                         return (
                           // bg-paper, not bg-card — the section itself is white
                           // now, so a white card would read as a bare outline.
-                          <div class="card-lift group relative overflow-hidden rounded-[14px] border border-line bg-paper p-7">
+                          <div
+                            class="card-lift group relative overflow-hidden rounded-[14px] border p-7"
+                            classList={{
+                              "border-line bg-paper": !dark(),
+                              "border-white/10 bg-navy-deep": dark(),
+                            }}
+                          >
                             {/* Oversized index, bled into the corner as a
                                 watermark. Decorative, so it stays out of the
                                 accessibility tree. */}
                             <span
                               aria-hidden="true"
-                              class="pointer-events-none absolute -right-3 -top-5 select-none font-display text-[86px] font-semibold leading-none text-navy/[0.05] transition-colors duration-300 group-hover:text-gold/15"
+                              class="pointer-events-none absolute -right-3 -top-5 select-none font-display text-[86px] font-semibold leading-none transition-colors duration-300"
+                              classList={{
+                                "text-navy/[0.05] group-hover:text-gold/15": !dark(),
+                                "text-white/[0.06] group-hover:text-gold-soft/20": dark(),
+                              }}
                             >
                               {n()}
                             </span>
@@ -354,15 +368,28 @@ export default function TownshipPage() {
                             <div class="relative">
                               <span
                                 aria-hidden="true"
-                                class="inline-grid h-11 w-11 place-items-center rounded-[10px] border border-gold/35 bg-gold/10 font-display text-[15px] font-semibold text-gold transition-colors duration-300 group-hover:border-gold/60 group-hover:bg-gold/20"
+                                class="inline-grid h-11 w-11 place-items-center rounded-[10px] border font-display text-[15px] font-semibold transition-colors duration-300"
+                                classList={{
+                                  "border-gold/35 bg-gold/10 text-gold group-hover:border-gold/60 group-hover:bg-gold/20": !dark(),
+                                  "border-gold-soft/40 bg-white/10 text-gold-soft group-hover:border-gold-soft/70 group-hover:bg-white/15": dark(),
+                                }}
                               >
                                 {n()}
                               </span>
-                              <h3 class="mt-4 font-display text-lg font-semibold leading-snug text-navy">
+                              <h3
+                                class="mt-4 font-display text-lg font-semibold leading-snug"
+                                classList={{ "text-navy": !dark(), "text-white": dark() }}
+                              >
                                 {h.title}
                               </h3>
-                              <div class="mt-3 h-[3px] w-9 rounded-full bg-gold/70 transition-all duration-300 group-hover:w-14" />
-                              <p class="mt-3.5 text-sm leading-relaxed text-slate">
+                              <div
+                                class="mt-3 h-[3px] w-9 rounded-full transition-all duration-300 group-hover:w-14"
+                                classList={{ "bg-gold/70": !dark(), "bg-gold-soft": dark() }}
+                              />
+                              <p
+                                class="mt-3.5 text-sm leading-relaxed"
+                                classList={{ "text-slate": !dark(), "text-white/70": dark() }}
+                              >
                                 {h.description}
                               </p>
                             </div>
