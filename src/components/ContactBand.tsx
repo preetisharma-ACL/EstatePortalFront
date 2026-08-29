@@ -7,7 +7,8 @@ import ProjectEnquiryForm from "./ProjectEnquiryForm";
  * lives in ProjectEnquiryForm, shared with the hero banner card.
  *
  * Address is real project data; the phone/email/hours are portal defaults —
- * swap them for the desk that actually fields these enquiries.
+ * swap them for the desk that actually fields these enquiries. Township pages
+ * pass their own `phone`, since a different desk fields those enquiries.
  */
 export default function ContactBand(props: {
   image: string;
@@ -18,6 +19,8 @@ export default function ContactBand(props: {
   heading?: string;
   /** Passed through to the lead's `message` (see ProjectEnquiryForm). */
   contextNote?: string;
+  /** Overrides the portal default number for the desk that owns this page. */
+  phone?: string;
 }) {
   return (
     <section class="relative isolate overflow-hidden">
@@ -35,7 +38,7 @@ export default function ContactBand(props: {
           <h3 class="font-display text-2xl font-semibold text-white">Location Details</h3>
           <dl class="mt-7 space-y-6">
             <Detail label="Address">{props.address}</Detail>
-            <Detail label="Phone">+91 98990 55893</Detail>
+            <Detail label="Phone">{props.phone ?? "+91 98990 55893"}</Detail>
             <Detail label="Email">info@estateportal.in</Detail>
             <Detail label="Working Hours">
               Monday – Saturday

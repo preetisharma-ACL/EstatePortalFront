@@ -457,6 +457,7 @@ export default function TownshipPage() {
               citySlug={t().citySlug}
               heading={`Enquire about ${t().name}`}
               contextNote={contextNote()}
+              phone="+91 99533 26363"
             />
           </>
         );
