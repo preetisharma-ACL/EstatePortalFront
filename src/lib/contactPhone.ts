@@ -25,3 +25,20 @@ const PROJECT_DESK_PHONES: Record<string, string> = {
 
 export const deskPhoneForProject = (slug: string): string =>
   PROJECT_DESK_PHONES[slug] ?? DEFAULT_DESK_PHONE;
+
+/**
+ * Pages that carry a click-to-call button in the header, keyed by pathname.
+ * Only campaign landing pages get one — everywhere else the header CTA is the
+ * "Talk to an advisor" modal, which captures a lead instead of dropping the
+ * visitor into a dialler.
+ */
+const HEADER_CALL_PHONES: Record<string, string> = {
+  "/township/aditya-world-city": TOWNSHIP_DESK_PHONE,
+};
+
+/** The header's call number for a route, or undefined if it shouldn't show one. */
+export const headerCallPhone = (pathname: string): string | undefined =>
+  HEADER_CALL_PHONES[pathname.replace(/\/+$/, "") || "/"];
+
+/** `tel:` target for a display number — strips the spaces, keeps the +91. */
+export const telHref = (phone: string): string => `tel:${phone.replace(/[^\d+]/g, "")}`;
