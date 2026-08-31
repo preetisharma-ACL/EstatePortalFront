@@ -17,6 +17,7 @@ import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
 import NotFound from "~/components/NotFound";
 import { canonical, absoluteUrl } from "~/lib/seo";
+import { deskPhoneForProject } from "~/lib/contactPhone";
 
 export const route = {
   preload: ({ params }) => {
@@ -529,6 +530,7 @@ export default function ProjectPage() {
                 address={p().address || `${p().location.locality}, ${p().location.city}`}
                 projectSlug={p().slug}
                 citySlug={p().location.city_slug}
+                phone={deskPhoneForProject(p().slug)}
               />
             </div>
           </>
