@@ -15,9 +15,17 @@ import ReraBadges from "~/components/ReraBadges";
 import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
+import GoogleAdsTag from "~/components/GoogleAdsTag";
 import NotFound from "~/components/NotFound";
 import { canonical, absoluteUrl } from "~/lib/seo";
 import { deskPhoneForProject } from "~/lib/contactPhone";
+
+// Divyansh Orion Homes runs a Google Ads campaign. Its pages carry the Ads tag
+// and its enquiry forms hand off to /thank-you, because the ad platform counts
+// conversions by URL and an in-place confirmation never changes the URL. Every
+// other project keeps the inline thank-you.
+const ADS_CAMPAIGN_SLUG = "divyansh-orion-homes";
+const ADS_CAMPAIGN_TAG = "AW-16454201362";
 
 export const route = {
   preload: ({ params }) => {
@@ -130,6 +138,10 @@ export default function ProjectPage() {
             return paras;
           };
           const needsMoreAbout = () => (p().description?.trim().length ?? 0) < 320;
+          const adsCampaign = () => p().slug === ADS_CAMPAIGN_SLUG;
+          // The slug rides along so /thank-you can quote this project's desk.
+          const thankYouUrl = () =>
+            adsCampaign() ? `/thank-you?project=${p().slug}` : undefined;
           return (
           <>
             {/* Head tags live on the resolved path only — a 404 must not emit a
@@ -143,6 +155,11 @@ export default function ProjectPage() {
               <Meta property="og:image" content={absoluteUrl(p().og_image!)} />
             </Show>
             <Link rel="canonical" href={canonical(`/project/${p().slug}`)} />
+
+            {/* Google Ads tag — this one campaign page only. */}
+            <Show when={adsCampaign()}>
+              <GoogleAdsTag id={ADS_CAMPAIGN_TAG} />
+            </Show>
 
             {/* ---------------------------------------------------------------
                 Hero banner — full-bleed cover with a navy scrim, breadcrumb,
@@ -238,6 +255,7 @@ export default function ProjectPage() {
                     submitLabel="Request a callback"
                     projectSlug={p().slug}
                     citySlug={p().location.city_slug}
+                    redirectTo={thankYouUrl()}
                   />
                 </aside>
                 </div>
@@ -284,6 +302,7 @@ export default function ProjectPage() {
                   submitLabel="Request a callback"
                   projectSlug={p().slug}
                   citySlug={p().location.city_slug}
+                  redirectTo={thankYouUrl()}
                 />
               </div>
             </section>
@@ -531,6 +550,7 @@ export default function ProjectPage() {
                 projectSlug={p().slug}
                 citySlug={p().location.city_slug}
                 phone={deskPhoneForProject(p().slug)}
+                redirectTo={thankYouUrl()}
               />
             </div>
           </>

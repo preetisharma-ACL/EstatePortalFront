@@ -1,5 +1,5 @@
 import { createSignal, Show, onMount } from "solid-js";
-import { createAsync } from "@solidjs/router";
+import { createAsync, useNavigate } from "@solidjs/router";
 import { submitLead, ApiError } from "~/lib/api";
 import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
@@ -8,6 +8,15 @@ import type { LeadPayload } from "~/lib/types";
 
 // First page of /cities/ backs the typed-city -> slug lookup on submit.
 const CITY_PARAMS = { page: 1 } as const;
+
+/**
+ * Tags the redirect target with the new lead's id. /thank-you passes it to
+ * Google Ads as the conversion's transaction_id, which is what collapses a
+ * refresh or a back-button return into one counted conversion. Without an id
+ * the redirect still happens — every load would just count again.
+ */
+const withLeadId = (url: string, id: number | undefined) =>
+  id == null ? url : `${url}${url.includes("?") ? "&" : "?"}lead=${id}`;
 
 /**
  * The project enquiry fieldset, styled on-image (transparent inputs, white text).
@@ -32,6 +41,12 @@ export default function ProjectEnquiryForm(props: {
   idPrefix: string;
   /** Tightens spacing and type for the narrow banner card. */
   compact?: boolean;
+  /**
+   * Where to send the visitor on a successful submit. Set only on pages
+   * running an ad campaign, which need a distinct conversion URL to fire their
+   * tag on; without it the form confirms in place, as it always has.
+   */
+  redirectTo?: string;
   submitLabel?: string;
   class?: string;
 }) {
@@ -41,6 +56,7 @@ export default function ProjectEnquiryForm(props: {
   const [fieldErrors, setFieldErrors] = createSignal<Record<string, string>>({});
 
   const cities = createAsync(() => citiesQuery(CITY_PARAMS));
+  const navigate = useNavigate();
 
   onMount(() => captureAttribution());
 
@@ -83,8 +99,9 @@ export default function ProjectEnquiryForm(props: {
 
     setSubmitting(true);
     try {
-      await submitLead(payload);
-      setDone(true);
+      const lead = await submitLead(payload);
+      if (props.redirectTo) navigate(withLeadId(props.redirectTo, lead?.id));
+      else setDone(true);
     } catch (err) {
       if (err instanceof ApiError && err.status === 400 && err.detail && typeof err.detail === "object") {
         const detail = err.detail as Record<string, unknown>;

@@ -22,6 +22,8 @@ export default function ContactBand(props: {
   contextNote?: string;
   /** Overrides the portal default number for the desk that owns this page. */
   phone?: string;
+  /** Sends a successful enquiry to this URL instead of confirming in place. */
+  redirectTo?: string;
 }) {
   return (
     <section class="relative isolate overflow-hidden">
@@ -64,6 +66,7 @@ export default function ContactBand(props: {
             projectSlug={props.projectSlug}
             citySlug={props.citySlug}
             contextNote={props.contextNote}
+            redirectTo={props.redirectTo}
           />
         </div>
       </div>
