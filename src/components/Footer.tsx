@@ -23,8 +23,12 @@ export default function Footer() {
             </div>
           </div>
 
-          <div class="grid justify-items-center gap-x-8 gap-y-8 lg:pl-14 sm:grid-cols-2 xl:grid-cols-3">
-            <div class="text-center">
+          {/* Two columns from the smallest screen up — the link groups are short
+              enough to pair, which keeps the footer from becoming a long scroll
+              on a phone. Contact is the exception: the email address needs the
+              full width, so it spans both until there is room to sit inline. */}
+          <div class="grid grid-cols-2  gap-x-6 gap-y-8 sm:gap-x-8 lg:pl-14 xl:grid-cols-3">
+            <div class="col-span-2  sm:col-span-1">
               <FooterTitle>Feel free to contact us</FooterTitle>
               <ul class="mt-3.5 space-y-3 text-sm font-medium text-navy/85">
                 <li><a href="mailto:realestate@aajneeti.social" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><MailIcon /> realestate@aajneeti.social</a></li>
