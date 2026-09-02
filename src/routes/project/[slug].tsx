@@ -20,11 +20,12 @@ import NotFound from "~/components/NotFound";
 import { canonical, absoluteUrl } from "~/lib/seo";
 import { deskPhoneForProject } from "~/lib/contactPhone";
 
-// Divyansh Orion Homes runs a Google Ads campaign. Its pages carry the Ads tag
-// and its enquiry forms hand off to /thank-you, because the ad platform counts
+// Projects running a Google Ads campaign. Their pages carry the Ads tag, and
+// their enquiry forms hand off to /thank-you, because the ad platform counts
 // conversions by URL and an in-place confirmation never changes the URL. Every
-// other project keeps the inline thank-you.
-const ADS_CAMPAIGN_SLUG = "divyansh-orion-homes";
+// other project keeps the inline thank-you. Adding a project to a campaign is
+// one entry here.
+const ADS_CAMPAIGN_SLUGS = new Set(["divyansh-orion-homes", "vvip-namah"]);
 const ADS_CAMPAIGN_TAG = "AW-16454201362";
 
 export const route = {
@@ -138,7 +139,7 @@ export default function ProjectPage() {
             return paras;
           };
           const needsMoreAbout = () => (p().description?.trim().length ?? 0) < 320;
-          const adsCampaign = () => p().slug === ADS_CAMPAIGN_SLUG;
+          const adsCampaign = () => ADS_CAMPAIGN_SLUGS.has(p().slug);
           // The slug rides along so /thank-you can quote this project's desk.
           const thankYouUrl = () =>
             adsCampaign() ? `/thank-you?project=${p().slug}` : undefined;

@@ -21,6 +21,7 @@ export const TOWNSHIP_DESK_PHONE = "+91 99533 26363";
  */
 const PROJECT_DESK_PHONES: Record<string, string> = {
   "divyansh-orion-homes": "+91 99533 26363",
+  "vvip-namah": "+91 99533 26363",
 };
 
 export const deskPhoneForProject = (slug: string): string =>
