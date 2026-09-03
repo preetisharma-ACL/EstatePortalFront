@@ -387,10 +387,13 @@ export default function WhyEstatePortalPage() {
         </div>
       </section>
 
-      {/* 8. ADVISORY / CONTACT */}
-      <section class="border-t border-line bg-[#f8f5f2] py-14 sm:py-20">
+      {/* 8. ADVISORY / CONTACT + LEAD */}
+      <section
+        id="enquire"
+        class="scroll-mt-20 border-t border-line bg-[#f8f5f2] py-14 sm:py-20"
+      >
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-          <div class="grid gap-10 lg:grid-cols-[1fr_0.8fr] lg:items-center lg:gap-16">
+          <div class="grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-start lg:gap-16">
             <div>
               <p class="eyebrow">The desk behind the site</p>
               <h2 class="mt-3 font-display text-3xl font-semibold text-navy sm:text-4xl">
@@ -403,37 +406,32 @@ export default function WhyEstatePortalPage() {
                 will tell you when the honest answer is that nothing on the list fits. You
                 can ask us to stop contacting you at any time, and we will.
               </p>
+
+              <dl class="mt-8 grid gap-4 rounded-[14px] border border-line bg-card p-6 sm:grid-cols-2 sm:p-8">
+                {/* Phone hidden for now — mirrors the footer. Restore when the number is live.
+                <ContactRow label="Call us" icon="phone">
+                  <a href={`tel:${COMPANY.phoneHref}`} class="hover:text-gold">
+                    {COMPANY.phone}
+                  </a>
+                </ContactRow>
+                */}
+                <ContactRow label="Email" icon="mail">
+                  <a href={`mailto:${COMPANY.email}`} class="hover:text-gold">
+                    {COMPANY.email}
+                  </a>
+                </ContactRow>
+                <ContactRow label="Working hours" icon="clock">
+                  Monday – Saturday, 10:00 AM – 8:00 PM
+                </ContactRow>
+              </dl>
             </div>
 
-            <dl class="grid gap-4 rounded-[14px] border border-line bg-card p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-1">
-              {/* Phone hidden for now — mirrors the footer. Restore when the number is live.
-              <ContactRow label="Call us">
-                <a href={`tel:${COMPANY.phoneHref}`} class="hover:text-gold">
-                  {COMPANY.phone}
-                </a>
-              </ContactRow>
-              */}
-              <ContactRow label="Email">
-                <a href={`mailto:${COMPANY.email}`} class="hover:text-gold">
-                  {COMPANY.email}
-                </a>
-              </ContactRow>
-              <ContactRow label="Working hours">
-                Monday – Saturday, 10:00 AM – 8:00 PM
-              </ContactRow>
-            </dl>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. LEAD */}
-      <section id="enquire" class="scroll-mt-20 bg-paper py-16 sm:py-24">
-        <div class="mx-auto max-w-3xl px-4 sm:px-6">
-          <div class="rounded-[22px] border border-line bg-card p-6 shadow-[0_40px_90px_-50px_rgba(14,27,51,0.45)] sm:p-10">
-            <LeadForm
-              heading="Put us to the test"
-              subheading="Tell us the requirement. We'll come back with RERA-verified options that fit — or tell you honestly that none do."
-            />
+            <div class="rounded-[22px] border border-line bg-card p-6 shadow-[0_40px_90px_-50px_rgba(14,27,51,0.45)] sm:p-8">
+              <LeadForm
+                heading="Put us to the test"
+                subheading="Tell us the requirement. We'll come back with RERA-verified options that fit — or tell you honestly that none do."
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -441,12 +439,36 @@ export default function WhyEstatePortalPage() {
   );
 }
 
-function ContactRow(props: { label: string; children: JSX.Element }) {
+function ContactRow(props: { label: string; icon: "mail" | "clock" | "phone"; children: JSX.Element }) {
   return (
-    <div>
-      <dt class="eyebrow">{props.label}</dt>
-      <dd class="mt-1.5 font-display text-lg font-semibold text-navy">{props.children}</dd>
+    <div class="flex items-start gap-3.5">
+      <ContactIcon icon={props.icon} />
+      <div class="min-w-0">
+        <dt class="eyebrow">{props.label}</dt>
+        <dd class="mt-1.5 font-display text-lg font-semibold text-navy">{props.children}</dd>
+      </div>
     </div>
+  );
+}
+
+/** Small gold badge glyph used beside each contact detail. */
+function ContactIcon(props: { icon: "mail" | "clock" | "phone" }) {
+  return (
+    <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gold/15 text-gold" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <Show when={props.icon === "mail"}>
+          <rect x="3" y="5" width="18" height="14" rx="2.5" />
+          <path d="m3.5 7.5 7.3 5.2a2 2 0 0 0 2.4 0l7.3-5.2" />
+        </Show>
+        <Show when={props.icon === "clock"}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5.2l3.2 2" />
+        </Show>
+        <Show when={props.icon === "phone"}>
+          <path d="M7 3.5h3l1.5 4-2 1.5a11 11 0 0 0 5.5 5.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 5 5.7 2 2 0 0 1 7 3.5Z" />
+        </Show>
+      </svg>
+    </span>
   );
 }
 
