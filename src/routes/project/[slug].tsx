@@ -514,37 +514,61 @@ export default function ProjectPage() {
             </div>
 
             {/* ---------------------------------------------------------------
-                FAQs — native <details> accordion: SSR-rendered, keyboard-
-                operable and accessible with zero JS. Hidden when none exist.
-            ---------------------------------------------------------------- */}
-            {/* ---------------------------------------------------------------
                 About the developer — full-bleed parallax band (fixed image,
                 navy scrim) with a composed blurb.
             ---------------------------------------------------------------- */}
             <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.jpg" />
 
             {/* ---------------------------------------------------------------
-                FAQs — two-column cards on a navy field, each with a gold
-                question accent. Hidden when none exist.
+                FAQs — native <details> accordion on a navy field: SSR-rendered,
+                keyboard-operable and open-able with zero JS. Every row starts
+                closed. Hidden when none exist.
             ---------------------------------------------------------------- */}
             <Show when={p().faqs.length}>
-              <section class="bg-navy">
-                <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-                  <h2 class="text-center font-display text-3xl font-bold text-white sm:text-4xl">
-                    Frequently Asked Questions
-                  </h2>
-                  <div class="mt-10 grid gap-5 md:grid-cols-2">
+              <section class="relative overflow-hidden bg-navy">
+                {/* Gold wash behind the heading, so the band lifts off the navy */}
+                <div
+                  class="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(55%_100%_at_50%_0%,rgba(194,161,90,0.20),transparent_72%)]"
+                  aria-hidden="true"
+                />
+                <div class="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+                  <div class="text-center">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Good to know</p>
+                    <h2 class="mt-3 font-display text-3xl font-bold text-white sm:text-4xl">
+                      Frequently Asked Questions
+                    </h2>
+                    <span class="mx-auto mt-5 block h-px w-14 bg-gold" aria-hidden="true" />
+                    <p class="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/60">
+                      The questions buyers ask most about {p().name}. Tap any question to read the answer.
+                    </p>
+                  </div>
+
+                  {/* Two per row from md up; items-start so an open row never
+                      stretches the closed one beside it. */}
+                  <div class="mt-10 grid items-start gap-4 md:grid-cols-2">
                     <For each={p().faqs}>
                       {(faq) => (
-                        <div class="border border-white/15 bg-white/[0.03] p-6">
-                          <h3 class="flex items-start gap-3 font-display text-lg font-semibold leading-snug text-white">
-                            <span class="mt-1 h-5 w-1 shrink-0 bg-gold" aria-hidden="true" />
-                            <span>Q: {faq.question}</span>
-                          </h3>
-                          <p class="mt-3 whitespace-pre-line pl-4 text-sm leading-[1.75] text-white/70">
-                            {faq.answer}
-                          </p>
-                        </div>
+                        <details
+                          class="faq-item group rounded-[12px] border border-white/[0.14] bg-white/[0.04] transition-colors duration-200 hover:border-white/30 open:border-gold/45 open:bg-white/[0.07]"
+                        >
+                          <summary class="flex cursor-pointer items-center gap-4 px-5 py-4 sm:px-6 sm:py-5">
+                            <span class="min-w-0 flex-1 font-display text-[15px] font-semibold leading-snug text-white sm:text-base">
+                              {faq.question}
+                            </span>
+                            {/* Plus that pivots into a filled gold cross once the row is open */}
+                            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-gold/40 bg-gold/10 text-gold transition-all duration-200 group-hover:bg-gold/20 group-open:rotate-45 group-open:border-gold group-open:bg-gold group-open:text-navy">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                                <path d="M12 5v14M5 12h14" />
+                              </svg>
+                            </span>
+                          </summary>
+                          <div class="faq-answer px-5 pb-5 sm:px-6 sm:pb-6">
+                            <span class="mb-4 block h-px w-full bg-white/10" aria-hidden="true" />
+                            <p class="whitespace-pre-line text-sm leading-[1.8] text-white/70">
+                              {faq.answer}
+                            </p>
+                          </div>
+                        </details>
                       )}
                     </For>
                   </div>

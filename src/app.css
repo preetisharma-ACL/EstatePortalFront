@@ -351,3 +351,32 @@ p{
 .rich-text a:hover {
   color: var(--color-gold);
 }
+
+/* FAQ accordion (project page) — the rows are native <details>, so they open
+   with zero JS and stay keyboard-operable. Only the default disclosure marker
+   needs removing (the gold plus button replaces it), and the answer eases in
+   rather than snapping, which <details> gives no way to do from markup. */
+.faq-item > summary {
+  list-style: none;
+}
+.faq-item > summary::-webkit-details-marker {
+  display: none;
+}
+.faq-item[open] > .faq-answer {
+  animation: faq-reveal 240ms ease-out;
+}
+@keyframes faq-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-item[open] > .faq-answer {
+    animation: none;
+  }
+}
