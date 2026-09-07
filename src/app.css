@@ -271,3 +271,83 @@ p{
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ---------------------------------------------------------------------------
+   Backend rich text — Project.description, which the API now returns as HTML
+   sanitised server-side by nh3. The allowed set is exactly p, br, strong, em,
+   h2, h3, ul, ol, li, blockquote and a[href|title], so this scope covers that
+   and nothing more. Injected markup can carry no component classes, hence one
+   prose scope rather than class soup we would have no way to apply.
+
+   Size, colour and leading are inherited from the block this sits in; what is
+   set here is the vertical rhythm and the elements Tailwind's preflight would
+   otherwise leave unstyled (headings, lists, quotes, links).
+--------------------------------------------------------------------------- */
+.rich-text > :first-child {
+  margin-top: 0;
+}
+.rich-text > :last-child {
+  margin-bottom: 0;
+}
+.rich-text p {
+  margin: 0 0 1rem;
+}
+.rich-text h2,
+.rich-text h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-navy);
+  margin: 1.75rem 0 0.6rem;
+}
+.rich-text h2 {
+  font-size: 22px;
+}
+.rich-text h3 {
+  font-size: 18px;
+}
+.rich-text ul,
+.rich-text ol {
+  margin: 0 0 1rem;
+  padding-left: 1.15rem;
+}
+.rich-text ul {
+  list-style: disc;
+}
+.rich-text ol {
+  list-style: decimal;
+}
+.rich-text li + li {
+  margin-top: 0.4rem;
+}
+.rich-text li::marker {
+  color: var(--color-gold);
+}
+.rich-text strong {
+  font-weight: 700;
+  color: var(--color-navy);
+}
+.rich-text em {
+  font-style: italic;
+}
+.rich-text blockquote {
+  margin: 1.25rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--color-gold);
+  font-style: italic;
+  color: var(--color-navy);
+}
+/* Interlinks to other projects, townships and localities — the reason the
+   field became HTML. Same navy-on-gold-underline treatment as .legal, plus a
+   break opportunity so a long slug cannot overflow a phone. */
+.rich-text a {
+  color: var(--color-navy);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.rich-text a:hover {
+  color: var(--color-gold);
+}

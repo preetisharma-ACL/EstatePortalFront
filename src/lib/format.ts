@@ -144,3 +144,31 @@ export function possession(date: string | null | undefined): string | null {
   if (Number.isNaN(d.getTime())) return date;
   return d.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
 }
+
+/**
+ * Plain text of a sanitised HTML fragment.
+ *
+ * Project.description arrives from the API as HTML now, but two things still
+ * want words rather than markup: the meta description (tags would show
+ * verbatim in the SERP snippet) and any "is this copy long enough" check
+ * (tags would pad the count). Block-level ends become a space so
+ * "…done.</p><p>Next…" does not run together as "done.Next".
+ *
+ * NOT a sanitiser — it only ever runs over markup nh3 has already cleaned
+ * server-side, and its output is rendered as escaped text, never injected.
+ */
+export function htmlToText(html: string | null | undefined): string {
+  if (!html) return "";
+  return html
+    .replace(/<\/(?:p|h[1-6]|li|ul|ol|blockquote)>|<br\s*\/?>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;|&apos;/gi, "'")
+    // Last, so "&amp;lt;" decodes to "&lt;" and not to "<".
+    .replace(/&amp;/gi, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}

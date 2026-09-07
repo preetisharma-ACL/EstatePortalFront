@@ -4,7 +4,7 @@ import {
 import { Title, Meta, Link } from "@solidjs/meta";
 import { Show, For } from "solid-js";
 import { projectQuery } from "~/lib/queries";
-import { priceRange, areaRange, statusLabel, typeLabel, possession, formatINR, landArea } from "~/lib/format";
+import { priceRange, areaRange, statusLabel, typeLabel, possession, formatINR, landArea, htmlToText } from "~/lib/format";
 import GalleryGrid from "~/components/GalleryGrid";
 import FloorPlan from "~/components/FloorPlan";
 import AboutDeveloper from "~/components/AboutDeveloper";
@@ -42,7 +42,10 @@ export default function ProjectPage() {
     <Show when={project() !== undefined} fallback={<Loading />}>
       <Show when={project()} fallback={<NotFound kind="project" />}>
         {(p) => {
-          const desc =() => p().meta_description || p().description?.slice(0, 160) || "";
+          // description is sanitised HTML now, so the snippet takes its text —
+          // a raw slice would put a literal "<p>" in the SERP and could cut mid-tag.
+          const desc = () =>
+            p().meta_description || htmlToText(p().description).slice(0, 160);
           // Hero imagery: prefer backend media (cover first, then gallery order);
           // BannerSlideshow falls back to these local banners when the backend
           // has no images — or only unusable placeholders (see MIN_HERO_WIDTH).
@@ -138,7 +141,9 @@ export default function ProjectPage() {
             if (s3) paras.push(s3);
             return paras;
           };
-          const needsMoreAbout = () => (p().description?.trim().length ?? 0) < 320;
+          // Measured on the words, not the markup, so tags cannot pad a thin
+          // description past the threshold and suppress the generated copy.
+          const needsMoreAbout = () => htmlToText(p().description).length < 320;
           const adsCampaign = () => ADS_CAMPAIGN_SLUGS.has(p().slug);
           // The slug rides along so /thank-you can quote this project's desk.
           const thankYouUrl = () =>
@@ -328,7 +333,14 @@ export default function ProjectPage() {
                     <div>
                       <div class="space-y-4 text-[15px] leading-[1.85] font-medium text-gray-600">
                         <Show when={p().description}>
-                          <p class="whitespace-pre-line">{p().description}</p>
+                          {/* Sanitised server-side by nh3 on every save (p, br,
+                              strong, em, h2, h3, ul, ol, li, blockquote,
+                              a[href|title] only), so the API cannot return
+                              anything outside that set. Styled by .rich-text in
+                              app.css — injected markup carries no classes.
+                              No whitespace-pre-line: paragraphs are <p> now, and
+                              pre-line would add a blank line after each one. */}
+                          <div class="rich-text" innerHTML={p().description} />
                         </Show>
                         <Show when={needsMoreAbout()}>
                           <For each={generatedAbout()}>{(para) => <p>{para}</p>}</For>
