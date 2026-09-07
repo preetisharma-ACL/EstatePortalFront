@@ -102,7 +102,7 @@ export default function ProjectRail(props: {
           <div
             ref={scroller}
             onScroll={sync}
-            class="flex snap-x gap-5 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            class="-m-2 flex snap-x gap-5 overflow-x-auto p-2 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <Show when={props.projects} fallback={<RailSkeleton />}>
               <For each={props.projects}>{(p) => <ProjectShelfCard project={p} class={RAIL_ITEM} />}</For>
