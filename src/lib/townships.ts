@@ -121,7 +121,9 @@ export const TOWNSHIPS: Record<string, Township> = {
     // returns it — so it is provably NOT in Gaur City. It matches only because
     // "Gaur" hits the project name and "City" hits the locality "Wave City".
     excludeSlugs: ["gaur-nyc-residences"],
-    heroImages: [],
+    // Skyline photo (1539×1022). Taller than the other two, so a wide hero crop
+    // only takes a band out of the middle — that is where the towers sit.
+    heroImages: ["/banner/gaur-city.png"],
     address: "Gaur City, Greater Noida West Link Road, Greater Noida West, Uttar Pradesh 201318",
     metaTitle: "Gaur City, Greater Noida West — Projects, Price & Floor Plans | EstatePortal",
     metaDescription:
@@ -169,7 +171,8 @@ export const TOWNSHIPS: Record<string, Township> = {
     cityName: "Ghaziabad",
     townshipSlug: "wave-city",
     searchTerm: "Wave City",
-    heroImages: [],
+    // 16:9 (1280×720) — already the hero's own ratio, so it crops cleanly.
+    heroImages: ["/banner/wave-city.jpg"],
     address: "Wave City, NH-9 (Delhi–Meerut Expressway), Ghaziabad, Uttar Pradesh 201002",
     metaTitle: "Wave City, Ghaziabad — Plots, Apartments & Villas on NH-9 | EstatePortal",
     metaDescription:
