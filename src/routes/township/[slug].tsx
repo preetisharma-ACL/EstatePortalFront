@@ -427,7 +427,14 @@ export default function TownshipPage() {
             {/* ---------------------------------------------------------------
                 Projects in this township — fetched live via ?search=.
             ---------------------------------------------------------------- */}
-            <section id="projects" class="scroll-mt-20 bg-paper">
+            <section id="projects" class="relative isolate scroll-mt-20 overflow-hidden border-y border-line bg-paper">
+              {/* Warm champagne wash off the top edge settling into a faint navy
+                  at the foot, so the inventory band separates from the paper-
+                  coloured sections around it and the white cards lift off it. */}
+              <div
+                class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(75%_55%_at_50%_0%,rgba(194,161,90,0.16),transparent_62%),radial-gradient(85%_60%_at_50%_100%,rgba(22,41,75,0.06),transparent_68%)]"
+                aria-hidden="true"
+              />
               <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
                 <div class="mx-auto mb-9 max-w-3xl text-center">
                   <p class="eyebrow">Inventory</p>
