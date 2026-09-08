@@ -27,9 +27,9 @@ export default function Footer() {
               enough to pair, which keeps the footer from becoming a long scroll
               on a phone. Contact is the exception: the email address needs the
               full width, so it spans both until there is room to sit inline. */}
-          <div class="grid grid-cols-2  gap-x-6 gap-y-8 sm:gap-x-8 lg:pl-14 xl:grid-cols-3">
+          <div class="grid grid-cols-2 mt-4  gap-x-6 gap-y-8 sm:gap-x-8 lg:pl-14 xl:grid-cols-[1.25fr_1fr_1fr]">
             <div class="col-span-2  sm:col-span-1">
-              <FooterTitle>Feel free to contact us</FooterTitle>
+              <FooterTitle class="whitespace-nowrap">Feel free to contact us</FooterTitle>
               <ul class="mt-3.5 space-y-3 text-sm font-medium text-navy/85">
                 <li><a href="mailto:realestate@aajneeti.social" class="inline-flex items-center gap-3 transition-colors hover:text-gold"><MailIcon /> realestate@aajneeti.social</a></li>
                 {/* Phone hidden for now — restore this line (and PhoneIcon below) when the number is live.
@@ -82,8 +82,8 @@ export default function Footer() {
   );
 }
 
-function FooterTitle(props: { children: string }) {
-  return <h3 class="inline-block border-b-2 border-gold pb-1.5 font-display text-[1.35rem] font-semibold text-navy">{props.children}</h3>;
+function FooterTitle(props: { children: string; class?: string }) {
+  return <h3 class={`inline-block border-b-2 border-gold pb-1.5 font-display text-[1.35rem] font-semibold text-navy ${props.class ?? ""}`}>{props.children}</h3>;
 }
 
 function FooterCol(props: { title: string; links: { href: string; label: string }[] }) {
