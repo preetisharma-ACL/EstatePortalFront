@@ -9,7 +9,7 @@ const KEY = "ep_attribution";
 type Attribution = Pick<
   LeadPayload,
   | "utm_source" | "utm_medium" | "utm_campaign" | "utm_term" | "utm_content"
-  | "gclid" | "fbclid" | "landing_page"
+  | "gclid" | "fbclid" | "landing_page" | "submitted_page"
 >;
 
 const PARAM_KEYS = [
@@ -41,11 +41,19 @@ export function captureAttribution(): Attribution {
   return merged;
 }
 
-/** Current stored attribution, or {} on the server / when empty. */
+/**
+ * Current stored attribution, or {} on the server / when empty. Called at
+ * submit time, so it also stamps `submitted_page` — the page the lead was
+ * actually sent from, which is what the backend attributes and routes on.
+ * `landing_page` is first-touch and stays that way; the two differ whenever the
+ * visitor moved between pages, and conflating them once risked delivering a
+ * lead to the wrong client. Never persisted — it is per-submit, not per-session.
+ */
 export function getAttribution(): Attribution {
   if (isServer || typeof window === "undefined") return {};
   const stored = read();
   if (!stored.landing_page) stored.landing_page = window.location.href;
+  stored.submitted_page = window.location.href;
   return stored;
 }
 

@@ -20,6 +20,12 @@ const CITY_PARAMS = { page: 1 } as const;
 export default function LeadForm(props: {
   projectSlug?: string;
   citySlug?: string;
+  /**
+   * Free-text note prepended to the lead's `message`, e.g. the township a
+   * landing page is about. Mirrors ProjectEnquiryForm — the lead schema has no
+   * field for page context.
+   */
+  contextNote?: string;
   heading?: string;
   subheading?: string;
 }) {
@@ -52,13 +58,17 @@ export default function LeadForm(props: {
     }
 
     const city = resolveCity(strOrUndef(fd.get("city")), cities()?.results ?? [], props.citySlug);
+    // One message field carries both notes, so an unrecognised city never
+    // silently displaces the page context (or vice versa).
+    const message =
+      [props.contextNote, city.message].filter(Boolean).join(" · ") || undefined;
 
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
       project_slug: props.projectSlug,
       city_slug: city.city_slug,
-      message: city.message,
+      message,
       ...getAttribution(),
       consent_given: true,
     };

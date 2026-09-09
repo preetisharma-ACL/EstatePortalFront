@@ -222,6 +222,14 @@ export interface LeadPayload {
   utm_source?: string; utm_medium?: string; utm_campaign?: string;
   utm_term?: string; utm_content?: string;
   gclid?: string; fbclid?: string; landing_page?: string;
+  /**
+   * The page the form was actually submitted from. `landing_page` is
+   * first-touch for the whole session, so on a multi-page visit the two differ
+   * — and the backend prefers this one for attribution and CRM routing. Not
+   * derivable server-side: the API is cross-origin, so Referer arrives stripped
+   * to the bare origin.
+   */
+  submitted_page?: string;
   consent_given: true;
 }
 export interface LeadResponse extends LeadPayload { id: number; }

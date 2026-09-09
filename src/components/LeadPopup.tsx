@@ -1,11 +1,20 @@
 import { Show, createEffect, onCleanup, onMount } from "solid-js";
+import { useLocation } from "@solidjs/router";
 import LeadForm from "./LeadForm";
-import { leadModalOpen, openLeadModal, closeLeadModal } from "~/lib/leadModal";
+import { leadModalOpen, leadModalContext, openLeadModal, closeLeadModal } from "~/lib/leadModal";
 
 /** sessionStorage key — once set, the auto-popup won't show again this session. */
 const SEEN_KEY = "ep_lead_popup_seen";
 /** Delay before the popup appears on the first load of a session. */
 const DELAY_MS = 3000;
+
+/**
+ * The project page's path shape. Read straight off the pathname rather than
+ * from the loaded project, because this modal renders in the root layout —
+ * outside the route — and must know the project the instant it opens, which is
+ * 3s after arrival on a cold ad landing. Anything async would be undefined then.
+ */
+const PROJECT_PATH = /^\/project\/([^/?#]+)/;
 
 /**
  * Lead popup — a site-wide modal shared by two triggers: it auto-opens once per
@@ -16,6 +25,21 @@ const DELAY_MS = 3000;
 export default function LeadPopup() {
   const open = leadModalOpen;
   const close = closeLeadModal;
+  const location = useLocation();
+
+  /**
+   * The project this enquiry is about. An explicit context from the trigger
+   * wins (a listing card knows its project when the URL doesn't); otherwise the
+   * route names it. Every lead from a project page now carries the slug —
+   * previously the popup and every brochure CTA sent none, and the lead landed
+   * unattributed however it had been triggered.
+   */
+  const projectSlug = () => {
+    const explicit = leadModalContext().projectSlug;
+    if (explicit) return explicit;
+    const m = PROJECT_PATH.exec(location.pathname);
+    return m ? decodeURIComponent(m[1]) : undefined;
+  };
 
   onMount(() => {
     let seen = false;
@@ -81,6 +105,9 @@ export default function LeadPopup() {
           <LeadForm
             heading="Talk to a property advisor"
             subheading="Share a few details and a verified advisor will help you shortlist RERA-verified options — no pressure, no spam."
+            projectSlug={projectSlug()}
+            citySlug={leadModalContext().citySlug}
+            contextNote={leadModalContext().contextNote}
           />
         </div>
       </div>

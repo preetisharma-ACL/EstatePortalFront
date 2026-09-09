@@ -20,7 +20,7 @@ export default function BrochureButton(props: {
   return (
     <button
       type="button"
-      onClick={openLeadModal}
+      onClick={() => openLeadModal()}
       class={`inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--radius-btn)] px-6 py-3 text-sm font-semibold uppercase tracking-wider transition-colors ${style()} ${props.class ?? ""}`}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true">
