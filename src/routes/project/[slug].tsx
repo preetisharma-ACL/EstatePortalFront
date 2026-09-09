@@ -16,6 +16,7 @@ import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
+import GoogleTagManager from "~/components/GoogleTagManager";
 import NotFound from "~/components/NotFound";
 import { canonical, absoluteUrl } from "~/lib/seo";
 import { deskPhoneForProject } from "~/lib/contactPhone";
@@ -27,6 +28,14 @@ import { deskPhoneForProject } from "~/lib/contactPhone";
 // one entry here.
 const ADS_CAMPAIGN_SLUGS = new Set(["divyansh-orion-homes", "vvip-namah"]);
 const ADS_CAMPAIGN_TAG = "AW-16454201362";
+
+// Projects that carry their own Google Tag Manager container, keyed by slug.
+// GTM is per-project rather than site-wide: the site-wide GA4 tag in
+// entry-server.tsx already covers every other page, and a container has no tags
+// for pages it wasn't set up for. Adding a project is one entry here.
+const GTM_CONTAINERS: Record<string, string> = {
+  "ska-imperia-wave-city": "GTM-KRQSMVLM",
+};
 
 export const route = {
   preload: ({ params }) => {
@@ -165,6 +174,11 @@ export default function ProjectPage() {
             {/* Google Ads tag — this one campaign page only. */}
             <Show when={adsCampaign()}>
               <GoogleAdsTag id={ADS_CAMPAIGN_TAG} />
+            </Show>
+
+            {/* Google Tag Manager — only projects listed above get a container. */}
+            <Show when={GTM_CONTAINERS[p().slug]}>
+              {(id) => <GoogleTagManager id={id()} />}
             </Show>
 
             {/* ---------------------------------------------------------------
