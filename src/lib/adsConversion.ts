@@ -34,6 +34,8 @@ const DEFAULT_LABEL = import.meta.env.VITE_GADS_CONVERSION_LABEL;
 const PROJECT_CONVERSIONS: Record<string, AdsConversionAction> = {
   // "Lead - Form Submit SKA"
   "ska-imperia-wave-city": { label: "47LoCJKvhvMcEJLg_KU9", value: 1.0, currency: "INR" },
+  // "RG Pal Submit Form"
+  "rg-pleiaddes": { label: "1sBICJjskvMcEJLg_KU9", value: 1.0, currency: "INR" },
 };
 
 /** The action for a project slug, or undefined if there is nothing to send. */
