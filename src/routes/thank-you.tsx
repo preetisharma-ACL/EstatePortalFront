@@ -1,11 +1,8 @@
 import { Title, Meta } from "@solidjs/meta";
 import { A, useSearchParams } from "@solidjs/router";
-import { Show } from "solid-js";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
 import AdsConversion from "~/components/AdsConversion";
-import GoogleTagManager from "~/components/GoogleTagManager";
 import { deskPhoneForProject, telHref } from "~/lib/contactPhone";
-import { gtmContainerFor } from "~/lib/gtm";
 
 const str = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
 
@@ -28,7 +25,6 @@ const str = (v: string | string[] | undefined) => (typeof v === "string" ? v : u
 export default function ThankYouPage() {
   const [params] = useSearchParams();
   const phone = () => deskPhoneForProject(str(params.project) ?? "");
-  const gtmContainer = () => gtmContainerFor(str(params.project));
 
   return (
     <div class="mx-auto max-w-xl px-4 py-24 text-center">
@@ -41,14 +37,6 @@ export default function ThankYouPage() {
       {/* Sends the conversion itself — `?lead=` is the lead id, used as the
           transaction_id so a refresh doesn't count twice. */}
       <AdsConversion transactionId={str(params.lead)} />
-
-      {/* Google Tag Manager for the project the lead came from — `?project=` is
-          set by the redirect that brought the visitor here. Keyed off the slug
-          rather than loaded for every confirmation, so a campaign container
-          only ever counts its own project's leads. */}
-      <Show when={gtmContainer()}>
-        {(id) => <GoogleTagManager id={id()} />}
-      </Show>
 
       <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-green text-white shadow-[0_0_0_3px_var(--color-gold)]">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

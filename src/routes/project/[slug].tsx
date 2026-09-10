@@ -16,15 +16,20 @@ import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
-import GoogleTagManager from "~/components/GoogleTagManager";
 import NotFound from "~/components/NotFound";
 import { canonical, absoluteUrl } from "~/lib/seo";
 import { deskPhoneForProject } from "~/lib/contactPhone";
-import { gtmContainerFor } from "~/lib/gtm";
 
-// Projects running a Google Ads campaign. Their pages carry the Ads tag.
-// Adding a project to a campaign is one entry here.
-const ADS_CAMPAIGN_SLUGS = new Set(["divyansh-orion-homes", "vvip-namah"]);
+// Projects running a Google Ads campaign. Their pages carry the Ads tag, and
+// their enquiry forms hand off to /thank-you, because the ad platform counts
+// conversions by URL and an in-place confirmation never changes the URL. Every
+// other project keeps the inline thank-you. Adding a project to a campaign is
+// one entry here.
+const ADS_CAMPAIGN_SLUGS = new Set([
+  "divyansh-orion-homes",
+  "vvip-namah",
+  "ska-imperia-wave-city",
+]);
 const ADS_CAMPAIGN_TAG = "AW-16454201362";
 
 export const route = {
@@ -144,18 +149,11 @@ export default function ProjectPage() {
           // description past the threshold and suppress the generated copy.
           const needsMoreAbout = () => htmlToText(p().description).length < 320;
           const adsCampaign = () => ADS_CAMPAIGN_SLUGS.has(p().slug);
-          const gtmContainer = () => gtmContainerFor(p().slug);
-          // Both tag setups count a conversion by URL, and an in-place
-          // confirmation never changes the URL — so either one earns the
-          // handoff to /thank-you. Every other project keeps the inline
-          // thank-you. (The site-wide lead modal always confirms in place; only
-          // the forms on this page redirect.)
+          // The slug rides along so /thank-you can quote this project's desk.
+          // (Only the forms on this page redirect — the site-wide lead modal
+          // always confirms in place.)
           const thankYouUrl = () =>
-            adsCampaign() || gtmContainer()
-              ? // The slug rides along so /thank-you can quote this project's
-                // desk — and load this project's GTM container.
-                `/thank-you?project=${p().slug}`
-              : undefined;
+            adsCampaign() ? `/thank-you?project=${p().slug}` : undefined;
           return (
           <>
             {/* Head tags live on the resolved path only — a 404 must not emit a
@@ -170,14 +168,9 @@ export default function ProjectPage() {
             </Show>
             <Link rel="canonical" href={canonical(`/project/${p().slug}`)} />
 
-            {/* Google Ads tag — this one campaign page only. */}
+            {/* Google Ads tag — campaign pages only. */}
             <Show when={adsCampaign()}>
               <GoogleAdsTag id={ADS_CAMPAIGN_TAG} />
-            </Show>
-
-            {/* Google Tag Manager — only projects with a container get one. */}
-            <Show when={gtmContainer()}>
-              {(id) => <GoogleTagManager id={id()} />}
             </Show>
 
             {/* ---------------------------------------------------------------
