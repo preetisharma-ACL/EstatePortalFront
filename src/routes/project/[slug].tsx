@@ -29,6 +29,7 @@ const ADS_CAMPAIGN_SLUGS = new Set([
   "divyansh-orion-homes",
   "vvip-namah",
   "ska-imperia-wave-city",
+  "rg-pleiaddes",
 ]);
 const ADS_CAMPAIGN_TAG = "AW-16454201362";
 
