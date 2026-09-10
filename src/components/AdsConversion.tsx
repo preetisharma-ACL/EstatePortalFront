@@ -1,15 +1,11 @@
 import { createEffect, onCleanup } from "solid-js";
+import { ADS_ACCOUNT_ID, type AdsConversionAction } from "~/lib/adsConversion";
 
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
   }
 }
-
-const AW_ID = "AW-16454201362";
-/** Vite inlines this at build time — see src/global.d.ts. */
-const LABEL = import.meta.env.VITE_GADS_CONVERSION_LABEL;
-const SEND_TO = `${AW_ID}/${LABEL}`;
 
 // gtag.js is loaded async. Its inline snippet defines window.gtag synchronously
 // in <head>, so in practice the first attempt succeeds — the retry only covers
@@ -25,6 +21,10 @@ const MAX_ATTEMPTS = 20;
  * — Google Ads counts nothing until an `event`/`conversion` with `send_to`
  * arrives, which is what this sends.
  *
+ * Which action it reports to is the caller's to decide (see lib/adsConversion):
+ * campaigns have their own, and sending every lead to one action would blur
+ * them together. No action — nothing to send — and this does nothing.
+ *
  * Runs from an effect rather than a <script> tag: a script injected after
  * hydration does not execute reliably, so a client-side navigation into the
  * page — the normal path after a form submit — would drop the conversion.
@@ -33,7 +33,10 @@ const MAX_ATTEMPTS = 20;
  * sessionStorage guard below stops a refresh or a back-button return from even
  * sending the duplicate. Without one, every load of the page counts again.
  */
-export default function AdsConversion(props: { transactionId?: string }) {
+export default function AdsConversion(props: {
+  action?: AdsConversionAction;
+  transactionId?: string;
+}) {
   let fired = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -41,7 +44,8 @@ export default function AdsConversion(props: { transactionId?: string }) {
   // (a search param on a client-side navigation) is still attached.
   createEffect(() => {
     const txn = props.transactionId;
-    if (fired || !LABEL) return;
+    const action = props.action;
+    if (fired || !action) return;
     // A re-run (transactionId resolving a tick late) abandons the previous
     // retry chain rather than racing a second one alongside it.
     if (timer) clearTimeout(timer);
@@ -69,7 +73,11 @@ export default function AdsConversion(props: { transactionId?: string }) {
           } catch {}
         }
         window.gtag("event", "conversion", {
-          send_to: SEND_TO,
+          send_to: `${ADS_ACCOUNT_ID}/${action.label}`,
+          // Google Ads rejects a value with no currency, so the pair moves together.
+          ...(action.value != null && action.currency
+            ? { value: action.value, currency: action.currency }
+            : {}),
           ...(txn ? { transaction_id: txn } : {}),
         });
         return;
