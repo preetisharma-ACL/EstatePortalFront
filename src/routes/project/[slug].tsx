@@ -19,6 +19,7 @@ import BrochureButton from "~/components/BrochureButton";
 import CallCta from "~/components/CallCta";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
 import NotFound from "~/components/NotFound";
+import ProjectHeader, { type ProjectSection } from "~/components/ProjectHeader";
 import { canonical, absoluteUrl } from "~/lib/seo";
 import { projectPhone } from "~/lib/contactPhone";
 
@@ -46,8 +47,8 @@ export default function ProjectPage() {
   const project = createAsync(() => projectQuery(params.slug!), { deferStream: true });
 
   return (
-    <Show when={project() !== undefined} fallback={<Loading />}>
-      <Show when={project()} fallback={<NotFound kind="project" />}>
+    <Show when={project() !== undefined} fallback={<><ProjectHeader /><Loading /></>}>
+      <Show when={project()} fallback={<><ProjectHeader /><NotFound kind="project" /></>}>
         {(p) => {
           // description is sanitised HTML now, so the snippet takes its text —
           // a raw slice would put a literal "<p>" in the SERP and could cut mid-tag.
@@ -67,6 +68,10 @@ export default function ProjectPage() {
               .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order)
               .map((m) => m.image!)
               .slice(0, 6);
+          // Mirrors GalleryGrid's own filter — the header must not offer a
+          // "Gallery" anchor for a project whose grid renders nothing.
+          const hasGallery = () =>
+            p().media.some((m) => m.media_type !== "video" && m.image);
           const configSummary = () =>
             [...new Set(p().configurations.map((c) => c.sub_type_display))].join(" · ");
           const primaryRera = () => p().rera_registrations[0];
@@ -157,8 +162,29 @@ export default function ProjectPage() {
           // always confirms in place.)
           const thankYouUrl = () =>
             adsCampaign() ? `/thank-you?project=${p().slug}` : undefined;
+          // The project header's nav. Every section below is conditional on the
+          // backend having content for it, so each entry is gated on the same
+          // test as the section itself — a link here always has somewhere to go.
+          const navSections = (): ProjectSection[] =>
+            [
+              { id: "about", label: "About", show: Boolean(p().description || facts().length) },
+              { id: "highlights", label: "Highlights", show: p().highlights_list.length > 0 },
+              { id: "amenities", label: "Amenities", show: p().amenities.length > 0 },
+              { id: "features", label: "Features", show: p().key_features.length > 0 },
+              { id: "gallery", label: "Gallery", show: hasGallery() },
+              { id: "location", label: "Location", show: p().location_advantages.length > 0 },
+              { id: "developer", label: "About developer", show: true },
+              { id: "faq", label: "FAQ", show: p().faqs.length > 0 },
+            ]
+              .filter((s) => s.show)
+              .map(({ id, label }) => ({ id, label }));
           return (
           <>
+            <ProjectHeader
+              projectName={p().name}
+              sections={navSections()}
+              phone={p().contact_phone}
+            />
             {/* Head tags live on the resolved path only — a 404 must not emit a
                 self-referential canonical or this project's title/meta. */}
             <Title>{p().meta_title || `${p().name} by ${p().developer.name} | Aajneeti Real Estate`}</Title>
@@ -329,7 +355,7 @@ export default function ProjectPage() {
                 About — description, key facts, and a media panel.
             ---------------------------------------------------------------- */}
             <Show when={p().description || facts().length}>
-              <section class="border-b border-line bg-paper">
+              <section id="about" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-paper">
                 <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
                   {/* Centred header */}
                   <div class="mx-auto max-w-3xl text-center">
@@ -417,7 +443,7 @@ export default function ProjectPage() {
                 backend. Hidden when empty.
             ---------------------------------------------------------------- */}
             <Show when={p().highlights_list.length}>
-              <section class="border-b border-line bg-card">
+              <section id="highlights" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-card">
                 <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
                   <div class="mx-auto max-w-3xl text-center">
                     <p class="eyebrow">At a glance</p>
@@ -447,7 +473,11 @@ export default function ProjectPage() {
                 Gallery — centred "{name} Images" heading over an even photo
                 grid with a click-to-zoom lightbox. Hidden when no images.
             ---------------------------------------------------------------- */}
-            <GalleryGrid media={p().media} name={p().name} />
+            <Show when={hasGallery()}>
+              <div id="gallery" class="scroll-mt-[116px] lg:scroll-mt-[76px]">
+                <GalleryGrid media={p().media} name={p().name} />
+              </div>
+            </Show>
 
             {/* Brochure CTA band — sits between the photos and the sizes table,
                 where the visitor is weighing specifics. */}
@@ -476,7 +506,7 @@ export default function ProjectPage() {
                 Hidden when the project has none (three in the catalogue).
             ---------------------------------------------------------------- */}
             <Show when={p().amenities.length}>
-              <section class="border-b border-line bg-paper">
+              <section id="amenities" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-paper">
                 <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
                   <div class="mx-auto max-w-3xl text-center">
                     <p class="eyebrow">Lifestyle</p>
@@ -497,7 +527,7 @@ export default function ProjectPage() {
                 amenity grid above). Hidden when the backend supplies none.
             ---------------------------------------------------------------- */}
             <Show when={p().key_features.length}>
-              <section class="border-b border-line bg-card">
+              <section id="features" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-card">
                 <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
                   <div class="mx-auto max-w-3xl text-center">
                     <p class="eyebrow">What sets it apart</p>
@@ -537,7 +567,7 @@ export default function ProjectPage() {
                 as a two-column pill list. Hidden when the backend has none.
             ---------------------------------------------------------------- */}
             <Show when={p().location_advantages.length}>
-              <section class="border-b border-line bg-paper">
+              <section id="location" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-paper">
                 <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
                   <div class="mx-auto max-w-3xl text-center">
                     <p class="eyebrow">Connectivity</p>
@@ -587,7 +617,9 @@ export default function ProjectPage() {
                 About the developer — full-bleed parallax band (fixed image,
                 navy scrim) with a composed blurb.
             ---------------------------------------------------------------- */}
-            <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.jpg" />
+            <div id="developer" class="scroll-mt-[116px] lg:scroll-mt-[76px]">
+              <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.jpg" />
+            </div>
 
             {/* ---------------------------------------------------------------
                 FAQs — native <details> accordion on a navy field: SSR-rendered,
@@ -595,7 +627,7 @@ export default function ProjectPage() {
                 closed. Hidden when none exist.
             ---------------------------------------------------------------- */}
             <Show when={p().faqs.length}>
-              <section class="relative overflow-hidden bg-navy">
+              <section id="faq" class="scroll-mt-[116px] lg:scroll-mt-[76px] relative overflow-hidden bg-navy">
                 {/* Gold wash behind the heading, so the band lifts off the navy */}
                 <div
                   class="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(55%_100%_at_50%_0%,rgba(194,161,90,0.20),transparent_72%)]"
