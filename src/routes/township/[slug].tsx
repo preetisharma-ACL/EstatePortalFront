@@ -4,14 +4,15 @@ import {
 import { Title, Meta, Link } from "@solidjs/meta";
 import { createMemo, For, Show } from "solid-js";
 import BannerSlideshow from "~/components/BannerSlideshow";
+import CallCta from "~/components/CallCta";
 import ContactBand from "~/components/ContactBand";
 import NotFound from "~/components/NotFound";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import ProjectRail from "~/components/ProjectRail";
 import ProjectStrip from "~/components/ProjectStrip";
-import { TOWNSHIP_DESK_PHONE } from "~/lib/contactPhone";
+import { phoneOrUndefined, TOWNSHIP_DESK_PHONE } from "~/lib/contactPhone";
 import { filtersFromParams } from "~/lib/filters";
-import { townshipProjectsQuery } from "~/lib/queries";
+import { localityQuery, townshipProjectsQuery } from "~/lib/queries";
 import { getTownship, sourceFor } from "~/lib/townships";
 import type { ProjectFilters, ProjectListItem } from "~/lib/types";
 import { canonical, absoluteUrl } from "~/lib/seo";
@@ -63,14 +64,15 @@ const SORTERS: Record<string, (a: ProjectListItem, b: ProjectListItem) => number
 export const route = {
   preload: ({ params, location }) => {
     // The township comes from a local registry (synchronous), so only the
-    // project query needs preloading — every section on the page derives from
-    // this single fetch.
+    // fetches need preloading: the project listing every section derives from,
+    // and the locality record that carries the township's contact number.
     const t = getTownship(params.slug!);
     if (!t) return;
     void townshipProjectsQuery(
       sourceFor(t),
       townshipFilters(location.query as Record<string, string>),
     );
+    if (t.townshipSlug) void localityQuery(t.citySlug, t.townshipSlug);
   },
 } satisfies RouteDefinition;
 
@@ -92,6 +94,22 @@ export default function TownshipPage() {
       ? townshipProjectsQuery(sourceFor(township()!), filters())
       : Promise.resolve(undefined),
   );
+
+  /**
+   * The backend locality record behind this township, fetched only for its
+   * `contact_phone` — everything else on the page comes from the local
+   * registry. A township with no `townshipSlug` has no record to read (Gaur
+   * City, today), which simply means no call CTA.
+   */
+  const locality = createAsync(() => {
+    const t = township();
+    return t?.townshipSlug
+      ? localityQuery(t.citySlug, t.townshipSlug)
+      : Promise.resolve(null);
+  });
+
+  /** The admin-set number for this township, or nothing. */
+  const townshipPhone = () => phoneOrUndefined(locality()?.contact_phone);
 
   const ordering = () => filtersFromParams(sp as Record<string, string>).ordering;
 
@@ -238,6 +256,12 @@ export default function TownshipPage() {
                       >
                         About the township
                       </a>
+                      {/* Only when this township has a number set in the admin. */}
+                      <CallCta
+                        phone={townshipPhone()}
+                        variant="glass"
+                        class="px-5 py-2.5"
+                      />
                     </div>
                   </div>
 
@@ -465,7 +489,7 @@ export default function TownshipPage() {
               citySlug={t().citySlug}
               heading={`Enquire about ${t().name}`}
               contextNote={contextNote()}
-              phone={TOWNSHIP_DESK_PHONE}
+              phone={townshipPhone() ?? TOWNSHIP_DESK_PHONE}
             />
           </>
         );

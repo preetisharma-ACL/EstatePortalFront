@@ -1,12 +1,32 @@
 /**
- * Which number the "Location Details" panel of the contact band shows.
+ * Which number a page quotes, and whether it offers a call CTA at all.
  *
- * Most pages quote the portal desk. A few are fielded by a different desk, so
- * they are listed here rather than hardcoded at the call site — one place to
- * look when a number changes hands.
+ * Two sources, in priority order:
+ *
+ *   1. `contact_phone` on the project or locality payload, set per record in
+ *      the admin. Always present, EMPTY STRING when unset. This is the one the
+ *      content team controls, so it wins whenever it is filled in.
+ *   2. The maps below — the numbers that predate that field. They stay as the
+ *      fallback so nothing changes on a page whose record is still blank, and
+ *      an entry becomes dead the moment its record gets a number.
+ *
+ * Empty at BOTH levels means render no call CTA: no placeholder, no empty row.
  *
  * Note these are display strings, formatted the way the panel renders them.
  */
+
+/**
+ * Normalises a payload `contact_phone` to "a number, or nothing".
+ *
+ * The backend sends "" rather than null for an unset number, and "" is falsy
+ * but still a string — passing it straight to a `??` chain or a `<Show>` would
+ * render an empty call button. Everything that reads the field goes through
+ * here.
+ */
+export const phoneOrUndefined = (value: string | null | undefined): string | undefined => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+};
 
 /** Portal default — every page that isn't overridden below. */
 export const DEFAULT_DESK_PHONE = "+91 98990 55893";
@@ -28,6 +48,15 @@ const PROJECT_DESK_PHONES: Record<string, string> = {
 
 export const deskPhoneForProject = (slug: string): string =>
   PROJECT_DESK_PHONES[slug] ?? DEFAULT_DESK_PHONE;
+
+/**
+ * The number a project page quotes: its own `contact_phone` when the admin has
+ * one, else the desk map above, else the portal default. Always resolves to
+ * something — this is the "Location Details" row, which has always shown a
+ * number. The call CTA is gated separately, on phoneOrUndefined alone.
+ */
+export const projectPhone = (contactPhone: string | null | undefined, slug: string): string =>
+  phoneOrUndefined(contactPhone) ?? deskPhoneForProject(slug);
 
 /**
  * Pages that carry a click-to-call button in the header, keyed by pathname.

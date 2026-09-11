@@ -15,10 +15,11 @@ import ReraBadges from "~/components/ReraBadges";
 import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
+import CallCta from "~/components/CallCta";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
 import NotFound from "~/components/NotFound";
 import { canonical, absoluteUrl } from "~/lib/seo";
-import { deskPhoneForProject } from "~/lib/contactPhone";
+import { projectPhone } from "~/lib/contactPhone";
 
 // Projects running a Google Ads campaign. Their pages carry the Ads tag, and
 // their enquiry forms hand off to /thank-you, because the ad platform counts
@@ -286,6 +287,9 @@ export default function ProjectPage() {
                     <Stat label="Status" value={statusLabel(p().status)} />
                   </dl>
                   <div class="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
+                    {/* Only when this project has a number set in the admin —
+                        otherwise nothing renders here at all. */}
+                    <CallCta phone={p().contact_phone} variant="glass" compactLabel />
                     <BrochureButton variant="outline" />
                     <a
                       href="#enquire"
@@ -593,7 +597,7 @@ export default function ProjectPage() {
                 address={p().address || `${p().location.locality}, ${p().location.city}`}
                 projectSlug={p().slug}
                 citySlug={p().location.city_slug}
-                phone={deskPhoneForProject(p().slug)}
+                phone={projectPhone(p().contact_phone, p().slug)}
                 redirectTo={thankYouUrl()}
               />
             </div>

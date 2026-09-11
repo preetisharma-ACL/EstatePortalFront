@@ -3,6 +3,7 @@ import {
 } from "@solidjs/router";
 import { Title, Meta, Link } from "@solidjs/meta";
 import { createMemo, Show } from "solid-js";
+import CallCta from "~/components/CallCta";
 import FilterPanel from "~/components/FilterPanel";
 import ResultsGrid from "~/components/ResultsGrid";
 import { localityQuery, projectsQuery } from "~/lib/queries";
@@ -94,6 +95,9 @@ export default function LocalityPage() {
                   Property in <span class="italic text-gold-soft">{l().name}</span>
                 </h1>
                 <p class="mt-2 text-white/70">{l().city} · RERA-verified inventory</p>
+                {/* Only when this locality has a number set in the admin —
+                    blank is the norm, and renders nothing. */}
+                <CallCta phone={l().contact_phone} variant="glass" class="mt-5" />
               </div>
             </section>
 

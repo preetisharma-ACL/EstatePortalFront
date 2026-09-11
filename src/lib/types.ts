@@ -64,6 +64,12 @@ export interface Locality {
   id: number; name: string; slug: string;
   locality_type: LocalityType;
   city: string; city_slug: string; parent: number | null;
+  /**
+   * Desk number for this locality, set per township in the admin. ALWAYS
+   * present, empty string when unset — which is the common case today. Empty
+   * means render no call CTA at all, not a placeholder.
+   */
+  contact_phone: string;
   latitude: string | null; longitude: string | null;
   meta_title: string; meta_description: string;
 }
@@ -157,6 +163,12 @@ export interface ProjectDetail {
   project_type: ProjectType; status: ProjectStatus;
   possession_date: string | null; launched_on: string | null;
   address: string;
+  /**
+   * Desk number for this project, set per project in the admin. ALWAYS present,
+   * empty string when unset. Empty means render no call CTA — see
+   * src/lib/contactPhone.ts.
+   */
+  contact_phone: string;
   latitude: string | null; longitude: string | null;
   description: string; highlights_list: string[];
   price_min: number | null; price_max: number | null;
