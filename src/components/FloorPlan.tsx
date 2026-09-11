@@ -1,6 +1,6 @@
 import { For, Show, createMemo, createSignal } from "solid-js";
 import type { Configuration, ProjectDetail } from "~/lib/types";
-import { formatINR, num, indianGroup } from "~/lib/format";
+import { num, indianGroup, priceDisplay } from "~/lib/format";
 import BrochureButton from "./BrochureButton";
 
 /**
@@ -17,8 +17,13 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
     if (v === null) return "On Request";
     return `${indianGroup(Math.round(v))} ${c.area_unit || "sq.ft."}`;
   };
+  // An unverified price shows its label, not the number — the same rule as the
+  // price list. The asterisk marks an approximate figure and belongs only on a
+  // number we are actually standing behind.
   const priceCell = (c: Configuration) =>
-    c.price !== null ? `${formatINR(c.price)}*` : "On Request";
+    c.price_status === "verified" && c.price !== null
+      ? `${priceDisplay(c.price, c.price_status)}*`
+      : priceDisplay(c.price, c.price_status, c.price_status_display);
 
   // Floor-plan media (used as a fallback when a config has no plan of its own,
   // indexed by row order). No frontend placeholder image is ever used.

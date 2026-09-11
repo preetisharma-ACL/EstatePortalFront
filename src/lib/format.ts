@@ -1,3 +1,5 @@
+import type { PriceStatus } from "./types";
+
 // Formatting helpers.
 // Money fields (price, price_min, price_max) arrive as NUMBERS.
 // Decimal fields (bhk, areas, price_per_sqft, lat/lng) arrive as STRINGS —
@@ -118,6 +120,38 @@ const STATUS_LABEL: Record<string, string> = {
   ready_to_move: "Ready to Move",
   completed: "Completed",
 };
+/**
+ * What to print for a price, honouring whether it has been verified.
+ *
+ * THE EDITORIAL RULE OF THIS PAGE: an unverified price is labelled, never
+ * printed as if confirmed and never silently blanked. Portals disagree with
+ * each other and with the developer, so "we don't know" is a publishable
+ * answer — and saying so is the credibility of the page.
+ *
+ * So anything other than `verified` returns the label EVEN IF a number exists.
+ * A missing number under a verified status still falls back to "On request".
+ */
+export function priceDisplay(
+  price: number | string | null | undefined,
+  status: PriceStatus | null | undefined,
+  statusDisplay?: string,
+): string {
+  if (status && status !== "verified") return statusDisplay || "Not verified";
+  const n = num(price ?? null);
+  return n === null ? "On request" : formatINR(n);
+}
+
+/** priceDisplay for a min–max pair — the headline figure and comparable rows. */
+export function priceRangeDisplay(
+  min: number | string | null | undefined,
+  max: number | string | null | undefined,
+  status: PriceStatus | null | undefined,
+  statusDisplay?: string,
+): string {
+  if (status && status !== "verified") return statusDisplay || "Not verified";
+  return priceRange(num(min ?? null), num(max ?? null)) ?? "On request";
+}
+
 export function statusLabel(s: string): string {
   return STATUS_LABEL[s] ?? titleCase(s);
 }

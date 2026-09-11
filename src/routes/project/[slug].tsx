@@ -4,11 +4,20 @@ import {
 import { Title, Meta, Link } from "@solidjs/meta";
 import { Show, For } from "solid-js";
 import { projectQuery } from "~/lib/queries";
-import { priceRange, areaRange, statusLabel, typeLabel, possession, formatINR, landArea, htmlToText } from "~/lib/format";
+import { areaRange, statusLabel, typeLabel, possession, formatINR, landArea, htmlToText, priceRangeDisplay } from "~/lib/format";
 import GalleryGrid from "~/components/GalleryGrid";
 import FloorPlan from "~/components/FloorPlan";
 import AboutDeveloper from "~/components/AboutDeveloper";
 import AmenityList from "~/components/AmenityList";
+import BuyerProfiles from "~/components/BuyerProfiles";
+import InvestmentAnalysis from "~/components/InvestmentAnalysis";
+import LocationTable from "~/components/LocationTable";
+import NearbyProjects from "~/components/NearbyProjects";
+import PriceList from "~/components/PriceList";
+import ProjectSpecifications from "~/components/ProjectSpecifications";
+import ProjectUpdates from "~/components/ProjectUpdates";
+import ReraDetails from "~/components/ReraDetails";
+import Section from "~/components/Section";
 import ContactBand from "~/components/ContactBand";
 import BannerSlideshow from "~/components/BannerSlideshow";
 import VideoPanel from "~/components/VideoPanel";
@@ -76,13 +85,32 @@ export default function ProjectPage() {
             [
               { label: "Configurations", value: configSummary() },
               { label: "Unit sizes", value: areaRange(p().area_min, p().area_max) },
-              { label: "Price range", value: priceRange(p().price_min, p().price_max) },
+              { label: "Price range", value: priceRangeDisplay(p().price_min, p().price_max, p().price_status) },
               { label: "Project type", value: typeLabel(p().project_type) },
               { label: "Status", value: statusLabel(p().status) },
               { label: "Possession", value: p().possession_label?.trim() || possession(p().possession_date) },
               { label: "Developer", value: p().developer.name },
               { label: "RERA", value: primaryRera() ? "Registered" : null },
+              // From the latest RERA quarterly progress report, so it is a
+              // filed figure rather than a marketing one — worth stating as a
+              // fact rather than a progress bar implying live tracking.
+              {
+                label: "Construction progress",
+                value:
+                  p().construction_progress != null
+                    ? `${p().construction_progress}% (per RERA QPR)`
+                    : null,
+              },
             ].filter((f): f is { label: string; value: string } => Boolean(f.value));
+          // The two location tables the template specifies. Connectivity is its
+          // own section; everything else (schools, hospitals, shopping,
+          // employment) is "Nearby Infrastructure".
+          const connectivity = () =>
+            p().location_advantages.filter((a) => a.category === "connectivity");
+          const infrastructure = () =>
+            p().location_advantages.filter((a) => a.category !== "connectivity");
+          const masterPlans = () =>
+            p().media.filter((m) => m.media_type === "master_plan" && m.image);
           // Decorative image for the About media panel; a promo video if one exists.
           const promoVideo = () =>
             p().media.find((m) => m.media_type === "video" && m.video_url)?.video_url ?? null;
@@ -158,11 +186,20 @@ export default function ProjectPage() {
             [
               { id: "about", label: "About", show: Boolean(p().description || facts().length) },
               { id: "highlights", label: "Highlights", show: p().highlights_list.length > 0 },
-              { id: "amenities", label: "Amenities", show: p().amenities.length > 0 },
+              { id: "considerations", label: "Considerations", show: p().considerations_list.length > 0 },
               { id: "features", label: "Features", show: p().key_features.length > 0 },
+              { id: "updates", label: "Updates", show: p().updates.length > 0 },
               { id: "gallery", label: "Gallery", show: hasGallery() },
-              { id: "location", label: "Location", show: p().location_advantages.length > 0 },
+              { id: "pricing", label: "Pricing", show: p().configurations.length > 0 },
+              { id: "specifications", label: "Specifications", show: p().specifications.length > 0 },
+              { id: "locality", label: "Locality", show: Boolean(p().locality_about?.trim()) },
+              { id: "location", label: "Connectivity", show: connectivity().length > 0 },
+              { id: "amenities", label: "Amenities", show: p().amenities.length > 0 },
+              { id: "investment", label: "Investment", show: p().investment_points.length > 0 },
+              { id: "buyers", label: "Suitability", show: p().buyer_profiles.length > 0 },
+              { id: "nearby", label: "Nearby", show: p().nearby_projects.length > 0 },
               { id: "developer", label: "About developer", show: true },
+              { id: "rera", label: "RERA", show: true },
               { id: "faq", label: "FAQ", show: p().faqs.length > 0 },
             ]
               .filter((s) => s.show)
@@ -233,6 +270,11 @@ export default function ProjectPage() {
                   </div>
                   <p class="eyebrow mb-2 text-gold-soft">By {p().developer.name}</p>
                   <h1 class="font-display text-4xl font-semibold leading-tight text-white drop-shadow-sm sm:text-5xl">{p().name}</h1>
+                  <Show when={p().tagline?.trim()}>
+                    <p class="mt-2 font-display text-lg italic text-gold-soft sm:text-xl">
+                      {p().tagline}
+                    </p>
+                  </Show>
                   <p class="mt-3 flex items-center gap-2 text-sm text-white/80 sm:text-base">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 text-gold-soft"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
                     <span>{p().address || `${p().location.locality}, ${p().location.city}`}</span>
@@ -290,7 +332,7 @@ export default function ProjectPage() {
               <div class="relative border-t border-white/15 bg-navy-deep/45 backdrop-blur-md">
                 <div class="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:gap-8">
                   <dl class="grid flex-1 grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-nowrap lg:items-center lg:gap-0">
-                    <Stat label="Price" value={priceRange(p().price_min, p().price_max)} />
+                    <Stat label="Price" value={priceRangeDisplay(p().price_min, p().price_max, p().price_status)} />
                     <Stat label="Sizes" value={areaRange(p().area_min, p().area_max) ?? "On request"} />
                     <Show when={configSummary()}>
                       <Stat label="Configurations" value={configSummary()} />
@@ -457,6 +499,30 @@ export default function ProjectPage() {
                 Gallery — centred "{name} Images" heading over an even photo
                 grid with a click-to-zoom lightbox. Hidden when no images.
             ---------------------------------------------------------------- */}
+            {/* ---------------------------------------------------------------
+                Things to consider — the counterpart to highlights. Deliberately
+                adjacent to it: a page that lists only upsides is less useful,
+                and less credible, than one that does not.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="considerations"
+              when={p().considerations_list.length}
+              eyebrow="Worth weighing"
+              title="Things to consider"
+              tone="paper"
+            >
+              <ul class="mx-auto grid max-w-5xl gap-x-10 gap-y-4 sm:grid-cols-2">
+                <For each={p().considerations_list}>
+                  {(c) => (
+                    <li class="flex items-start gap-3 text-[15px] leading-relaxed text-gray-600">
+                      <span class="mt-[7px] grid h-1.5 w-1.5 shrink-0 rounded-full bg-navy/40" aria-hidden="true" />
+                      <span>{c}</span>
+                    </li>
+                  )}
+                </For>
+              </ul>
+            </Section>
+
             <Show when={hasGallery()}>
               <div id="gallery" class="scroll-mt-[116px] lg:scroll-mt-[76px]">
                 <GalleryGrid media={p().media} name={p().name} />
@@ -486,29 +552,70 @@ export default function ProjectPage() {
             <FloorPlan project={p()} />
 
             {/* ---------------------------------------------------------------
-                Amenities — the closed 14-item vocabulary, as an icon grid.
-                Hidden when the project has none (three in the catalogue).
+                Master plan — its own section rather than a gallery tile, so the
+                layout drawing is labelled as what it is.
             ---------------------------------------------------------------- */}
-            <Show when={p().amenities.length}>
-              <section id="amenities" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-paper">
-                <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
-                  <div class="mx-auto max-w-3xl text-center">
-                    <p class="eyebrow">Lifestyle</p>
-                    <div class="gold-rule mx-auto my-3.5" />
-                    <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
-                      Amenities at {p().name}
-                    </h2>
-                  </div>
-                  <div class="mt-12">
-                    <AmenityList amenities={p().amenities} />
-                  </div>
-                </div>
-              </section>
-            </Show>
+            <Section
+              id="master-plan"
+              when={masterPlans().length}
+              eyebrow="Layout"
+              title="Master plan"
+              tone="card"
+            >
+              <div class="mx-auto grid max-w-5xl gap-5">
+                <For each={masterPlans()}>
+                  {(m) => (
+                    <figure class="overflow-hidden rounded-[14px] border border-line bg-card">
+                      <img src={m.image!} alt={m.caption || `${p().name} master plan`} class="w-full" loading="lazy" />
+                      <Show when={m.caption}>
+                        <figcaption class="border-t border-line px-5 py-3 text-sm text-slate">{m.caption}</figcaption>
+                      </Show>
+                    </figure>
+                  )}
+                </For>
+              </div>
+            </Section>
 
             {/* ---------------------------------------------------------------
-                Key features — larger, titled differentiators (distinct from the
-                amenity grid above). Hidden when the backend supplies none.
+                Price list — the section the "not verified" rule exists for. An
+                unverified price prints its label, never the number and never a
+                blank cell. See PriceList.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="pricing"
+              when={p().configurations.length}
+              eyebrow="Pricing"
+              title="Price list"
+              intro={
+                <>
+                  Prices we have not been able to confirm are marked as such rather
+                  than estimated. Verified figures are checked against the developer
+                  and the RERA record.
+                </>
+              }
+            >
+              <PriceList configurations={p().configurations} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                Specifications — fit and finish, grouped by room or trade.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="specifications"
+              when={p().specifications.length}
+              eyebrow="Fit &amp; finish"
+              title="Specifications"
+              tone="card"
+            >
+              <ProjectSpecifications specifications={p().specifications} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                Key features — the mockup's "About <name>" card grid, which maps
+                onto key_features. NOT titled "About <name>": the description
+                section above already carries that heading, and two identical
+                H2s read worse for a reader and for search than diverging from
+                the mockup's label. Hidden when the backend supplies none.
             ---------------------------------------------------------------- */}
             <Show when={p().key_features.length}>
               <section id="features" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-card">
@@ -547,55 +654,116 @@ export default function ProjectPage() {
             </Show>
 
             {/* ---------------------------------------------------------------
-                Location advantages — labelled connectivity/landmark distances
-                as a two-column pill list. Hidden when the backend has none.
+                Latest project updates — construction and approval milestones.
             ---------------------------------------------------------------- */}
-            <Show when={p().location_advantages.length}>
-              <section id="location" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-paper">
+            <Section
+              id="updates"
+              when={p().updates.length}
+              eyebrow="Progress"
+              title="Latest project updates"
+              tone="paper"
+            >
+              <ProjectUpdates updates={p().updates} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                About the locality — written once per locality and shared by its
+                projects. Sanitised HTML, same as description.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="locality"
+              when={p().locality_about?.trim()}
+              eyebrow="Location"
+              title={`About ${p().location.locality}`}
+              tone="card"
+            >
+              <div class="mx-auto max-w-3xl">
+                <div class="rich-text text-[15px] leading-[1.85] font-medium text-gray-600" innerHTML={p().locality_about} />
+              </div>
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                Nearby infrastructure — schools, hospitals, shopping, employment.
+            ---------------------------------------------------------------- */}
+            <Section
+              when={infrastructure().length}
+              eyebrow="Neighbourhood"
+              title="Nearby infrastructure"
+            >
+              <LocationTable items={infrastructure()} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                Connectivity & Accessibility — the connectivity half of
+                location_advantages. Nearby Infrastructure above carries the rest.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="location"
+              when={connectivity().length}
+              eyebrow="Connectivity"
+              title="Connectivity & accessibility"
+            >
+              <LocationTable items={connectivity()} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                Amenities — the closed 14-item vocabulary, as an icon grid.
+                Hidden when the project has none (three in the catalogue).
+            ---------------------------------------------------------------- */}
+            <Show when={p().amenities.length}>
+              <section id="amenities" class="scroll-mt-[116px] lg:scroll-mt-[76px] border-b border-line bg-paper">
                 <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
                   <div class="mx-auto max-w-3xl text-center">
-                    <p class="eyebrow">Connectivity</p>
+                    <p class="eyebrow">Lifestyle</p>
                     <div class="gold-rule mx-auto my-3.5" />
                     <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
-                      Location advantages
+                      Amenities at {p().name}
                     </h2>
                   </div>
-                  <ul class="mx-auto mt-12 grid max-w-4xl gap-3.5 sm:grid-cols-2">
-                    <For each={p().location_advantages}>
-                      {(adv) => (
-                        <li class="card-lift group flex items-center justify-between gap-4 rounded-[12px] border border-line bg-card px-4 py-3.5">
-                          <span class="flex items-center gap-3.5 text-[15px] font-semibold text-navy">
-                            {/* Navy pin badge with a gold marker */}
-                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-navy text-gold transition-colors group-hover:bg-navy-deep">
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                            </span>
-                            {adv.label}
-                          </span>
-                          <Show when={adv.time_or_distance?.trim()}>
-                            <span class="shrink-0 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
-                              {adv.time_or_distance}
-                            </span>
-                          </Show>
-                        </li>
-                      )}
-                    </For>
-                  </ul>
+                  <div class="mt-12">
+                    <AmenityList amenities={p().amenities} />
+                  </div>
                 </div>
               </section>
             </Show>
 
-            <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-              <div>
-                {/* Main column */}
-                <div class="min-w-0 space-y-10">
-                  {/* RERA — the trust signature, prominent */}
-                  <section>
-                    <h2 class="mb-4 font-display text-2xl font-semibold text-navy">RERA registration</h2>
-                    <ReraBadges registrations={p().rera_registrations} />
-                  </section>
-                </div>
-              </div>
-            </div>
+            {/* ---------------------------------------------------------------
+                Investment analysis. Risks and the conclusion are part of the
+                set on purpose — see InvestmentAnalysis.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="investment"
+              when={p().investment_points.length}
+              eyebrow="Analysis"
+              title="Investment view"
+            >
+              <InvestmentAnalysis points={p().investment_points} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                Who it suits — including who it does NOT. See BuyerProfiles.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="buyers"
+              when={p().buyer_profiles.length}
+              eyebrow="Suitability"
+              title="Who this project suits"
+              tone="card"
+            >
+              <BuyerProfiles profiles={p().buyer_profiles} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
+                Comparable projects nearby, from the real records.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="nearby"
+              when={p().nearby_projects.length}
+              eyebrow="Compare"
+              title="Other projects nearby"
+            >
+              <NearbyProjects projects={p().nearby_projects} />
+            </Section>
 
             {/* ---------------------------------------------------------------
                 About the developer — full-bleed parallax band (fixed image,
@@ -604,6 +772,36 @@ export default function ProjectPage() {
             <div id="developer" class="scroll-mt-[116px] lg:scroll-mt-[76px]">
               <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.jpg" />
             </div>
+
+            {/* ---------------------------------------------------------------
+                RERA — the trust signature, and the full registered record.
+                Always shown: "no registration on file" is itself information a
+                buyer needs, so this is the one section that does not hide.
+            ---------------------------------------------------------------- */}
+            <section id="rera" class="scroll-mt-[116px] border-b border-line bg-paper lg:scroll-mt-[76px]">
+              <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+                <div class="mx-auto max-w-3xl text-center">
+                  <p class="eyebrow">Verification</p>
+                  <div class="gold-rule mx-auto my-3.5" />
+                  <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
+                    RERA registration
+                  </h2>
+                </div>
+                <div class="mt-12">
+                  <Show
+                    when={p().rera_registrations.length}
+                    fallback={<ReraBadges registrations={p().rera_registrations} />}
+                  >
+                    <ReraDetails
+                      registrations={p().rera_registrations}
+                      legalPromoter={p().legal_promoter}
+                      developerName={p().developer.name}
+                      marketedType={typeLabel(p().project_type)}
+                    />
+                  </Show>
+                </div>
+              </div>
+            </section>
 
             {/* ---------------------------------------------------------------
                 FAQs — native <details> accordion on a navy field: SSR-rendered,

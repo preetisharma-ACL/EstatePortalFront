@@ -17,7 +17,7 @@ export default function GalleryGrid(props: { media: ProjectMedia[]; name: string
   // fewer than eight we cycle the available photos so both rows stay full.
   const images = createMemo(() => {
     const real = props.media
-      .filter((m) => m.media_type !== "video" && m.image)
+      .filter((m) => m.media_type !== "video" && m.media_type !== "master_plan" && m.image)
       .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order);
     if (!real.length) return real;
     if (real.length >= 8) return real.slice(0, 8);

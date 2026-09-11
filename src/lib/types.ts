@@ -29,6 +29,20 @@ export type DocType =
 // resolved through Locality.parent, so use ?township= to list them — never a
 // name search (see ProjectFilters.township).
 export type LocalityType = "locality" | "sector" | "micromarket" | "township";
+/**
+ * Whether a price is confirmed. Drives the price list and the headline figure:
+ * anything but `verified` prints the LABEL instead of the number, even when a
+ * number exists.
+ */
+export type PriceStatus = "verified" | "not_verified" | "on_request";
+
+/** Splits location advantages into the two tables the template specifies. */
+export type LocationCategory =
+  | "connectivity" | "school" | "hospital" | "shopping" | "employment";
+
+/** Provenance of a distance or travel time. */
+export type LocationSource = "verified" | "marketing" | "unverified";
+
 export type AmenityCategory =
   | "sports" | "safety" | "convenience" | "leisure" | "environment" | "connectivity";
 
@@ -111,6 +125,14 @@ export interface Configuration {
   area_unit: string;
   price: number | null;
   price_per_sqft: string | null;
+  /**
+   * Whether the price on this row is confirmed. An unverified price must be
+   * LABELLED, never printed as if confirmed and never silently dropped —
+   * portals disagree with each other and with the developer, so "we don't
+   * know" is a publishable answer and is the credibility of the page.
+   */
+  price_status: PriceStatus;
+  price_status_display: string;
   floor_plan: string | null;
   is_available: boolean;
 }
@@ -119,6 +141,29 @@ export interface ReraRegistration {
   status: ReraStatus; valid_till: string | null; source_url: string;
   state: string;
   authority: string;
+  registration_date: string | null;
+  /**
+   * The company registered against the project, which is often NOT the brand
+   * marketing it. Blank means they are the same — fall back to the developer.
+   */
+  promoter: string;
+  /** Can differ from the marketed project_type. Show both; do not reconcile. */
+  registered_project_type: string;
+  proposed_start_date: string | null;
+  declared_completion_date: string | null;
+  district: string;
+  tehsil: string;
+  registered_address: string;
+  /**
+   * ZERO IS MEANINGFUL — "zero complaints" — and null means nobody checked.
+   * Rendering null as 0 would publish a claim we have not verified.
+   */
+  complaints_count: number | null;
+  /**
+   * When this record was last read off the RERA portal. Records change, so the
+   * block carries its own as-of date rather than implying it is current.
+   */
+  record_checked_on: string | null;
 }
 export interface ProjectMedia {
   id: number; media_type: MediaType;
@@ -134,12 +179,95 @@ export interface ProjectDocument {
 // the detail page hides the corresponding section rather than showing it blank.
 export interface LocationAdvantage {
   id: number; label: string; time_or_distance: string; order: number;
+  /** Splits the two tables: connectivity, vs everything else. */
+  category: LocationCategory;
+  category_display: string;
+  distance: string;
+  travel_time: string;
+  /**
+   * Where the timing came from. A marketing estimate must print AS one — the
+   * difference between a claim and a measurement is the point, so this is never
+   * dropped to tidy the table.
+   */
+  source: LocationSource;
+  source_display: string;
 }
 export interface KeyFeature {
   id: number; title: string; description: string; order: number;
 }
 export interface ProjectFAQ {
   id: number; question: string; answer: string; order: number;
+}
+
+/**
+ * A dated construction or approval milestone.
+ *
+ * `date_label` is what gets printed ("06 May 2026", "Q1 2026-27").
+ * `happened_on` exists only to order the list and may be approximate — never
+ * format it for display, or an approximate date acquires a false precision.
+ */
+export interface ProjectUpdate {
+  id: number;
+  happened_on: string | null;
+  date_label: string;
+  title: string;
+  detail: string;
+  order: number;
+}
+
+/** A fit-and-finish line, grouped by room or trade. */
+export interface Specification {
+  id: number;
+  category: string;
+  category_display: string;
+  detail: string;
+  order: number;
+}
+
+/**
+ * One facet of the investment case.
+ *
+ * The set deliberately includes Main Risks and Investment Conclusion. Those are
+ * not to be styled as positives, and not to be dropped when the section runs
+ * long — a balanced analysis that quietly loses its risks is worse than none.
+ */
+export interface InvestmentPoint {
+  id: number;
+  aspect: string;
+  aspect_display: string;
+  detail: string;
+  order: number;
+}
+
+/**
+ * Whether the project suits an audience, and why.
+ *
+ * `is_suitable: false` means a POOR fit and the detail is a caveat. It must
+ * read differently from a positive — a studio project saying "not suited to
+ * families" is the section doing its job, not an error to hide.
+ */
+export interface BuyerProfile {
+  id: number;
+  audience: string;
+  audience_display: string;
+  detail: string;
+  is_suitable: boolean;
+}
+
+/** A comparable project, read from the real record so the row can link to it. */
+export interface NearbyProject {
+  id: number;
+  name: string;
+  slug: string;
+  locality: string;
+  city: string;
+  configurations_summary: string[];
+  price_min: number | null;
+  price_max: number | null;
+  price_status: PriceStatus;
+  price_status_display: string;
+  status: ProjectStatus;
+  status_display: string;
 }
 
 export interface ProjectListItem {
@@ -160,6 +288,18 @@ export interface ProjectListItem {
 }
 export interface ProjectDetail {
   id: number; name: string; slug: string;
+  /** Short line under the name, e.g. "Studio Apartments & Commercial Shops". */
+  tagline: string;
+  /**
+   * The company registered against the project, as distinct from the brand
+   * marketing it. NOT interchangeable with `developer` — buyers are told to
+   * check the promoter specifically. Blank means they are the same.
+   */
+  legal_promoter: string;
+  /** Percent complete from the latest RERA QPR, e.g. 1.92. Null when unknown. */
+  construction_progress: number | null;
+  /** Governs the headline price the same way it governs each price-list row. */
+  price_status: PriceStatus;
   project_type: ProjectType; status: ProjectStatus;
   possession_date: string | null; launched_on: string | null;
   address: string;
@@ -188,6 +328,15 @@ export interface ProjectDetail {
   location_advantages: LocationAdvantage[];
   key_features: KeyFeature[];
   faqs: ProjectFAQ[];
+  /** The counterpart to highlights_list — what buyers should weigh up. */
+  considerations_list: string[];
+  /** HTML, like `description`. Written once per locality, shared by its projects. */
+  locality_about: string;
+  updates: ProjectUpdate[];
+  specifications: Specification[];
+  investment_points: InvestmentPoint[];
+  buyer_profiles: BuyerProfile[];
+  nearby_projects: NearbyProject[];
   /**
    * This project's Google Ads conversion action, or null when it has no label
    * configured. Only useful for pre-loading a DIFFERENT Ads account's base tag
