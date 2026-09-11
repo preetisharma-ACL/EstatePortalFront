@@ -32,7 +32,7 @@ const SECTIONS: LegalSection[] = [
   },
   {
     id: "what-we-are",
-    title: "What EstatePortal is — and is not",
+    title: "What Aajneeti Real Estate is — and is not",
     content: () => (
       <>
         <p>

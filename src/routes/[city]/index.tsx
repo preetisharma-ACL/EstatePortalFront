@@ -58,7 +58,7 @@ export default function CityPage() {
       {/* deferStream resolves city() before the SSR head flush, so meta is correct. */}
       <Title>
         {city()?.meta_title ||
-          `Property in ${city()?.name ?? params.city} — RERA-verified projects | EstatePortal`}
+          `Property in ${city()?.name ?? params.city} — RERA-verified projects | Aajneeti Real Estate`}
       </Title>
       <Meta
         name="description"

@@ -125,7 +125,7 @@ export const TOWNSHIPS: Record<string, Township> = {
     // only takes a band out of the middle — that is where the towers sit.
     heroImages: ["/banner/gaur-city.png"],
     address: "Gaur City, Greater Noida West Link Road, Greater Noida West, Uttar Pradesh 201318",
-    metaTitle: "Gaur City, Greater Noida West — Projects, Price & Floor Plans | EstatePortal",
+    metaTitle: "Gaur City, Greater Noida West — Projects, Price & Floor Plans | Aajneeti Real Estate",
     metaDescription:
       "Explore RERA-verified projects in Gaur City, Greater Noida West. Compare 2, 3 and 4 BHK apartments, prices, floor plans and possession dates across every Gaur City avenue.",
     stats: [
@@ -225,7 +225,7 @@ export const TOWNSHIPS: Record<string, Township> = {
     // signage and approach road all in frame.
     heroImages: ["/banner/adityaworldcity.png"],
     address: "Aditya World City, NH-24, Bamheta, Ghaziabad, Uttar Pradesh 201002",
-    metaTitle: "Aditya World City, Ghaziabad — Projects, Price & Layouts | EstatePortal",
+    metaTitle: "Aditya World City, Ghaziabad — Projects, Price & Layouts | Aajneeti Real Estate",
     metaDescription:
       "Explore RERA-verified projects in Aditya World City, NH-24 Ghaziabad. Compare apartments, floors and plots with prices, layouts and possession dates in one place.",
     stats: [

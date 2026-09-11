@@ -73,7 +73,7 @@ export default function CityTypeListing(props: { type: TypePage }) {
     <Show when={city() !== undefined} fallback={<Loading />}>
       <Show when={city()} fallback={<NotFound kind="city" />}>
         <Title>
-          {`${props.type.label} Property in ${cityName()} — RERA-verified projects | EstatePortal`}
+          {`${props.type.label} Property in ${cityName()} — RERA-verified projects | Aajneeti Real Estate`}
         </Title>
         <Meta name="description" content={props.type.metaDescription(cityName())} />
         {/* Unconditional with a computed value, NOT wrapped in <Show>.

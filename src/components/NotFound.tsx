@@ -7,7 +7,7 @@ export default function NotFound(props: { kind?: string }) {
   const label = props.kind ?? "page";
   return (
     <div class="mx-auto max-w-xl px-4 py-24 text-center">
-      <Title>Not found | EstatePortal</Title>
+      <Title>Not found | Aajneeti Real Estate</Title>
       <HttpStatusCode code={404} />
       <p class="eyebrow">404</p>
       <h1 class="mt-3 font-display text-3xl font-semibold text-navy">

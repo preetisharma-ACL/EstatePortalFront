@@ -71,7 +71,7 @@ export default function SearchPage() {
 
   return (
     <>
-      <Title>Search RERA-verified projects across India | EstatePortal</Title>
+      <Title>Search RERA-verified projects across India | Aajneeti Real Estate</Title>
       <Meta name="description" content="Filter and compare RERA-verified residential and commercial projects across India by budget, configuration, status and amenities." />
       {/* Search result pages are thin, near-duplicate and filter-combinatorial —
           indexing them invites a thin-content penalty. `follow` still lets the

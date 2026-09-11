@@ -161,7 +161,7 @@ export default function ProjectPage() {
           <>
             {/* Head tags live on the resolved path only — a 404 must not emit a
                 self-referential canonical or this project's title/meta. */}
-            <Title>{p().meta_title || `${p().name} by ${p().developer.name} | EstatePortal`}</Title>
+            <Title>{p().meta_title || `${p().name} by ${p().developer.name} | Aajneeti Real Estate`}</Title>
             <Meta name="description" content={desc()} />
             <Meta property="og:title" content={p().meta_title || p().name} />
             <Meta property="og:description" content={desc()} />

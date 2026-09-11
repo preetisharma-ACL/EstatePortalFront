@@ -100,7 +100,7 @@ export default function WhyEstatePortalPage() {
       />
       <Meta property="og:title" content={`Why ${COMPANY.brand}`} />
       <Meta property="og:type" content="website" />
-      <Link rel="canonical" href={canonical("/why-estateportal")} />
+      <Link rel="canonical" href={canonical("/why-us")} />
 
       {/* 1. HERO */}
       <section class="hero-gradient relative overflow-hidden text-white">

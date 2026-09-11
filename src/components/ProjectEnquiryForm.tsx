@@ -186,7 +186,7 @@ export default function ProjectEnquiryForm(props: {
           <label class={`flex cursor-pointer items-start gap-2.5 text-white/70 ${compact() ? "text-[11px] leading-snug" : "text-sm"}`}>
             <input type="checkbox" name="consent" class="mt-0.5 h-4 w-4 shrink-0 accent-[#1E7A54]" />
             <span>
-              I agree to be contacted by EstatePortal and its verified partners about
+              I agree to be contacted by Aajneeti Real Estate and its verified partners about
               this enquiry via call, SMS, WhatsApp or email, and I consent to the
               processing of my personal data for this purpose under the Digital
               Personal Data Protection Act.

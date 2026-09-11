@@ -15,7 +15,7 @@ export default function App() {
         <MetaProvider>
           {/* Fallback title only — every route sets its own Title + description.
               Keeping a default description here would duplicate the per-route one. */}
-          <Title>EstatePortal — RERA-verified real estate across India</Title>
+          <Title>Aajneeti Real Estate — RERA-verified real estate across India</Title>
           <div class="flex min-h-screen flex-col bg-paper">
             <Header />
             <main class="flex-1">

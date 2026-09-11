@@ -76,7 +76,7 @@ export default function DeveloperPage() {
         <>
           {/* Head tags live on the resolved path only — a 404 must not emit a
               self-referential canonical or this developer's title/meta. */}
-          <Title>{d().meta_title || `${d().name} — projects & RERA details | EstatePortal`}</Title>
+          <Title>{d().meta_title || `${d().name} — projects & RERA details | Aajneeti Real Estate`}</Title>
           <Meta name="description" content={d().meta_description || d().description?.slice(0, 160) || ""} />
           <Meta property="og:title" content={d().meta_title || d().name} />
           <Show when={d().og_image}><Meta property="og:image" content={absoluteUrl(d().og_image!)} /></Show>
@@ -259,7 +259,7 @@ export default function DeveloperPage() {
                         fallback={<span class="text-slate">Verification pending</span>}
                       >
                         <span class="inline-flex items-center gap-1.5 font-semibold text-green">
-                          <VerifiedTick size={14} /> Verified on EstatePortal
+                          <VerifiedTick size={14} /> Verified on Aajneeti Real Estate
                         </span>
                       </Show>
                     </GlanceRow>
@@ -425,7 +425,7 @@ export default function DeveloperPage() {
                 authority on each project page. Verify it on the official state RERA portal
                 before you transact — our badge is a convenience, not a certification.
               </p>
-              <A href="/why-estateportal" class="mt-6 inline-block text-sm font-semibold text-gold-soft hover:underline">
+              <A href="/why-us" class="mt-6 inline-block text-sm font-semibold text-gold-soft hover:underline">
                 How we verify →
               </A>
             </div>

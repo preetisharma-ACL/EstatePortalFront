@@ -24,7 +24,7 @@ export default function DevelopersPage() {
 
   return (
     <>
-      <Title>RERA-verified developers across India | EstatePortal</Title>
+      <Title>RERA-verified developers across India | Aajneeti Real Estate</Title>
       <Meta name="description" content="Browse verified real-estate developers across India — their track record, project count and live inventory." />
       <Link rel="canonical" href={canonical("/developers")} />
 

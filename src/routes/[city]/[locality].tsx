@@ -63,7 +63,7 @@ export default function LocalityPage() {
             {/* Meta ungated (deferStream resolves locality() before the SSR head flush). */}
             <Title>
               {l().meta_title ||
-                `Property in ${l().name}, ${l().city} — RERA-verified | EstatePortal`}
+                `Property in ${l().name}, ${l().city} — RERA-verified | Aajneeti Real Estate`}
             </Title>
             <Meta
               name="description"

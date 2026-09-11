@@ -43,9 +43,9 @@ export default function Home() {
 
   return (
     <>
-      <Title>EstatePortal — RERA-verified property across India</Title>
+      <Title>Aajneeti Real Estate — RERA-verified property across India</Title>
       <Meta name="description" content="Discover RERA-verified residential and commercial projects across India. Verified pricing, trusted developers, and assisted site visits for investors and end-users." />
-      <Meta property="og:title" content="EstatePortal — RERA-verified property across India" />
+      <Meta property="og:title" content="Aajneeti Real Estate — RERA-verified property across India" />
       <Meta property="og:type" content="website" />
       <Link rel="canonical" href={canonical("/")} />
 
@@ -199,7 +199,7 @@ export default function Home() {
         <div class="pointer-events-none absolute inset-0 bg-navy-deep/85" aria-hidden="true" />
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
           <div class="mx-auto max-w-2xl text-center">
-            <p class="eyebrow text-gold-soft">Why EstatePortal</p>
+            <p class="eyebrow text-gold-soft">Why Us</p>
             <h2 class="mt-3 font-display text-3xl font-semibold sm:text-4xl">
               Trust, <span class="italic text-gold-soft">verified</span> at every step
             </h2>

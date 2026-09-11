@@ -22,7 +22,7 @@ export default function TypeHub(props: { type: TypePage }) {
 
   return (
     <>
-      <Title>{`${props.type.hubTitle} — RERA-verified projects | EstatePortal`}</Title>
+      <Title>{`${props.type.hubTitle} — RERA-verified projects | Aajneeti Real Estate`}</Title>
       <Meta name="description" content={props.type.hubIntro} />
       <Link rel="canonical" href={canonical(`/${props.type.slug}`)} />
 

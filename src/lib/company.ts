@@ -6,7 +6,7 @@
 
 export const COMPANY = {
   /** Consumer-facing brand used throughout the site. */
-  brand: "EstatePortal",
+  brand: "Aajneeti Real Estate",
   /** Legal entity that operates the brand. */
   legalName: "Real Estate Aajneeti",
   /** Registered office — required on Indian consumer-facing legal pages. */

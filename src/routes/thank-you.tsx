@@ -32,7 +32,7 @@ export default function ThankYouPage() {
 
   return (
     <div class="mx-auto max-w-xl px-4 py-24 text-center">
-      <Title>Thank you | EstatePortal</Title>
+      <Title>Thank you | Aajneeti Real Estate</Title>
       <Meta name="description" content="Your enquiry has reached our advisory team." />
       <Meta name="robots" content="noindex,follow" />
 
