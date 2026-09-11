@@ -1,8 +1,10 @@
+import { Show } from "solid-js";
 import { Title, Meta } from "@solidjs/meta";
-import { A, useSearchParams } from "@solidjs/router";
+import { A, createAsync, useSearchParams } from "@solidjs/router";
+import { projectQuery } from "~/lib/queries";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
 import AdsConversion from "~/components/AdsConversion";
-import { deskPhoneForProject, telHref } from "~/lib/contactPhone";
+import { phoneOrUndefined, telHref } from "~/lib/contactPhone";
 import { ADS_ACCOUNT_ID } from "~/lib/adsConversion";
 
 const str = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
@@ -28,7 +30,21 @@ const str = (v: string | string[] | undefined) => (typeof v === "string" ? v : u
  */
 export default function ThankYouPage() {
   const [params] = useSearchParams();
-  const phone = () => deskPhoneForProject(str(params.project) ?? "");
+
+  /**
+   * The project's own desk number, for the "in a hurry" line below.
+   *
+   * A fetch, but almost never a request: projectQuery is cached, and the
+   * visitor arrived here from that project's page, which already resolved it.
+   * Only for the phone — the conversion never comes from here, because the lead
+   * response is the only thing that knows which project the lead was attributed
+   * to. Blank, or no ?project= at all, and the line is simply omitted.
+   */
+  const project = createAsync(async () => {
+    const slug = str(params.project);
+    return slug ? await projectQuery(slug) : null;
+  });
+  const phone = () => phoneOrUndefined(project()?.contact_phone);
 
   return (
     <div class="mx-auto max-w-xl px-4 py-24 text-center">
@@ -59,13 +75,17 @@ export default function ThankYouPage() {
         call you shortly with RERA-verified pricing, the brochure and an assisted
         site visit.
       </p>
-      <p class="mt-3 text-sm text-slate">
-        In a hurry? Call us on{" "}
-        <a href={telHref(phone())} class="font-semibold text-navy underline decoration-gold underline-offset-4">
-          {phone()}
-        </a>
-        , Monday to Saturday, 10:00 AM – 08:00 PM.
-      </p>
+      <Show when={phone()}>
+        {(number) => (
+          <p class="mt-3 text-sm text-slate">
+            In a hurry? Call us on{" "}
+            <a href={telHref(number())} class="font-semibold text-navy underline decoration-gold underline-offset-4">
+              {number()}
+            </a>
+            , Monday to Saturday, 10:00 AM – 08:00 PM.
+          </p>
+        )}
+      </Show>
 
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <A href="/search" class="rounded-[8px] bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform hover:-translate-y-0.5">

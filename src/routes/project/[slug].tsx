@@ -20,7 +20,7 @@ import CallCta from "~/components/CallCta";
 import NotFound from "~/components/NotFound";
 import ProjectHeader, { type ProjectSection } from "~/components/ProjectHeader";
 import { canonical, absoluteUrl } from "~/lib/seo";
-import { projectPhone } from "~/lib/contactPhone";
+
 
 export const route = {
   preload: ({ params }) => {
@@ -672,7 +672,7 @@ export default function ProjectPage() {
                 address={p().address || `${p().location.locality}, ${p().location.city}`}
                 projectSlug={p().slug}
                 citySlug={p().location.city_slug}
-                phone={projectPhone(p().contact_phone, p().slug)}
+                phone={p().contact_phone}
                 redirectTo={thankYouUrl()}
               />
             </div>

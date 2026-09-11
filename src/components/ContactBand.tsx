@@ -1,4 +1,5 @@
-import { DEFAULT_DESK_PHONE } from "~/lib/contactPhone";
+import { Show } from "solid-js";
+import { phoneOrUndefined, telHref } from "~/lib/contactPhone";
 import ProjectEnquiryForm from "./ProjectEnquiryForm";
 
 /**
@@ -7,9 +8,10 @@ import ProjectEnquiryForm from "./ProjectEnquiryForm";
  * The image stays fixed while the content scrolls over it. The fieldset itself
  * lives in ProjectEnquiryForm, shared with the hero banner card.
  *
- * Address is real project data; the phone/email/hours are portal defaults —
- * swap them for the desk that actually fields these enquiries. Pages fielded by
- * a different desk pass their own `phone` — see src/lib/contactPhone.ts.
+ * Address is real project data. The phone comes from the record's admin-set
+ * `contact_phone` and the row is omitted entirely when that is blank — there is
+ * no default desk line to fall back on. Email and hours are portal-wide and
+ * always shown.
  */
 export default function ContactBand(props: {
   image: string;
@@ -20,8 +22,8 @@ export default function ContactBand(props: {
   heading?: string;
   /** Passed through to the lead's `message` (see ProjectEnquiryForm). */
   contextNote?: string;
-  /** Overrides the portal default number for the desk that owns this page. */
-  phone?: string;
+  /** Raw `contact_phone` from the payload. Blank renders no Phone row at all. */
+  phone?: string | null;
   /** Sends a successful enquiry to this URL instead of confirming in place. */
   redirectTo?: string;
 }) {
@@ -41,7 +43,17 @@ export default function ContactBand(props: {
           <h3 class="font-display text-2xl font-semibold text-white">Location Details</h3>
           <dl class="mt-7 space-y-6">
             <Detail label="Address">{props.address}</Detail>
-            <Detail label="Phone">{props.phone ?? DEFAULT_DESK_PHONE}</Detail>
+            {/* No number set for this record — the row goes, rather than
+                standing empty or quoting a desk that may not field it. */}
+            <Show when={phoneOrUndefined(props.phone)}>
+              {(phone) => (
+                <Detail label="Phone">
+                  <a href={telHref(phone())} class="underline decoration-gold underline-offset-4">
+                    {phone()}
+                  </a>
+                </Detail>
+              )}
+            </Show>
             <Detail label="Email">info@estateportal.in</Detail>
             <Detail label="Working Hours">
               Monday – Saturday

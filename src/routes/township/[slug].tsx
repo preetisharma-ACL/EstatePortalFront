@@ -10,7 +10,7 @@ import NotFound from "~/components/NotFound";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import ProjectRail from "~/components/ProjectRail";
 import ProjectStrip from "~/components/ProjectStrip";
-import { phoneOrUndefined, TOWNSHIP_DESK_PHONE } from "~/lib/contactPhone";
+import { phoneOrUndefined } from "~/lib/contactPhone";
 import { filtersFromParams } from "~/lib/filters";
 import { localityQuery, townshipProjectsQuery } from "~/lib/queries";
 import { getTownship, sourceFor } from "~/lib/townships";
@@ -489,7 +489,7 @@ export default function TownshipPage() {
               citySlug={t().citySlug}
               heading={`Enquire about ${t().name}`}
               contextNote={contextNote()}
-              phone={townshipPhone() ?? TOWNSHIP_DESK_PHONE}
+              phone={townshipPhone()}
             />
           </>
         );
