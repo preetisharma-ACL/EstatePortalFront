@@ -1,7 +1,9 @@
-import { A, useLocation } from "@solidjs/router";
-import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
+import { A, createAsync, useLocation } from "@solidjs/router";
+import { For, Show, Suspense, createEffect, createSignal, onCleanup } from "solid-js";
+import { phoneOrUndefined, telHref } from "~/lib/contactPhone";
 import { openLeadModal } from "~/lib/leadModal";
-import { townshipList } from "~/lib/townships";
+import { localityQuery } from "~/lib/queries";
+import { getTownship, townshipList } from "~/lib/townships";
 
 // Residential and Commercial point at the indexable hub routes, not
 // /search?project_type=… — /search is noindex, so query-string destinations
@@ -18,6 +20,15 @@ const NAV = [
 // published — a new entry in src/lib/townships.ts appears here with no edit.
 const TOWNSHIPS = townshipList();
 
+
+/** `/township/<slug>` — the slug is the registry key, not the backend one. */
+const TOWNSHIP_PATH = /^\/township\/([^/?#]+)\/?$/;
+/** `/<city>/<locality>` — same two-segment shape as several other routes. */
+const CITY_LOCALITY_PATH = /^\/([^/?#]+)\/([^/?#]+)\/?$/;
+/** Two-segment paths whose first segment is a detail route, not a city. */
+const NON_CITY_PREFIXES = new Set(["project", "developer", "township"]);
+/** A city's own pages, which sit at the same depth as its localities. */
+const CITY_SUBROUTES = new Set(["residential", "commercial"]);
 export default function Header() {
   const location = useLocation();
   const [open, setOpen] = createSignal(false);
@@ -28,6 +39,48 @@ export default function Header() {
       ? location.search.includes(href.split("?")[1])
       : location.pathname === href);
   const onTownshipPage = () => location.pathname.startsWith("/township/");
+
+  /**
+   * The locality record behind the current page, fetched only for its
+   * `contact_phone`.
+   *
+   * This header renders in the root layout, outside the route, so it cannot be
+   * handed the payload — it derives the slug from the path and reads the same
+   * cached query the route below it uses, which is why that query is keyed on
+   * the slug alone. One request, shared.
+   *
+   * Project pages are not a case here: they run <ProjectHeader> instead, which
+   * already gets contact_phone straight from the project payload.
+   */
+  const localitySlug = () => {
+    const township = TOWNSHIP_PATH.exec(location.pathname);
+    // A township's backend locality slug can differ from its route slug, and a
+    // township with no backend record has nothing to look up.
+    if (township) return getTownship(decodeURIComponent(township[1]))?.townshipSlug;
+
+    const locality = CITY_LOCALITY_PATH.exec(location.pathname);
+    if (!locality) return undefined;
+    const [, city, slug] = locality;
+    // /<city>/<locality> shares its shape with the city's other pages and with
+    // the top-level detail routes, so both halves are filtered before asking.
+    if (NON_CITY_PREFIXES.has(city) || CITY_SUBROUTES.has(slug)) return undefined;
+    return decodeURIComponent(slug);
+  };
+
+  // deferStream so the button is in the server-rendered HTML rather than
+  // appearing a beat after hydration — a call CTA that pops in is worse than
+  // one that was always there. It costs nothing: the route below requests the
+  // same cached record with deferStream already.
+  const locality = createAsync(
+    async () => {
+      const slug = localitySlug();
+      return slug ? await localityQuery(slug) : null;
+    },
+    { deferStream: true },
+  );
+
+  /** Click-to-call, wherever the admin has set a number for this page. */
+  const callPhone = () => phoneOrUndefined(locality()?.contact_phone);
 
   // Close both menus on navigation — the sticky header survives route changes,
   // so an open panel would otherwise persist onto the new page.
@@ -132,6 +185,22 @@ export default function Header() {
         </nav>
 
         <div class="hidden items-center gap-3 md:flex">
+          {/* Between md and lg the nav is already tight, so the number itself
+              only appears once there is room for it — the icon carries it below. */}
+          <Suspense>
+            <Show when={callPhone()}>
+              {(phone) => (
+                <a
+                  href={telHref(phone())}
+                  class="inline-flex items-center gap-2 rounded-[8px] border border-navy px-3 py-2 text-sm font-semibold text-navy transition-colors hover:bg-navy hover:text-white"
+                >
+                  <PhoneIcon />
+                  <span class="hidden lg:inline">{phone()}</span>
+                  <span class="lg:hidden">Call</span>
+                </a>
+              )}
+            </Show>
+          </Suspense>
           <A
             href="/search"
             class="rounded-[8px] border border-navy/25 px-4 py-2 text-sm font-semibold text-navy transition-colors hover:border-navy hover:bg-navy hover:text-white"
@@ -147,7 +216,22 @@ export default function Header() {
           </button>
         </div>
 
+        {/* On mobile the call sits outside the menu — a dialler is one tap, not
+            a tap to open the menu and another to find the number. */}
         <div class="flex items-center gap-1 md:hidden">
+          <Suspense>
+            <Show when={callPhone()}>
+              {(phone) => (
+                <a
+                  href={telHref(phone())}
+                  class="inline-flex items-center gap-2 rounded-[8px] bg-navy px-3 py-2 text-sm font-semibold text-white"
+                >
+                  <PhoneIcon />
+                  Call
+                </a>
+              )}
+            </Show>
+          </Suspense>
 
         <button
           type="button"
@@ -218,5 +302,13 @@ export default function Header() {
         </nav>
       </Show>
     </header>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true">
+      <path d="M5 4h3l1.5 4-2 1.5a15 15 0 0 0 7 7l1.5-2L20 16v3c0 1.1-.9 2-2 2C10.3 21 3 13.7 3 6c0-1.1.9-2 2-2Z" />
+    </svg>
   );
 }
