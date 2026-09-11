@@ -65,7 +65,7 @@ export default function Footer() {
 
             <div class=" sm:col-start-1 xl:col-start-3">
               <FooterCol title="Company" links={[
-                { href: "/why-estateportal", label: "Why EstatePortal" },
+                { href: "/why-us", label: "Why Us" },
                 { href: "/#enquire", label: "Talk to an advisor" },
                 // { href: "/sitemap.xml", label: "Sitemap" },
               ]} />
@@ -76,7 +76,7 @@ export default function Footer() {
 
       <div class="border-t border-gold/40 bg-navy-deep px-4 py-3.5 text-center text-xs leading-relaxed text-white/85 sm:px-6">
         <p class="mx-auto max-w-6xl">Property information is indicative. Always verify RERA registration details on the official state authority portal before transacting.</p>
-        <p class="mt-1.5">© {new Date().getFullYear()} EstatePortal. All rights reserved.</p>
+        <p class="mt-1.5">© {new Date().getFullYear()}. All rights reserved.</p>
       </div>
     </footer>
   );
