@@ -17,24 +17,10 @@ import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
 import CallCta from "~/components/CallCta";
-import GoogleAdsTag from "~/components/GoogleAdsTag";
 import NotFound from "~/components/NotFound";
 import ProjectHeader, { type ProjectSection } from "~/components/ProjectHeader";
 import { canonical, absoluteUrl } from "~/lib/seo";
 import { projectPhone } from "~/lib/contactPhone";
-
-// Projects running a Google Ads campaign. Their pages carry the Ads tag, and
-// their enquiry forms hand off to /thank-you, because the ad platform counts
-// conversions by URL and an in-place confirmation never changes the URL. Every
-// other project keeps the inline thank-you. Adding a project to a campaign is
-// one entry here.
-const ADS_CAMPAIGN_SLUGS = new Set([
-  "divyansh-orion-homes",
-  "vvip-namah",
-  "ska-imperia-wave-city",
-  "rg-pleiaddes",
-]);
-const ADS_CAMPAIGN_TAG = "AW-16454201362";
 
 export const route = {
   preload: ({ params }) => {
@@ -156,12 +142,15 @@ export default function ProjectPage() {
           // Measured on the words, not the markup, so tags cannot pad a thin
           // description past the threshold and suppress the generated copy.
           const needsMoreAbout = () => htmlToText(p().description).length < 320;
-          const adsCampaign = () => ADS_CAMPAIGN_SLUGS.has(p().slug);
+          // Every project enquiry lands on /thank-you, not only the ones with
+          // an ad pointed at them. Which conversion that reports — if any — is
+          // the admin's to decide: no label means the API returns null and the
+          // page simply reports nothing. There is no list of campaign projects
+          // in the frontend any more, and no deploy needed to start or stop a
+          // campaign.
+          //
           // The slug rides along so /thank-you can quote this project's desk.
-          // (Only the forms on this page redirect — the site-wide lead modal
-          // always confirms in place.)
-          const thankYouUrl = () =>
-            adsCampaign() ? `/thank-you?project=${p().slug}` : undefined;
+          const thankYouUrl = () => `/thank-you?project=${p().slug}`;
           // The project header's nav. Every section below is conditional on the
           // backend having content for it, so each entry is gated on the same
           // test as the section itself — a link here always has somewhere to go.
@@ -196,11 +185,6 @@ export default function ProjectPage() {
               <Meta property="og:image" content={absoluteUrl(p().og_image!)} />
             </Show>
             <Link rel="canonical" href={canonical(`/project/${p().slug}`)} />
-
-            {/* Google Ads tag — campaign pages only. */}
-            <Show when={adsCampaign()}>
-              <GoogleAdsTag id={ADS_CAMPAIGN_TAG} />
-            </Show>
 
             {/* ---------------------------------------------------------------
                 Hero banner — full-bleed cover with a navy scrim, breadcrumb,

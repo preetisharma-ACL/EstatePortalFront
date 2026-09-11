@@ -41,6 +41,24 @@ export default function LeadPopup() {
     return m ? decodeURIComponent(m[1]) : undefined;
   };
 
+  /**
+   * Send the visitor to /thank-you only when the modal was opened ON a project
+   * page, where the enquiry is the point of the page.
+   *
+   * Deliberately keyed on the ROUTE, not on projectSlug() above. That slug can
+   * also come from an explicit context set by a trigger on a listing page — a
+   * project card, say — and redirecting there would take someone off the list
+   * they were still browsing. No trigger passes a context today, so the two are
+   * currently the same test; the route is the one that stays right if one does.
+   *
+   * Nothing is lost by staying inline: the conversion fires off the 201 on that
+   * path, so this is a UX call rather than a measurement one.
+   */
+  const redirectTo = () => {
+    const m = PROJECT_PATH.exec(location.pathname);
+    return m ? `/thank-you?project=${encodeURIComponent(decodeURIComponent(m[1]))}` : undefined;
+  };
+
   onMount(() => {
     let seen = false;
     try {
@@ -108,6 +126,7 @@ export default function LeadPopup() {
             projectSlug={projectSlug()}
             citySlug={leadModalContext().citySlug}
             contextNote={leadModalContext().contextNote}
+            redirectTo={redirectTo()}
           />
         </div>
       </div>
