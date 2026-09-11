@@ -72,7 +72,7 @@ export const route = {
       sourceFor(t),
       townshipFilters(location.query as Record<string, string>),
     );
-    if (t.townshipSlug) void localityQuery(t.townshipSlug);
+    if (t.townshipSlug) void localityQuery(t.townshipSlug, t.citySlug);
   },
 } satisfies RouteDefinition;
 
@@ -104,7 +104,7 @@ export default function TownshipPage() {
   const locality = createAsync(() => {
     const t = township();
     return t?.townshipSlug
-      ? localityQuery(t.townshipSlug)
+      ? localityQuery(t.townshipSlug, t.citySlug)
       : Promise.resolve(null);
   });
 

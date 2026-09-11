@@ -134,17 +134,19 @@ export const localitiesQuery = query(
  * an undefined list) lets the route render NotFound on its FIRST pass, so the
  * 404 status and <title> are committed before the response is flushed.
  *
- * Slugs are unique across cities, so this needs no city to disambiguate — but a
- * caller whose URL names a city MUST still check `city_slug` itself, or
- * /wrong-city/some-locality would resolve instead of 404ing. See
- * routes/[city]/[locality].tsx.
+ * ALWAYS pass the city. Locality slugs are unique per city, not globally —
+ * eleven are shared across cities (sector-76 is both a Gurugram and a Noida
+ * locality) — so a bare slug is ambiguous, and the API answers 400 rather than
+ * guessing. Leaving it off took three locality pages to a 500 in production.
  *
- * Keyed on the slug alone so every caller shares one cache entry: the header
- * needs the same record as the route it sits above, and two keys would mean two
- * requests for it.
+ * The API filters on it, so a slug that exists under a different city comes back
+ * 404 and never resolves under the wrong one.
+ *
+ * Both arguments form the cache key, so every caller must pass the SAME pair to
+ * share one request — the header and the route beneath it do.
  */
 export const localityQuery = query(
-  (slug: string) => orNull404(api.getLocality(slug)),
+  (slug: string, city: string) => orNull404(api.getLocality(slug, city)),
   "locality",
 );
 

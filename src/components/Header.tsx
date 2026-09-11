@@ -52,11 +52,20 @@ export default function Header() {
    * Project pages are not a case here: they run <ProjectHeader> instead, which
    * already gets contact_phone straight from the project payload.
    */
-  const localitySlug = () => {
+  /**
+   * Slug AND city, because a locality slug alone is ambiguous — eleven are
+   * shared between cities, and the API answers 400 rather than guessing.
+   */
+  const localityRef = (): { slug: string; city: string } | undefined => {
     const township = TOWNSHIP_PATH.exec(location.pathname);
-    // A township's backend locality slug can differ from its route slug, and a
-    // township with no backend record has nothing to look up.
-    if (township) return getTownship(decodeURIComponent(township[1]))?.townshipSlug;
+    if (township) {
+      // A township's backend locality slug can differ from its route slug, and
+      // a township with no backend record has nothing to look up. The registry
+      // carries the city too, so a township slug that one day collides with
+      // another city's is disambiguated the same way as any locality.
+      const t = getTownship(decodeURIComponent(township[1]));
+      return t?.townshipSlug ? { slug: t.townshipSlug, city: t.citySlug } : undefined;
+    }
 
     const locality = CITY_LOCALITY_PATH.exec(location.pathname);
     if (!locality) return undefined;
@@ -64,7 +73,7 @@ export default function Header() {
     // /<city>/<locality> shares its shape with the city's other pages and with
     // the top-level detail routes, so both halves are filtered before asking.
     if (NON_CITY_PREFIXES.has(city) || CITY_SUBROUTES.has(slug)) return undefined;
-    return decodeURIComponent(slug);
+    return { slug: decodeURIComponent(slug), city: decodeURIComponent(city) };
   };
 
   // deferStream so the button is in the server-rendered HTML rather than
@@ -73,8 +82,9 @@ export default function Header() {
   // same cached record with deferStream already.
   const locality = createAsync(
     async () => {
-      const slug = localitySlug();
-      return slug ? await localityQuery(slug) : null;
+      const ref = localityRef();
+      // Same (slug, city) pair the route below uses, so this shares its request.
+      return ref ? await localityQuery(ref.slug, ref.city) : null;
     },
     { deferStream: true },
   );

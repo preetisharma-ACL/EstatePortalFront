@@ -68,8 +68,14 @@ export const getCities = (
 export const getCity = (slug: string) =>
   getJSON<CityDetail>(`/cities/${encodeURIComponent(slug)}/`);
 
-export const getLocality = (slug: string) =>
-  getJSON<Locality>(`/localities/${encodeURIComponent(slug)}/`);
+/**
+ * One locality. `city` is NOT optional in practice — locality slugs are unique
+ * per city, not globally (eleven are shared, e.g. sector-76 in both gurugram
+ * and noida), so a bare slug is ambiguous and the API rejects it with a 400.
+ * Pass the city whenever the caller has one, which is everywhere it is called.
+ */
+export const getLocality = (slug: string, city?: string) =>
+  getJSON<Locality>(`/localities/${encodeURIComponent(slug)}/${qs({ city })}`);
 
 export const getLocalities = (
   params: { city?: string; state?: string; locality_type?: string; search?: string; page?: number } = {},

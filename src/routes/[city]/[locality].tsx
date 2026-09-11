@@ -18,7 +18,7 @@ const PAGE_SIZE = 12;
 
 export const route = {
   preload: ({ params, location }) => {
-    void localityQuery(params.locality!);
+    void localityQuery(params.locality!, params.city!);
     const f = filtersFromParams(location.query as Record<string, string>, {
       city: params.city,
       locality: params.locality,
@@ -32,10 +32,11 @@ export default function LocalityPage() {
   const [sp, setParams] = useSearchParams();
 
   // Resolves to the Locality, or null when the slug doesn't exist in this city.
-  // The slug alone resolves the record; the city in the URL still has to match
-  // it, or a locality would be reachable under any city's path.
+  // The city is part of the lookup, so the API already refuses a slug that
+  // belongs to a different one. The check stays as a second layer: it costs a
+  // comparison, and serving another city's locality would be silent.
   const locality = createAsync(async () => {
-    const l = await localityQuery(params.locality!);
+    const l = await localityQuery(params.locality!, params.city!);
     return l && l.city_slug === params.city ? l : null;
   }, {
     deferStream: true,
