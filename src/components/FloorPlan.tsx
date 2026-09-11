@@ -46,15 +46,22 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
   return (
     <Show when={rows().length}>
       <section class={hasAnyPlan() ? "grid border-t border-line lg:grid-cols-2" : "border-t border-line"}>
-        {/* Left — navy panel with the sizes table */}
-        <div class="flex flex-col justify-center bg-navy px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
+        {/* Left — navy panel with the sizes table.
+            min-w-0: a grid item defaults to min-width:auto, which refuses to
+            shrink below its content — so the table's min-width would push the
+            whole grid (and with it the page) wider than the viewport instead
+            of scrolling inside its own wrapper. */}
+        <div class="flex min-w-0 flex-col justify-center bg-navy px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
           <div class="mx-auto w-full max-w-xl lg:mx-0 lg:ml-auto lg:mr-12">
             <h2 class="font-display text-3xl font-semibold text-white sm:text-4xl">
               Sizes &amp; Floor Plan
             </h2>
 
+            {/* Three short columns fit a phone once the cells lose their
+                desktop padding, so the inner scroll is a fallback for very
+                narrow screens rather than the normal mobile experience. */}
             <div class="mt-8 overflow-x-auto">
-              <table class="w-full min-w-[420px] border-collapse text-sm">
+              <table class="w-full min-w-[300px] border-collapse text-[13px] sm:text-sm">
                 <thead>
                   <tr>
                     <Th>Type</Th>
@@ -98,7 +105,7 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
 
         {/* Right — floor plan for the selected row (only when plans exist) */}
         <Show when={hasAnyPlan()}>
-          <div class="relative min-h-[380px] bg-card lg:min-h-full">
+          <div class="relative min-h-[380px] min-w-0 bg-card lg:min-h-full">
             {/* Top bar — active row info (left) + prev/next controls (right) */}
             <div class="absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4">
               <Show when={activeConfig()}>
@@ -155,14 +162,14 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
 
 function Th(props: { children?: any }) {
   return (
-    <th class="border border-gold/40 px-4 py-3 text-left font-semibold uppercase tracking-wide text-gold">
+    <th class="whitespace-nowrap border border-gold/40 px-3 py-3 text-left font-semibold uppercase tracking-wide text-gold sm:px-4">
       {props.children}
     </th>
   );
 }
 function Td(props: { children?: any; class?: string }) {
   return (
-    <td class={`border border-gold/25 px-4 py-3 align-middle text-white/85 ${props.class ?? ""}`}>
+    <td class={`whitespace-nowrap border border-gold/25 px-3 py-3 align-middle text-white/85 sm:px-4 ${props.class ?? ""}`}>
       {props.children}
     </td>
   );
