@@ -308,10 +308,13 @@ export default function ProjectPage() {
                 {/* Glass enquiry card. Hidden below lg — the full-width form in
                     the contact band already serves narrow screens, and two
                     copies stacked would be noise. */}
-                <aside class="hidden rounded-[14px] border border-white/20 bg-white/[0.07] p-5 shadow-[0_8px_32px_rgba(14,27,51,0.37)] backdrop-blur-xl lg:block">
-                  <h2 class="font-display text-lg font-semibold leading-tight text-white">
+                <aside
+                  aria-label="Enquire about this project"
+                  class="hidden rounded-[14px] border border-white/20 bg-white/[0.07] p-5 shadow-[0_8px_32px_rgba(14,27,51,0.37)] backdrop-blur-xl lg:block"
+                >
+                  <p class="font-display text-lg font-semibold leading-tight text-white">
                     Enquire about this project
-                  </h2>
+                  </p>
                   <p class="mt-1 text-xs text-white/70">
                     Verified pricing, brochure &amp; assisted site visit.
                   </p>
@@ -358,11 +361,14 @@ export default function ProjectPage() {
 
             {/* Mobile enquiry card — the banner card is lg-only, so below that
                 breakpoint the same form lands here, directly under the hero. */}
-            <section class="border-b border-white/10 bg-navy-deep px-4 py-8 sm:px-6 lg:hidden">
+            <section
+              aria-label="Enquire about this project"
+              class="border-b border-white/10 bg-navy-deep px-4 py-8 sm:px-6 lg:hidden"
+            >
               <div class="mx-auto max-w-lg rounded-[14px] border border-white/20 bg-white/[0.07] p-5 shadow-[0_8px_32px_rgba(14,27,51,0.37)] backdrop-blur-xl">
-                <h2 class="font-display text-lg font-semibold leading-tight text-white">
+                <p class="font-display text-lg font-semibold leading-tight text-white">
                   Enquire about this project
-                </h2>
+                </p>
                 <p class="mt-1 text-xs text-white/70">
                   Verified pricing, brochure &amp; assisted site visit.
                 </p>
