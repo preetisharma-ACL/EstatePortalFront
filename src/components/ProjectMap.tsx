@@ -1,6 +1,9 @@
 import { Show, createMemo } from "solid-js";
 import { num } from "~/lib/format";
 
+/** Generous bounding box for India, including the islands. */
+const INDIA = { minLat: 6, maxLat: 37.5, minLon: 67, maxLon: 98 };
+
 /**
  * The project's position on a map, plus a link out to Google Maps.
  *
@@ -30,10 +33,21 @@ export default function ProjectMap(props: {
   const coords = createMemo(() => {
     const lat = num(props.latitude);
     const lon = num(props.longitude);
-    // 0,0 is the null island — a real number that is never a real address here,
-    // and far more likely to be an unset field than a genuine location.
-    if (lat === null || lon === null || (lat === 0 && lon === 0)) return null;
-    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+    if (lat === null || lon === null) return null;
+    // Every project on this portal is in India — RERA is Indian law, and the
+    // site says so on its own tin. So a pin outside the country is certainly a
+    // data error, and this box is a far tighter test than a valid-latitude one.
+    //
+    // It is not hypothetical: m3m-the-line was stored as 0.285700 rather than
+    // 28.570000, a shifted decimal that put the pin in the Indian Ocean and
+    // rendered as a confident, completely wrong location. A plausible wrong pin
+    // on a property page is worse than no pin — nobody checks a map that looks
+    // fine — and it took a hand audit of 204 pairs to find. This catches that
+    // whole class of error, including 0,0, without one.
+    //
+    // Widen the box if the portal ever lists outside India.
+    if (lat < INDIA.minLat || lat > INDIA.maxLat) return null;
+    if (lon < INDIA.minLon || lon > INDIA.maxLon) return null;
     return { lat, lon };
   });
 
