@@ -188,6 +188,13 @@ export interface ProjectDetail {
   location_advantages: LocationAdvantage[];
   key_features: KeyFeature[];
   faqs: ProjectFAQ[];
+  /**
+   * This project's Google Ads conversion action, or null when it has no label
+   * configured. Only useful for pre-loading a DIFFERENT Ads account's base tag
+   * before a submit — the authoritative copy is the one on the lead response,
+   * which reflects the project the lead was actually attributed to.
+   */
+  conversion: ConversionConfig | null;
   meta_title: string; meta_description: string; og_image: string | null;
 }
 
@@ -244,4 +251,40 @@ export interface LeadPayload {
   submitted_page?: string;
   consent_given: true;
 }
-export interface LeadResponse extends LeadPayload { id: number; }
+/**
+ * The Google Ads conversion action a completed enquiry reports to.
+ *
+ * A conversion is `<account>/<label>`. The account is shared across campaigns;
+ * the label is what makes one project's conversion distinct — so per-project
+ * config is normally just a label inheriting the shared account. The backend
+ * assembles both halves into `send_to`.
+ */
+export interface ConversionConfig {
+  /** Ready-assembled `<account>/<label>` — pass straight to gtag. */
+  send_to: string;
+  /** Conversion value. Per project and editable in the admin — never hardcode. */
+  value: number | null;
+  /** ISO currency for `value`; Google Ads rejects a value without one. */
+  currency: string;
+  /**
+   * The account half of `send_to`, on its own — the account that must be
+   * registered on the page before the event can carry this `send_to`. Usually
+   * the shared account; a project on its own Ads account differs here.
+   *
+   * The payload makes no claim about whether it is already registered — that is
+   * a property of the document, which the backend cannot observe. Pass it to
+   * ensureAdsAccount() and let that decide.
+   */
+  conversion_id: string;
+}
+
+export interface LeadResponse extends LeadPayload {
+  id: number;
+  /**
+   * Conversion action for the project this lead was ATTRIBUTED to, which is not
+   * always the project whose page it was submitted from. Null when that project
+   * has no label configured, or when the lead has no project at all (homepage,
+   * township, city and search enquiries). Null means fire nothing — not an error.
+   */
+  conversion: ConversionConfig | null;
+}

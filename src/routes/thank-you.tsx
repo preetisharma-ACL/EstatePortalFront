@@ -3,7 +3,7 @@ import { A, useSearchParams } from "@solidjs/router";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
 import AdsConversion from "~/components/AdsConversion";
 import { deskPhoneForProject, telHref } from "~/lib/contactPhone";
-import { adsConversionForProject } from "~/lib/adsConversion";
+import { ADS_ACCOUNT_ID } from "~/lib/adsConversion";
 
 const str = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
 
@@ -16,11 +16,12 @@ const str = (v: string | string[] | undefined) => (typeof v === "string" ? v : u
  * `redirectTo` (see ProjectEnquiryForm) — every other form still confirms in
  * place, so no page that isn't running ads changes.
  *
- * `?project=<slug>` is optional and picks two things. The number to quote:
- * several projects are fielded by a desk other than the portal default, and
- * sending a visitor to the wrong one is worse than showing no number at all.
- * And the Google Ads conversion action: campaigns have their own, so a lead
- * counts against the campaign that actually produced it.
+ * `?project=<slug>` is optional and picks the number to quote: several
+ * projects are fielded by a desk other than the portal default, and sending a
+ * visitor to the wrong one is worse than showing no number at all. It does NOT
+ * pick the conversion action — that arrives from the form through
+ * sessionStorage, because only the lead response knows which project the lead
+ * was attributed to.
  *
  * noindex: a confirmation page has nothing to rank for, and one in the index
  * would let people land here without ever submitting a lead.
@@ -35,14 +36,13 @@ export default function ThankYouPage() {
       <Meta name="description" content="Your enquiry has reached our advisory team." />
       <Meta name="robots" content="noindex,follow" />
 
-      {/* Loads gtag.js and registers the Ads account. */}
-      <GoogleAdsTag id="AW-16454201362" />
-      {/* Sends the conversion itself — `?lead=` is the lead id, used as the
-          transaction_id so a refresh doesn't count twice. */}
-      <AdsConversion
-        action={adsConversionForProject(str(params.project))}
-        transactionId={str(params.lead)}
-      />
+      {/* Registers the shared Ads account in the server-rendered <head>, so the
+          loader is in flight before the conversion below is sent. Deduped
+          against ensureAdsAccount, so it cannot double-count. */}
+      <GoogleAdsTag id={ADS_ACCOUNT_ID} />
+      {/* Sends the conversion parked by the form that redirected here. Fires
+          once per lead — a refresh or a back-button return sends nothing. */}
+      <AdsConversion />
 
       <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-green text-white shadow-[0_0_0_3px_var(--color-gold)]">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

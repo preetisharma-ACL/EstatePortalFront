@@ -4,16 +4,17 @@ import { submitLead, ApiError } from "~/lib/api";
 import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
 import { resolveCity } from "~/lib/leadCity";
+import { campaignConversion, fireConversion, stashConversion } from "~/lib/adsConversion";
 import type { LeadPayload } from "~/lib/types";
 
 // First page of /cities/ backs the typed-city -> slug lookup on submit.
 const CITY_PARAMS = { page: 1 } as const;
 
 /**
- * Tags the redirect target with the new lead's id. /thank-you passes it to
- * Google Ads as the conversion's transaction_id, which is what collapses a
- * refresh or a back-button return into one counted conversion. Without an id
- * the redirect still happens — every load would just count again.
+ * Tags the redirect target with the new lead's id. Not what drives the
+ * conversion any more — that rides in sessionStorage (see stashConversion) —
+ * but it keeps the lead identifiable in the URL when reading analytics or
+ * reproducing a report.
  */
 const withLeadId = (url: string, id: number | undefined) =>
   id == null ? url : `${url}${url.includes("?") ? "&" : "?"}lead=${id}`;
@@ -100,8 +101,27 @@ export default function ProjectEnquiryForm(props: {
     setSubmitting(true);
     try {
       const lead = await submitLead(payload);
-      if (props.redirectTo) navigate(withLeadId(props.redirectTo, lead?.id));
-      else setDone(true);
+      // The conversion action comes off the lead RESPONSE, which reflects the
+      // project the backend actually attributed the lead to — not necessarily
+      // props.projectSlug. Null (no label configured, or no project at all)
+      // means there is nothing to report, which is the common case today.
+      const leadId = lead?.id ?? null;
+
+      if (props.redirectTo) {
+        // A campaign page: the legacy hardcoded labels still apply here, and
+        // the fire has to happen on /thank-you — the URL the ad platform
+        // counts — so park the payload for the page one navigation away.
+        const conversion = campaignConversion(lead?.conversion, props.projectSlug);
+        if (conversion) stashConversion(leadId, conversion);
+        navigate(withLeadId(props.redirectTo, lead?.id));
+      } else {
+        // Not a campaign page: this form confirms in place, so /thank-you never
+        // runs and the conversion has to be sent from here or not at all. Only
+        // what the backend supplies — no fallback, so a page that has never
+        // reported a conversion does not silently start.
+        fireConversion(leadId, lead?.conversion);
+        setDone(true);
+      }
     } catch (err) {
       if (err instanceof ApiError && err.status === 400 && err.detail && typeof err.detail === "object") {
         const detail = err.detail as Record<string, unknown>;

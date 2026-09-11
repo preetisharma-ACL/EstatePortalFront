@@ -4,6 +4,7 @@ import { submitLead, ApiError } from "~/lib/api";
 import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
 import { resolveCity } from "~/lib/leadCity";
+import { fireConversion } from "~/lib/adsConversion";
 import type { LeadPayload } from "~/lib/types";
 
 // First page of /cities/ backs the typed-city -> slug lookup on submit.
@@ -16,6 +17,12 @@ const CITY_PARAMS = { page: 1 } as const;
  * backend accepts on a lead is optional, and a three-field form converts better.
  * Matches ProjectEnquiryForm field-for-field — that one is the on-image variant
  * used inside dark hero banners.
+ *
+ * This form always confirms in place — it is the site-wide modal and sits on
+ * pages that are not about one project, so there is no per-campaign /thank-you
+ * to send anyone to. Its Google Ads conversion therefore fires here, off the
+ * 201, rather than on /thank-you. Most of these leads carry no project and so
+ * report nothing; the ones raised from a project-specific trigger do.
  */
 export default function LeadForm(props: {
   projectSlug?: string;
@@ -75,7 +82,12 @@ export default function LeadForm(props: {
 
     setSubmitting(true);
     try {
-      await submitLead(payload);
+      const lead = await submitLead(payload);
+      // Fires here rather than on /thank-you — see the note above the component.
+      // Strictly what the backend supplies: most of these leads carry no
+      // project and so report nothing, which is the contract and also what this
+      // form has always done.
+      fireConversion(lead?.id ?? null, lead?.conversion);
       setDone(true);
     } catch (err) {
       if (err instanceof ApiError && err.status === 400 && err.detail && typeof err.detail === "object") {
