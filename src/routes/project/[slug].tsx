@@ -8,6 +8,7 @@ import { priceRange, areaRange, statusLabel, typeLabel, possession, formatINR, l
 import GalleryGrid from "~/components/GalleryGrid";
 import FloorPlan from "~/components/FloorPlan";
 import AboutDeveloper from "~/components/AboutDeveloper";
+import AmenityList from "~/components/AmenityList";
 import ContactBand from "~/components/ContactBand";
 import BannerSlideshow from "~/components/BannerSlideshow";
 import VideoPanel from "~/components/VideoPanel";
@@ -406,6 +407,43 @@ export default function ProjectPage() {
             </Show>
 
             {/* ---------------------------------------------------------------
+                Highlights — the factual bullets the content team writes per
+                project (acreage, saleable area, connectivity, configurations).
+                Server-rendered like every other section: this is keyword-dense
+                descriptive copy on an indexed page, and drawing it on the
+                client would waste most of its value.
+
+                A plain string array, already split per line and trimmed by the
+                backend. Hidden when empty.
+            ---------------------------------------------------------------- */}
+            <Show when={p().highlights_list.length}>
+              <section class="border-b border-line bg-card">
+                <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+                  <div class="mx-auto max-w-3xl text-center">
+                    <p class="eyebrow">At a glance</p>
+                    <div class="gold-rule mx-auto my-3.5" />
+                    <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
+                      {p().name} highlights
+                    </h2>
+                  </div>
+
+                  {/* Two columns from sm up — the list runs to a median of 12
+                      and as many as 28, which is a long single column. */}
+                  <ul class="mx-auto mt-12 grid max-w-5xl gap-x-10 gap-y-4 sm:grid-cols-2">
+                    <For each={p().highlights_list}>
+                      {(h) => (
+                        <li class="flex items-start gap-3 text-[15px] leading-relaxed text-gray-600">
+                          <span class="mt-[7px] grid h-1.5 w-1.5 shrink-0 rounded-full bg-gold" aria-hidden="true" />
+                          <span>{h}</span>
+                        </li>
+                      )}
+                    </For>
+                  </ul>
+                </div>
+              </section>
+            </Show>
+
+            {/* ---------------------------------------------------------------
                 Gallery — centred "{name} Images" heading over an even photo
                 grid with a click-to-zoom lightbox. Hidden when no images.
             ---------------------------------------------------------------- */}
@@ -434,8 +472,29 @@ export default function ProjectPage() {
             <FloorPlan project={p()} />
 
             {/* ---------------------------------------------------------------
+                Amenities — the closed 14-item vocabulary, as an icon grid.
+                Hidden when the project has none (three in the catalogue).
+            ---------------------------------------------------------------- */}
+            <Show when={p().amenities.length}>
+              <section class="border-b border-line bg-paper">
+                <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+                  <div class="mx-auto max-w-3xl text-center">
+                    <p class="eyebrow">Lifestyle</p>
+                    <div class="gold-rule mx-auto my-3.5" />
+                    <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
+                      Amenities at {p().name}
+                    </h2>
+                  </div>
+                  <div class="mt-12">
+                    <AmenityList amenities={p().amenities} />
+                  </div>
+                </div>
+              </section>
+            </Show>
+
+            {/* ---------------------------------------------------------------
                 Key features — larger, titled differentiators (distinct from the
-                amenity chips above). Hidden when the backend supplies none.
+                amenity grid above). Hidden when the backend supplies none.
             ---------------------------------------------------------------- */}
             <Show when={p().key_features.length}>
               <section class="border-b border-line bg-card">
