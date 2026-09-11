@@ -26,7 +26,17 @@ import type { ConversionConfig } from "./types";
 
 export type { ConversionConfig };
 
-/** The shared Google Ads account. Campaigns differ by label, not by account. */
+/**
+ * The shared Google Ads account. Campaigns differ by label, not by account.
+ *
+ * MIRRORS `GOOGLE_ADS_CONVERSION_ID` on the backend, which is the source of
+ * truth. Change one and change this, or they drift silently: the API always
+ * sends `conversion_id`, so `conversion_id || ADS_ACCOUNT_ID` never reaches
+ * this value in practice and a stale copy would go unnoticed. Its one live use
+ * is the base tag on /thank-you, which would then register the wrong account —
+ * and the startsWith guard in fireConversion would refuse every conversion
+ * rather than report a wrong one, so the failure is at least loud.
+ */
 export const ADS_ACCOUNT_ID = "AW-16454201362";
 
 /* ------------------------------------------------------------------------- *
