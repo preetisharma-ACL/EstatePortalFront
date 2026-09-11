@@ -1,8 +1,5 @@
 import { Show, createMemo } from "solid-js";
-import { num } from "~/lib/format";
-
-/** Generous bounding box for India, including the islands. */
-const INDIA = { minLat: 6, maxLat: 37.5, minLon: 67, maxLon: 98 };
+import { mapCoords } from "~/lib/geo";
 
 /**
  * The project's position on a map, plus a link out to Google Maps.
@@ -30,26 +27,10 @@ export default function ProjectMap(props: {
   longitude: string | null;
   name: string;
 }) {
-  const coords = createMemo(() => {
-    const lat = num(props.latitude);
-    const lon = num(props.longitude);
-    if (lat === null || lon === null) return null;
-    // Every project on this portal is in India — RERA is Indian law, and the
-    // site says so on its own tin. So a pin outside the country is certainly a
-    // data error, and this box is a far tighter test than a valid-latitude one.
-    //
-    // It is not hypothetical: m3m-the-line was stored as 0.285700 rather than
-    // 28.570000, a shifted decimal that put the pin in the Indian Ocean and
-    // rendered as a confident, completely wrong location. A plausible wrong pin
-    // on a property page is worse than no pin — nobody checks a map that looks
-    // fine — and it took a hand audit of 204 pairs to find. This catches that
-    // whole class of error, including 0,0, without one.
-    //
-    // Widen the box if the portal ever lists outside India.
-    if (lat < INDIA.minLat || lat > INDIA.maxLat) return null;
-    if (lon < INDIA.minLon || lon > INDIA.maxLon) return null;
-    return { lat, lon };
-  });
+  // The single coordinate test, shared with whatever gates the section —
+  // see the note in lib/geo. Two different tests is how a heading ends up
+  // rendered over a map that refused to draw.
+  const coords = createMemo(() => mapCoords(props.latitude, props.longitude));
 
   /** A small box around the pin — roughly a kilometre across at this latitude. */
   const bbox = (lat: number, lon: number) => {

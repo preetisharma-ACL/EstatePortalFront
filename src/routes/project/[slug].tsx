@@ -29,6 +29,7 @@ import BrochureButton from "~/components/BrochureButton";
 import CallCta from "~/components/CallCta";
 import NotFound from "~/components/NotFound";
 import ProjectHeader, { type ProjectSection } from "~/components/ProjectHeader";
+import { hasMapCoords } from "~/lib/geo";
 import { canonical, absoluteUrl } from "~/lib/seo";
 
 
@@ -198,7 +199,9 @@ export default function ProjectPage() {
               {
                 id: "location-overview",
                 label: "Location",
-                show: Boolean(p().location_description?.trim() || p().latitude),
+                show: Boolean(
+                  p().location_description?.trim() || hasMapCoords(p().latitude, p().longitude),
+                ),
               },
               { id: "location", label: "Connectivity", show: connectivity().length > 0 },
               { id: "amenities", label: "Amenities", show: p().amenities.length > 0 },
@@ -749,7 +752,7 @@ export default function ProjectPage() {
             ---------------------------------------------------------------- */}
             <Section
               id="location-overview"
-              when={p().location_description?.trim() || p().latitude}
+              when={p().location_description?.trim() || hasMapCoords(p().latitude, p().longitude)}
               eyebrow="Where it is"
               title={`${p().name} location`}
               tone="paper"
