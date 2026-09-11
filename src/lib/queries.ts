@@ -128,28 +128,23 @@ export const localitiesQuery = query(
 );
 
 /**
- * Every locality in a city, following pagination so a locality sitting on a
- * later page can never be mistaken for a 404.
- */
-async function fetchAllLocalities(city: string): Promise<Locality[]> {
-  const all: Locality[] = [];
-  for (let page = 1; page <= 50; page++) {
-    const res = await api.getLocalities({ city, page });
-    all.push(...res.results);
-    if (!res.next) break;
-  }
-  return all;
-}
-
-/**
- * Resolve one locality by slug within a city, or null when it doesn't exist.
+ * One locality by slug, or null when it doesn't exist.
+ *
  * Resolving to null (rather than leaving the component to infer "missing" from
  * an undefined list) lets the route render NotFound on its FIRST pass, so the
  * 404 status and <title> are committed before the response is flushed.
+ *
+ * Slugs are unique across cities, so this needs no city to disambiguate — but a
+ * caller whose URL names a city MUST still check `city_slug` itself, or
+ * /wrong-city/some-locality would resolve instead of 404ing. See
+ * routes/[city]/[locality].tsx.
+ *
+ * Keyed on the slug alone so every caller shares one cache entry: the header
+ * needs the same record as the route it sits above, and two keys would mean two
+ * requests for it.
  */
 export const localityQuery = query(
-  async (city: string, slug: string) =>
-    (await fetchAllLocalities(city)).find((l) => l.slug === slug) ?? null,
+  (slug: string) => orNull404(api.getLocality(slug)),
   "locality",
 );
 

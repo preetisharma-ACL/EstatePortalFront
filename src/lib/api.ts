@@ -68,6 +68,9 @@ export const getCities = (
 export const getCity = (slug: string) =>
   getJSON<CityDetail>(`/cities/${encodeURIComponent(slug)}/`);
 
+export const getLocality = (slug: string) =>
+  getJSON<Locality>(`/localities/${encodeURIComponent(slug)}/`);
+
 export const getLocalities = (
   params: { city?: string; state?: string; locality_type?: string; search?: string; page?: number } = {},
 ) => getJSON<Paginated<Locality>>(`/localities/${qs(params)}`);

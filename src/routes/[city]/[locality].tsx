@@ -18,7 +18,7 @@ const PAGE_SIZE = 12;
 
 export const route = {
   preload: ({ params, location }) => {
-    void localityQuery(params.city!, params.locality!);
+    void localityQuery(params.locality!);
     const f = filtersFromParams(location.query as Record<string, string>, {
       city: params.city,
       locality: params.locality,
@@ -32,7 +32,12 @@ export default function LocalityPage() {
   const [sp, setParams] = useSearchParams();
 
   // Resolves to the Locality, or null when the slug doesn't exist in this city.
-  const locality = createAsync(() => localityQuery(params.city!, params.locality!), {
+  // The slug alone resolves the record; the city in the URL still has to match
+  // it, or a locality would be reachable under any city's path.
+  const locality = createAsync(async () => {
+    const l = await localityQuery(params.locality!);
+    return l && l.city_slug === params.city ? l : null;
+  }, {
     deferStream: true,
   });
 
