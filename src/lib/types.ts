@@ -264,8 +264,12 @@ export interface ConversionConfig {
   send_to: string;
   /** Conversion value. Per project and editable in the admin — never hardcode. */
   value: number | null;
-  /** ISO currency for `value`; Google Ads rejects a value without one. */
-  currency: string;
+  /**
+   * ISO currency for `value`; Google Ads rejects a value without one. Null
+   * whenever `value` is null — an action that has never carried a value must
+   * keep not carrying one, or its history in Ads changes retroactively.
+   */
+  currency: string | null;
   /**
    * The account half of `send_to`, on its own — the account that must be
    * registered on the page before the event can carry this `send_to`. Usually

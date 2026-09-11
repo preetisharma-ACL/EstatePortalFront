@@ -4,7 +4,7 @@ import { submitLead, ApiError } from "~/lib/api";
 import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
 import { resolveCity } from "~/lib/leadCity";
-import { campaignConversion, fireConversion, stashConversion } from "~/lib/adsConversion";
+import { fireConversion, reportUnconfiguredConversion, stashConversion } from "~/lib/adsConversion";
 import type { LeadPayload } from "~/lib/types";
 
 // First page of /cities/ backs the typed-city -> slug lookup on submit.
@@ -88,13 +88,14 @@ export default function ProjectEnquiryForm(props: {
     const message =
       [props.contextNote, city.message].filter(Boolean).join(" · ") || undefined;
 
+    const attribution = getAttribution();
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
       project_slug: props.projectSlug,
       city_slug: city.city_slug,
       message,
-      ...getAttribution(),
+      ...attribution,
       consent_given: true,
     };
 
@@ -104,22 +105,29 @@ export default function ProjectEnquiryForm(props: {
       // The conversion action comes off the lead RESPONSE, which reflects the
       // project the backend actually attributed the lead to — not necessarily
       // props.projectSlug. Null (no label configured, or no project at all)
-      // means there is nothing to report, which is the common case today.
+      // means there is nothing to report, which is the common case.
       const leadId = lead?.id ?? null;
+      const conversion = lead?.conversion ?? null;
+
+      // Paid click that nothing can count — see reportUnconfiguredConversion.
+      if (!conversion) {
+        reportUnconfiguredConversion({
+          leadId,
+          projectSlug: props.projectSlug,
+          gclid: attribution.gclid,
+        });
+      }
 
       if (props.redirectTo) {
-        // A campaign page: the legacy hardcoded labels still apply here, and
-        // the fire has to happen on /thank-you — the URL the ad platform
-        // counts — so park the payload for the page one navigation away.
-        const conversion = campaignConversion(lead?.conversion, props.projectSlug);
+        // The fire has to happen on /thank-you, so park the payload for the
+        // page one navigation away. Nothing to park when there is no label —
+        // the visitor still goes to /thank-you, which simply reports nothing.
         if (conversion) stashConversion(leadId, conversion);
         navigate(withLeadId(props.redirectTo, lead?.id));
       } else {
-        // Not a campaign page: this form confirms in place, so /thank-you never
-        // runs and the conversion has to be sent from here or not at all. Only
-        // what the backend supplies — no fallback, so a page that has never
-        // reported a conversion does not silently start.
-        fireConversion(leadId, lead?.conversion);
+        // Confirms in place, so /thank-you never runs and the conversion has to
+        // be sent from here or not at all.
+        fireConversion(leadId, conversion);
         setDone(true);
       }
     } catch (err) {

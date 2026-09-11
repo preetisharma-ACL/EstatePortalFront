@@ -1,10 +1,10 @@
 import { createSignal, Show, onMount } from "solid-js";
-import { createAsync } from "@solidjs/router";
+import { createAsync, useNavigate } from "@solidjs/router";
 import { submitLead, ApiError } from "~/lib/api";
 import { citiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
 import { resolveCity } from "~/lib/leadCity";
-import { fireConversion } from "~/lib/adsConversion";
+import { fireConversion, reportUnconfiguredConversion, stashConversion } from "~/lib/adsConversion";
 import type { LeadPayload } from "~/lib/types";
 
 // First page of /cities/ backs the typed-city -> slug lookup on submit.
@@ -18,15 +18,23 @@ const CITY_PARAMS = { page: 1 } as const;
  * Matches ProjectEnquiryForm field-for-field — that one is the on-image variant
  * used inside dark hero banners.
  *
- * This form always confirms in place — it is the site-wide modal and sits on
- * pages that are not about one project, so there is no per-campaign /thank-you
- * to send anyone to. Its Google Ads conversion therefore fires here, off the
- * 201, rather than on /thank-you. Most of these leads carry no project and so
- * report nothing; the ones raised from a project-specific trigger do.
+ * Confirms in place unless the caller passes `redirectTo`, which only
+ * <LeadPopup> does, and only when the modal was opened ON a project page — see
+ * the note there for why the route decides that rather than the mere presence
+ * of a project slug.
+ *
+ * Either way the conversion is reported: inline it fires here off the 201, and
+ * on the redirect it is parked for /thank-you. So the redirect is purely a UX
+ * choice and never a measurement one.
  */
 export default function LeadForm(props: {
   projectSlug?: string;
   citySlug?: string;
+  /**
+   * Where to send the visitor on success instead of confirming in place. Unset
+   * everywhere except the modal on a project page.
+   */
+  redirectTo?: string;
   /**
    * Free-text note prepended to the lead's `message`, e.g. the township a
    * landing page is about. Mirrors ProjectEnquiryForm — the lead schema has no
@@ -42,6 +50,7 @@ export default function LeadForm(props: {
   const [fieldErrors, setFieldErrors] = createSignal<Record<string, string>>({});
 
   const cities = createAsync(() => citiesQuery(CITY_PARAMS));
+  const navigate = useNavigate();
 
   onMount(() => captureAttribution());
 
@@ -70,25 +79,43 @@ export default function LeadForm(props: {
     const message =
       [props.contextNote, city.message].filter(Boolean).join(" · ") || undefined;
 
+    const attribution = getAttribution();
     const payload: LeadPayload = {
       name: (fd.get("name") as string)?.trim() ?? "",
       phone: (fd.get("phone") as string)?.trim() ?? "",
       project_slug: props.projectSlug,
       city_slug: city.city_slug,
       message,
-      ...getAttribution(),
+      ...attribution,
       consent_given: true,
     };
 
     setSubmitting(true);
     try {
       const lead = await submitLead(payload);
-      // Fires here rather than on /thank-you — see the note above the component.
-      // Strictly what the backend supplies: most of these leads carry no
-      // project and so report nothing, which is the contract and also what this
-      // form has always done.
-      fireConversion(lead?.id ?? null, lead?.conversion);
-      setDone(true);
+      const leadId = lead?.id ?? null;
+      const conversion = lead?.conversion ?? null;
+
+      // Paid click that nothing can count — see reportUnconfiguredConversion.
+      if (!conversion) {
+        reportUnconfiguredConversion({
+          leadId,
+          projectSlug: props.projectSlug,
+          gclid: attribution.gclid,
+        });
+      }
+
+      if (props.redirectTo) {
+        if (conversion) stashConversion(leadId, conversion);
+        navigate(
+          leadId == null
+            ? props.redirectTo
+            : `${props.redirectTo}${props.redirectTo.includes("?") ? "&" : "?"}lead=${leadId}`,
+        );
+      } else {
+        fireConversion(leadId, conversion);
+        setDone(true);
+      }
     } catch (err) {
       if (err instanceof ApiError && err.status === 400 && err.detail && typeof err.detail === "object") {
         const detail = err.detail as Record<string, unknown>;

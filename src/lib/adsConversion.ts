@@ -83,6 +83,13 @@ export function ensureAdsAccount(
   opts: { scriptAlreadyPresent?: boolean } = {},
 ): void {
   if (!id || typeof window === "undefined" || configured.has(id)) return;
+  // A malformed id would load a script for an account that does not exist.
+  // Refuse it and say so, rather than leaving a dead loader in the page.
+  if (!ADS_ACCOUNT_RE.test(id)) {
+    configured.add(id);
+    reportMisconfiguredConversion("account_id_malformed", id);
+    return;
+  }
   configured.add(id);
 
   const alreadyLoaded =
@@ -103,65 +110,67 @@ export function ensureAdsAccount(
 }
 
 /* ------------------------------------------------------------------------- *
- * Local fallback — DELETE once labels are configured in the admin
+ * Diagnostics
  * ------------------------------------------------------------------------- */
 
 /**
- * Conversion labels hardcoded here before the backend served them.
+ * GA4 destination for the diagnostic events below, mirroring the site-wide
+ * snippet in src/entry-server.tsx.
  *
- * TEMPORARY. Zero projects currently have a label set in the admin, so the
- * backend returns `conversion: null` for every lead. Removing these outright
- * would take the campaigns that do convert down to nothing until the Ads team
- * fills the admin in. The backend value WINS whenever it is present, so each
- * entry becomes dead the moment its project gets a label — at which point this
- * whole block, VITE_GADS_CONVERSION_LABEL and its note in src/global.d.ts
- * should go.
- *
- * Scope matters: this fallback applies ONLY on the campaign path (see
- * campaignConversion). Reaching for it on every lead would start reporting
- * conversions for homepage and township enquiries that have never reported one
- * — traffic the campaigns did not produce, which is precisely the noise
- * Smart Bidding must not be fed.
+ * Named explicitly so these never reach the Ads account. An event sent with no
+ * `send_to` goes to EVERY registered destination — harmless in itself, since
+ * neither name is a conversion action, but the whole point of this module is to
+ * keep anything that is not a real conversion out of Google Ads.
  */
-const LEGACY_LABELS: Record<string, { label: string; value?: number; currency?: string }> = {
-  // "Lead - Form Submit SKA"
-  "ska-imperia-wave-city": { label: "47LoCJKvhvMcEJLg_KU9", value: 1.0, currency: "INR" },
-  // "RG Pal Submit Form"
-  "rg-pleiaddes": { label: "1sBICJjskvMcEJLg_KU9", value: 1.0, currency: "INR" },
-};
-
-/** Generic enquiry label, for campaign projects without one of their own. */
-const LEGACY_DEFAULT_LABEL = import.meta.env.VITE_GADS_CONVERSION_LABEL;
-
-const legacyConversion = (slug: string | undefined): ConversionConfig | null => {
-  const entry =
-    (slug ? LEGACY_LABELS[slug] : undefined) ??
-    (LEGACY_DEFAULT_LABEL ? { label: LEGACY_DEFAULT_LABEL } : undefined);
-  if (!entry) return null;
-  return {
-    send_to: `${ADS_ACCOUNT_ID}/${entry.label}`,
-    value: entry.value ?? null,
-    currency: entry.currency ?? "INR",
-    conversion_id: ADS_ACCOUNT_ID,
-  };
-};
+const GA4_MEASUREMENT_ID = "G-DJCMEPXJS2";
 
 /**
- * The conversion to report for a lead raised on a CAMPAIGN page — one that
- * redirects to /thank-you because an ad is pointed at it.
+ * A Google Ads account id: "AW-" followed by digits.
  *
- * The backend's value wins. The legacy hardcoded label stands in only while the
- * admin has none, which keeps the campaigns that convert today converting.
- *
- * Every other lead path uses `lead.conversion` directly and reports nothing
- * when it is null. That is the backend's contract — a lead with no project, or
- * a project with no label, has no conversion to report — and it is also the
- * behaviour those paths have always had.
+ * Worth validating because `conversion_id` is now typed by hand in the admin by
+ * the Ads team, and a malformed one fails in the two quietest ways there are: a
+ * `send_to` Google Ads does not recognise is dropped without complaint, and
+ * ensureAdsAccount would inject a loader for a nonexistent account.
  */
-export const campaignConversion = (
-  fromApi: ConversionConfig | null | undefined,
-  projectSlug: string | undefined,
-): ConversionConfig | null => fromApi ?? legacyConversion(projectSlug);
+const ADS_ACCOUNT_RE = /^AW-\d+$/;
+
+/**
+ * Reports a lead that a Google Ads click paid for and that nothing can count.
+ *
+ * Gated on the gclid, deliberately. "Project has no conversion label" is the
+ * wrong gate: almost no project has one, so it would fire on nearly every lead
+ * and the noise is how the one that matters gets missed. A gclid means the
+ * click was bought, so every instance of this is real money that produced a
+ * lead Google Ads will never attribute.
+ *
+ * Goes to GA4 rather than the console because the Ads team reads GA4 and nobody
+ * reads a visitor's console. The backend raises the matching WARNING line.
+ */
+export function reportUnconfiguredConversion(info: {
+  leadId: number | null;
+  projectSlug?: string;
+  gclid?: string;
+}): void {
+  if (typeof window === "undefined" || !info.gclid) return;
+  pushGtag("event", "ads_conversion_unconfigured", {
+    send_to: GA4_MEASUREMENT_ID,
+    project_slug: info.projectSlug ?? "(none)",
+    lead_id: info.leadId ?? undefined,
+    // Distinguishes a project whose label was never filled in from an enquiry
+    // that carried no project at all — different owners, different fixes.
+    reason: info.projectSlug ? "project_has_no_label" : "lead_has_no_project",
+  });
+}
+
+/** Reports a conversion the admin configured but that cannot be sent as-is. */
+function reportMisconfiguredConversion(reason: string, detail: string): void {
+  if (typeof window === "undefined") return;
+  pushGtag("event", "ads_conversion_misconfigured", {
+    send_to: GA4_MEASUREMENT_ID,
+    reason,
+    detail,
+  });
+}
 
 /* ------------------------------------------------------------------------- *
  * Surviving the redirect to /thank-you
@@ -254,10 +263,20 @@ export function fireConversion(
 ): boolean {
   if (typeof window === "undefined") return false;
   if (!conversion?.send_to) return false;
+
+  // The account half has to be well-formed for Google Ads to accept the event.
+  // Bail BEFORE marking the lead fired, so a corrected label still converts for
+  // this lead once the admin is fixed.
+  const account = conversion.conversion_id || ADS_ACCOUNT_ID;
+  if (!ADS_ACCOUNT_RE.test(account) || !conversion.send_to.startsWith(`${account}/`)) {
+    reportMisconfiguredConversion("send_to_malformed", conversion.send_to);
+    return false;
+  }
+
   if (alreadyFired(leadId)) return false;
   markFired(leadId);
 
-  ensureAdsAccount(conversion.conversion_id || ADS_ACCOUNT_ID);
+  ensureAdsAccount(account);
 
   pushGtag("event", "conversion", {
     send_to: conversion.send_to,
