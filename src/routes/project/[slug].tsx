@@ -14,6 +14,7 @@ import InvestmentAnalysis from "~/components/InvestmentAnalysis";
 import LocationTable from "~/components/LocationTable";
 import NearbyProjects from "~/components/NearbyProjects";
 import PriceList from "~/components/PriceList";
+import ProjectMap from "~/components/ProjectMap";
 import ProjectSpecifications from "~/components/ProjectSpecifications";
 import ProjectUpdates from "~/components/ProjectUpdates";
 import ReraDetails from "~/components/ReraDetails";
@@ -188,11 +189,17 @@ export default function ProjectPage() {
               { id: "highlights", label: "Highlights", show: p().highlights_list.length > 0 },
               { id: "considerations", label: "Considerations", show: p().considerations_list.length > 0 },
               { id: "features", label: "Features", show: p().key_features.length > 0 },
+              { id: "why-choose", label: "Why choose", show: p().why_choose_points.length > 0 },
               { id: "updates", label: "Updates", show: p().updates.length > 0 },
               { id: "gallery", label: "Gallery", show: hasGallery() },
               { id: "pricing", label: "Pricing", show: p().configurations.length > 0 },
               { id: "specifications", label: "Specifications", show: p().specifications.length > 0 },
               { id: "locality", label: "Locality", show: Boolean(p().locality_about?.trim()) },
+              {
+                id: "location-overview",
+                label: "Location",
+                show: Boolean(p().location_description?.trim() || p().latitude),
+              },
               { id: "location", label: "Connectivity", show: connectivity().length > 0 },
               { id: "amenities", label: "Amenities", show: p().amenities.length > 0 },
               { id: "investment", label: "Investment", show: p().investment_points.length > 0 },
@@ -659,6 +666,45 @@ export default function ProjectPage() {
               </section>
             </Show>
 
+
+            {/* ---------------------------------------------------------------
+                Why choose — the ARGUMENT for this project, kept distinct from
+                the facts (highlights), what it is (key features) and the
+                caveats (considerations). Sits right after the key features it
+                is most easily confused with, so the difference is legible.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="why-choose"
+              when={p().why_choose_points.length}
+              eyebrow="The case for it"
+              title={`Why choose ${p().name}?`}
+              tone="paper"
+            >
+              <div class="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2">
+                <For each={p().why_choose_points}>
+                  {(w) => (
+                    <div class="card-lift flex gap-4 rounded-[14px] border border-line bg-card p-6">
+                      {/* A gold tick, not a numeral — these are claims being
+                          made, where key features are an ordered tour. */}
+                      <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gold/15 text-gold" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      </span>
+                      <div class="min-w-0">
+                        <h3 class="font-display text-lg font-semibold leading-snug text-navy">
+                          {w.title}
+                        </h3>
+                        <Show when={w.detail?.trim()}>
+                          <p class="mt-2 text-[15px] leading-relaxed text-slate">{w.detail}</p>
+                        </Show>
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </Section>
+
             {/* ---------------------------------------------------------------
                 Latest project updates — construction and approval milestones.
             ---------------------------------------------------------------- */}
@@ -685,6 +731,40 @@ export default function ProjectPage() {
             >
               <div class="mx-auto max-w-3xl">
                 <div class="rich-text text-[15px] leading-[1.85] font-medium text-gray-600" innerHTML={p().locality_about} />
+              </div>
+            </Section>
+
+
+            {/* ---------------------------------------------------------------
+                Location — the copy, the map and the link out, stacked.
+
+                The mockup runs these as three columns (copy+connectivity / map
+                / nearby infrastructure). Per the stacking rule they read down
+                the page instead, and the connectivity and infrastructure
+                tables below are the same rows in the site's own treatment.
+
+                Each part hides on its own: no copy still renders a map, and no
+                coordinates still renders the copy. 157 projects have no
+                coordinates, so map-absent is the ordinary case.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="location-overview"
+              when={p().location_description?.trim() || p().latitude}
+              eyebrow="Where it is"
+              title={`${p().name} location`}
+              tone="paper"
+            >
+              <div class="space-y-10">
+                <Show when={p().location_description?.trim()}>
+                  <p class="mx-auto max-w-3xl text-center text-[15px] leading-[1.85] font-medium text-gray-600">
+                    {p().location_description}
+                  </p>
+                </Show>
+                <ProjectMap
+                  latitude={p().latitude}
+                  longitude={p().longitude}
+                  name={p().name}
+                />
               </div>
             </Section>
 

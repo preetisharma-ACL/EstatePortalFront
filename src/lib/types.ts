@@ -254,6 +254,28 @@ export interface BuyerProfile {
   is_suitable: boolean;
 }
 
+/**
+ * Why pick THIS project — the argument, as distinct from the facts.
+ *
+ * Deliberately its own field rather than folded into the others, and the
+ * rendering keeps the distinction:
+ *
+ *   highlights_list      facts        "Approx. 17.212-acre parcel"
+ *   key_features         what it IS   Concept, Design, Open Spaces
+ *   why_choose_points    why PICK it  the case against a comparable project
+ *   considerations_list  the caveats  "price not verified"
+ *
+ * Merging these into highlights would mix arguments with the factual bullets
+ * that sit on all 361 projects and weaken both.
+ */
+export interface WhyChoosePoint {
+  id: number;
+  title: string;
+  /** Backs the title up. May be blank — the title alone still stands. */
+  detail: string;
+  order: number;
+}
+
 /** A comparable project, read from the real record so the row can link to it. */
 export interface NearbyProject {
   id: number;
@@ -332,11 +354,18 @@ export interface ProjectDetail {
   considerations_list: string[];
   /** HTML, like `description`. Written once per locality, shared by its projects. */
   locality_about: string;
+  /**
+   * Plain text, per project: where this project sits and what that means.
+   * Distinct from `locality_about`, which is about the locality generally and
+   * is shared by every project in it.
+   */
+  location_description: string;
   updates: ProjectUpdate[];
   specifications: Specification[];
   investment_points: InvestmentPoint[];
   buyer_profiles: BuyerProfile[];
   nearby_projects: NearbyProject[];
+  why_choose_points: WhyChoosePoint[];
   /**
    * This project's Google Ads conversion action, or null when it has no label
    * configured. Only useful for pre-loading a DIFFERENT Ads account's base tag
