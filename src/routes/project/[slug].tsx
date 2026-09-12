@@ -475,6 +475,19 @@ export default function ProjectPage() {
             </Show>
 
             {/* ---------------------------------------------------------------
+                Latest project updates — construction and approval milestones.
+            ---------------------------------------------------------------- */}
+            <Section
+              id="updates"
+              when={p().updates.length}
+              eyebrow="Progress"
+              title="Latest project updates"
+              tone="paper"
+            >
+              <ProjectUpdates updates={p().updates} />
+            </Section>
+
+            {/* ---------------------------------------------------------------
                 Highlights — the factual bullets the content team writes per
                 project (acreage, saleable area, connectivity, configurations).
                 Server-rendered like every other section: this is keyword-dense
@@ -593,6 +606,37 @@ export default function ProjectPage() {
             </Section>
 
             {/* ---------------------------------------------------------------
+                RERA — the trust signature, and the full registered record.
+                Always shown: "no registration on file" is itself information a
+                buyer needs, so this is the one section that does not hide.
+            ---------------------------------------------------------------- */}
+            <section id="rera" class="scroll-mt-[116px] border-b border-line bg-paper lg:scroll-mt-[76px]">
+              <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+                <div class="mx-auto max-w-3xl text-center">
+                  <p class="eyebrow">Verification</p>
+                  <div class="gold-rule mx-auto my-3.5" />
+                  <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
+                    RERA registration
+                  </h2>
+                </div>
+                <div class="mt-12">
+                  <Show
+                    when={p().rera_registrations.length}
+                    fallback={<ReraBadges registrations={p().rera_registrations} />}
+                  >
+                    <ReraDetails
+                      registrations={p().rera_registrations}
+                      projectName={p().name}
+                      legalPromoter={p().legal_promoter}
+                      developerName={p().developer.name}
+                      marketedType={typeLabel(p().project_type)}
+                    />
+                  </Show>
+                </div>
+              </div>
+            </section>
+
+            {/* ---------------------------------------------------------------
                 Price list — the section the "not verified" rule exists for. An
                 unverified price prints its label, never the number and never a
                 blank cell. See PriceList.
@@ -706,19 +750,6 @@ export default function ProjectPage() {
                   )}
                 </For>
               </div>
-            </Section>
-
-            {/* ---------------------------------------------------------------
-                Latest project updates — construction and approval milestones.
-            ---------------------------------------------------------------- */}
-            <Section
-              id="updates"
-              when={p().updates.length}
-              eyebrow="Progress"
-              title="Latest project updates"
-              tone="paper"
-            >
-              <ProjectUpdates updates={p().updates} />
             </Section>
 
             {/* ---------------------------------------------------------------
@@ -861,36 +892,6 @@ export default function ProjectPage() {
             <div id="developer" class="scroll-mt-[116px] lg:scroll-mt-[76px]">
               <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.jpg" />
             </div>
-
-            {/* ---------------------------------------------------------------
-                RERA — the trust signature, and the full registered record.
-                Always shown: "no registration on file" is itself information a
-                buyer needs, so this is the one section that does not hide.
-            ---------------------------------------------------------------- */}
-            <section id="rera" class="scroll-mt-[116px] border-b border-line bg-paper lg:scroll-mt-[76px]">
-              <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
-                <div class="mx-auto max-w-3xl text-center">
-                  <p class="eyebrow">Verification</p>
-                  <div class="gold-rule mx-auto my-3.5" />
-                  <h2 class="font-display text-3xl font-semibold text-navy sm:text-4xl">
-                    RERA registration
-                  </h2>
-                </div>
-                <div class="mt-12">
-                  <Show
-                    when={p().rera_registrations.length}
-                    fallback={<ReraBadges registrations={p().rera_registrations} />}
-                  >
-                    <ReraDetails
-                      registrations={p().rera_registrations}
-                      legalPromoter={p().legal_promoter}
-                      developerName={p().developer.name}
-                      marketedType={typeLabel(p().project_type)}
-                    />
-                  </Show>
-                </div>
-              </div>
-            </section>
 
             {/* ---------------------------------------------------------------
                 FAQs — native <details> accordion on a navy field: SSR-rendered,

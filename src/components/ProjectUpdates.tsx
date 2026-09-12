@@ -9,6 +9,11 @@ import type { ProjectUpdate } from "~/lib/types";
  * exists only to sort the list and may be approximate ("Q1 2026-27" is stored
  * against some exact day), so formatting it would give an approximate date a
  * precision it does not have.
+ *
+ * `detail` is rich text, so an update can link to the project or township it
+ * concerns. Sanitised server-side by nh3 on every save — p, br, strong, em, ul,
+ * ol, li and a[href] only, no headings, since an update is a paragraph rather
+ * than a document — so the API cannot return anything outside that set.
  */
 export default function ProjectUpdates(props: { updates: ProjectUpdate[] }) {
   return (
@@ -32,8 +37,13 @@ export default function ProjectUpdates(props: { updates: ProjectUpdate[] }) {
               <h3 class="mt-1 font-display text-lg font-semibold leading-snug text-navy">
                 {u.title}
               </h3>
-              <Show when={u.detail}>
-                <p class="mt-1.5 text-[15px] leading-relaxed text-slate">{u.detail}</p>
+              <Show when={u.detail?.trim()}>
+                {/* Styled by .rich-text in app.css — injected markup carries no
+                    classes of its own. */}
+                <div
+                  class="rich-text mt-1.5 text-[15px] leading-relaxed text-slate"
+                  innerHTML={u.detail}
+                />
               </Show>
             </div>
           </li>

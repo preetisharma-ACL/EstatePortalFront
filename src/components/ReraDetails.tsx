@@ -3,47 +3,51 @@ import type { ReraRegistration } from "~/lib/types";
 import ReraSeal from "./ReraSeal";
 
 /**
- * The full RERA record for each registration.
+ * The registered RERA record, as a "RERA Information / Details" table.
  *
- * Three things this block is careful about:
+ * Three things this block is careful about, and they survive the table format:
  *
  *   1. `complaints_count` — 0 is MEANINGFUL ("zero complaints on record") and
  *      null means nobody checked. Rendering null as 0 would publish a claim we
  *      have not verified, so the row is omitted entirely when it is null.
  *
- *   2. `record_checked_on` — RERA records change, and buyers are told to
- *      re-check before booking. The block carries its own as-of date rather
- *      than implying it is current, and says so plainly when it has none.
+ *   2. `record_checked_on` — RERA records change, and the content doc tells
+ *      buyers to re-check before booking. The block carries its own as-of date
+ *      rather than implying it is current, and says so plainly when it has none.
  *
  *   3. `promoter` — the company registered against the project, which is often
  *      not the brand marketing it. Shown here rather than merged into the
  *      developer, because the buyer is told to check the promoter specifically.
- *      Blank means they are the same, so the developer name stands in.
+ *
+ * A blank field drops its row rather than printing an empty cell — most fields
+ * are unfilled on most projects today, and a table of empty rows reads as broken
+ * where a short table reads as "this is what is on record".
  *
  * `registered_project_type` can disagree with the marketed type — a mixed-use
- * project registered as Commercial, say. Both are shown; reconciling them would
- * hide the discrepancy the buyer wants.
+ * project registered as Commercial, say. Both are shown when they differ;
+ * reconciling them would hide the discrepancy the buyer wants.
  */
 export default function ReraDetails(props: {
   registrations: ReraRegistration[];
+  /** First row of the table, per the SEO team's shape. */
+  projectName: string;
   /**
    * Project-level registered company, used when a registration does not name
-   * its own promoter. Distinct from the developer: the brand marketing a
-   * project and the company registered against it are often different, and
-   * buyers are told to check the promoter specifically.
+   * its own promoter. Distinct from the developer.
    */
   legalPromoter?: string;
   /** Last resort — a blank promoter everywhere means they are the same company. */
   developerName: string;
-  /** Shown alongside the registered type, for comparison. */
+  /** Shown against the registered type, for comparison. */
   marketedType?: string;
 }) {
   return (
-    <div class="mx-auto max-w-4xl space-y-5">
+    <div class="mx-auto max-w-4xl space-y-6">
       <For each={props.registrations}>
         {(r) => (
           <Record
             r={r}
+            projectName={props.projectName}
             promoterFallback={props.legalPromoter?.trim() || props.developerName}
             marketedType={props.marketedType}
           />
@@ -53,67 +57,96 @@ export default function ReraDetails(props: {
   );
 }
 
-function Record(props: { r: ReraRegistration; promoterFallback: string; marketedType?: string }) {
+function Record(props: {
+  r: ReraRegistration;
+  projectName: string;
+  promoterFallback: string;
+  marketedType?: string;
+}) {
   const r = () => props.r;
 
   const rows = createMemo(() => {
     const out: { label: string; value: string }[] = [];
-    const add = (label: string, value: string | null | undefined) => {
+    const add = (label: string, value: string | number | null | undefined) => {
       const v = value?.toString().trim();
       if (v) out.push({ label, value: v });
     };
 
+    add("Project Name", props.projectName);
+    add("RERA Number", r().rera_number);
+    add("Registration Date", r().registration_date);
     add("Promoter", r().promoter?.trim() || props.promoterFallback);
-    add("Registered type", r().registered_project_type);
-    if (props.marketedType && r().registered_project_type) {
-      add("Marketed as", props.marketedType);
+    add("Project Type", r().registered_project_type);
+    // Only when it actually differs — an identical pair would read as a
+    // discrepancy where there is none.
+    if (
+      props.marketedType &&
+      r().registered_project_type?.trim() &&
+      r().registered_project_type.trim().toLowerCase() !== props.marketedType.trim().toLowerCase()
+    ) {
+      add("Marketed As", props.marketedType);
     }
-    add("Registered on", r().registration_date);
-    add("Proposed start", r().proposed_start_date);
-    add("Declared completion", r().declared_completion_date);
-    add("Valid till", r().valid_till);
+    add("Proposed Start Date", r().proposed_start_date);
+    add("Declared Completion", r().declared_completion_date);
     add("District", r().district);
     add("Tehsil", r().tehsil);
-    add("Registered address", r().registered_address);
+    add("Registered Address", r().registered_address);
+    add("Phase", r().phase);
+    add("Valid Till", r().valid_till);
     add("Authority", r().authority || r().state);
     return out;
   });
 
   return (
-    <div class="rounded-[14px] border border-green/25 bg-green/[0.04] p-6">
-      <div class="flex flex-wrap items-center gap-3">
+    <div class="overflow-hidden rounded-[14px] border border-green/25 bg-green/[0.04]">
+      <div class="flex flex-wrap items-center gap-3 px-6 py-5">
         <ReraSeal size="md" />
         <div class="min-w-0">
           <p class="rera-num text-sm text-navy">{r().rera_number}</p>
-          <p class="text-xs text-slate">
-            <Show when={r().phase}>Phase {r().phase} · </Show>
-            {r().authority || r().state}
-          </p>
+          <p class="text-xs text-slate">{r().authority || r().state}</p>
         </div>
       </div>
 
-      <Show when={rows().length}>
-        <dl class="mt-5 grid gap-x-8 gap-y-3 border-t border-line pt-5 sm:grid-cols-2">
-          <For each={rows()}>
-            {(row) => (
-              <div class="flex flex-col gap-0.5">
-                <dt class="eyebrow text-slate">{row.label}</dt>
-                <dd class="text-[15px] leading-snug text-navy">{row.value}</dd>
-              </div>
-            )}
-          </For>
+      {/* Wide values (a registered address) scroll inside the box rather than
+          widening the page. */}
+      <div class="overflow-x-auto border-t border-line bg-card">
+        <table class="w-full min-w-[380px] border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-line bg-paper">
+              <th class="w-2/5 px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">
+                RERA Information
+              </th>
+              <th class="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">
+                Details
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <For each={rows()}>
+              {(row) => (
+                <tr class="border-b border-line last:border-b-0">
+                  <th scope="row" class="px-5 py-3 text-left align-top text-[15px] font-semibold text-navy">
+                    {row.label}
+                  </th>
+                  <td class="px-5 py-3 align-top text-[15px] text-slate">{row.value}</td>
+                </tr>
+              )}
+            </For>
 
-          {/* Only when someone actually looked. Null is "unchecked", not zero. */}
-          <Show when={r().complaints_count !== null}>
-            <div class="flex flex-col gap-0.5">
-              <dt class="eyebrow text-slate">Complaints on record</dt>
-              <dd class="text-[15px] leading-snug text-navy">{r().complaints_count}</dd>
-            </div>
-          </Show>
-        </dl>
-      </Show>
+            {/* Only when someone actually looked. Null is "unchecked", not zero. */}
+            <Show when={r().complaints_count !== null}>
+              <tr class="border-b border-line last:border-b-0">
+                <th scope="row" class="px-5 py-3 text-left align-top text-[15px] font-semibold text-navy">
+                  Complaints on Record
+                </th>
+                <td class="px-5 py-3 align-top text-[15px] text-slate">{r().complaints_count}</td>
+              </tr>
+            </Show>
+          </tbody>
+        </table>
+      </div>
 
-      <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-line px-6 py-4">
         <p class="text-xs text-slate">
           <Show
             when={r().record_checked_on}
