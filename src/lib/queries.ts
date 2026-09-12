@@ -5,7 +5,7 @@ import { query } from "@solidjs/router";
 import * as api from "./api";
 import { ApiError } from "./api";
 import type { TownshipSource } from "./townships";
-import type { Locality, ProjectFilters, ProjectListItem } from "./types";
+import type { Locality, ProjectFilters, ProjectListItem, ProjectDetail } from "./types";
 
 // A 404 on a detail lookup means "no such slug" — resolve to null instead of
 // throwing, so the route renders a graceful NotFound. A rejected deferStream
@@ -94,8 +94,43 @@ export const cityTypeCountsQuery = query(
   "city-type-counts",
 );
 
+/**
+ * Every list field on the project detail payload.
+ *
+ * The page reads sixteen of these with `.length`, `.filter` or `.map`, and a
+ * field that leaves the payload becomes undefined rather than empty — so
+ * `.length` throws and the whole page renders the error boundary instead of one
+ * missing section. That is not hypothetical: considerations_list was removed
+ * from the API and took all 361 project pages down until the frontend caught up.
+ *
+ * A dropped LIST is strictly worse than a dropped scalar, which merely degrades
+ * to falsy and hides its section. Defaulting them here turns that outage into
+ * exactly the same graceful hide, in one place rather than sixteen.
+ *
+ * This does not hide a genuine problem: the section disappears, and the backend's
+ * nightly sweep checks each page still renders its own name, so a page gutted by
+ * a contract change is still caught.
+ *
+ * A NEW list field needs adding here — until then it is only as safe as the
+ * optional chaining at its call site.
+ */
+const PROJECT_LIST_FIELDS = [
+  "highlights_list", "amenities", "configurations", "rera_registrations",
+  "media", "documents", "location_advantages", "key_features", "faqs",
+  "updates", "specifications", "investment_points", "buyer_profiles",
+  "nearby_projects", "why_choose_points",
+] as const;
+
+function withProjectLists(p: ProjectDetail | null): ProjectDetail | null {
+  if (!p) return p;
+  for (const field of PROJECT_LIST_FIELDS) {
+    if (!Array.isArray(p[field])) (p as unknown as Record<string, unknown>)[field] = [];
+  }
+  return p;
+}
+
 export const projectQuery = query(
-  (slug: string) => orNull404(api.getProject(slug)),
+  async (slug: string) => withProjectLists(await orNull404(api.getProject(slug))),
   "project",
 );
 
