@@ -350,8 +350,19 @@ export interface ProjectDetail {
   location_advantages: LocationAdvantage[];
   key_features: KeyFeature[];
   faqs: ProjectFAQ[];
-  /** The counterpart to highlights_list — what buyers should weigh up. */
-  considerations_list: string[];
+  /**
+   * Advantages AND things to consider, as one block of HTML.
+   *
+   * The SEO team writes both halves into this single field with their own
+   * bold sub-headings, and their content doc treats it as one section — so
+   * this is not the "downsides" counterpart to highlights_list that the
+   * earlier array was. Rendering it under a consider-the-downsides heading
+   * would invert the meaning of everything above the second sub-heading.
+   *
+   * Sanitised server-side: p, br, strong, em, h3, ul, ol, li, a[href]. h2 is
+   * excluded so their sub-headings cannot collide with the section's own.
+   */
+  considerations: string;
   /** HTML, like `description`. Written once per locality, shared by its projects. */
   locality_about: string;
   /**

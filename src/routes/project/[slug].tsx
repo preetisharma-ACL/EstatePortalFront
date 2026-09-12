@@ -188,7 +188,7 @@ export default function ProjectPage() {
             [
               { id: "about", label: "About", show: Boolean(p().description || facts().length) },
               { id: "highlights", label: "Highlights", show: p().highlights_list.length > 0 },
-              { id: "considerations", label: "Considerations", show: p().considerations_list.length > 0 },
+              { id: "considerations", label: "Advantages", show: Boolean(p().considerations?.trim()) },
               { id: "features", label: "Features", show: p().key_features.length > 0 },
               { id: "why-choose", label: "Why choose", show: p().why_choose_points.length > 0 },
               { id: "updates", label: "Updates", show: p().updates.length > 0 },
@@ -529,27 +529,31 @@ export default function ProjectPage() {
                 grid with a click-to-zoom lightbox. Hidden when no images.
             ---------------------------------------------------------------- */}
             {/* ---------------------------------------------------------------
-                Things to consider — the counterpart to highlights. Deliberately
-                adjacent to it: a page that lists only upsides is less useful,
-                and less credible, than one that does not.
+                Advantages and things to consider — ONE field carrying both
+                halves, with the SEO team's own sub-headings inside it.
+
+                The heading names both on purpose. "Things to consider" alone
+                would invert the meaning of everything above their second
+                sub-heading, and dropping the wrapper heading entirely would
+                leave the section out of the document outline and the header
+                nav with nothing to label. Their h3s sit under it; h2 is off
+                the allowlist so they cannot collide with this one.
             ---------------------------------------------------------------- */}
             <Section
               id="considerations"
-              when={p().considerations_list.length}
+              when={p().considerations?.trim()}
               eyebrow="Worth weighing"
-              title="Things to consider"
+              title="Advantages & things to consider"
               tone="paper"
             >
-              <ul class="mx-auto grid max-w-5xl gap-x-10 gap-y-4 sm:grid-cols-2">
-                <For each={p().considerations_list}>
-                  {(c) => (
-                    <li class="flex items-start gap-3 text-[15px] leading-relaxed text-gray-600">
-                      <span class="mt-[7px] grid h-1.5 w-1.5 shrink-0 rounded-full bg-navy/40" aria-hidden="true" />
-                      <span>{c}</span>
-                    </li>
-                  )}
-                </For>
-              </ul>
+              <div class="mx-auto max-w-3xl">
+                {/* Styled by .rich-text in app.css — injected markup carries no
+                    classes of its own. */}
+                <div
+                  class="rich-text text-[15px] leading-[1.85] font-medium text-gray-600"
+                  innerHTML={p().considerations}
+                />
+              </div>
             </Section>
 
             <Show when={hasGallery()}>
