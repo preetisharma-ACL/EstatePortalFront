@@ -18,6 +18,14 @@ import ReraSeal from "./ReraSeal";
  *   3. `promoter` — the company registered against the project, which is often
  *      not the brand marketing it. Shown here rather than merged into the
  *      developer, because the buyer is told to check the promoter specifically.
+ *      It NEVER falls back to the developer name: blank means unrecorded, not
+ *      "same company". Karyan Nine is marketed by Karyan Group and registered
+ *      to AIH Realty Private Limited, and all 430 RERA records have a blank
+ *      promoter — so a fallback would print the brand under a heading that
+ *      means the registered entity, inside a block reproducing the regulatory
+ *      record. That is the exact confusion the content doc warns buyers about,
+ *      dressed as verified data. An absent row says "we have not recorded it";
+ *      a wrong one says "we checked".
  *
  * A blank field drops its row rather than printing an empty cell — most fields
  * are unfilled on most projects today, and a table of empty rows reads as broken
@@ -33,11 +41,10 @@ export default function ReraDetails(props: {
   projectName: string;
   /**
    * Project-level registered company, used when a registration does not name
-   * its own promoter. Distinct from the developer.
+   * its own promoter. Distinct from the developer, and NOT defaulted to it —
+   * blank here and on the registration means the row is omitted.
    */
   legalPromoter?: string;
-  /** Last resort — a blank promoter everywhere means they are the same company. */
-  developerName: string;
   /** Shown against the registered type, for comparison. */
   marketedType?: string;
 }) {
@@ -48,7 +55,7 @@ export default function ReraDetails(props: {
           <Record
             r={r}
             projectName={props.projectName}
-            promoterFallback={props.legalPromoter?.trim() || props.developerName}
+            legalPromoter={props.legalPromoter}
             marketedType={props.marketedType}
           />
         )}
@@ -60,7 +67,7 @@ export default function ReraDetails(props: {
 function Record(props: {
   r: ReraRegistration;
   projectName: string;
-  promoterFallback: string;
+  legalPromoter?: string;
   marketedType?: string;
 }) {
   const r = () => props.r;
@@ -75,7 +82,7 @@ function Record(props: {
     add("Project Name", props.projectName);
     add("RERA Number", r().rera_number);
     add("Registration Date", r().registration_date);
-    add("Promoter", r().promoter?.trim() || props.promoterFallback);
+    add("Promoter", r().promoter?.trim() || props.legalPromoter?.trim());
     add("Project Type", r().registered_project_type);
     // Only when it actually differs — an identical pair would read as a
     // discrepancy where there is none.

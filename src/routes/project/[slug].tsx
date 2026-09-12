@@ -628,7 +628,6 @@ export default function ProjectPage() {
                       registrations={p().rera_registrations}
                       projectName={p().name}
                       legalPromoter={p().legal_promoter}
-                      developerName={p().developer.name}
                       marketedType={typeLabel(p().project_type)}
                     />
                   </Show>
