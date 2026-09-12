@@ -1,13 +1,18 @@
 import { For, Show, createMemo, createSignal } from "solid-js";
 import type { Configuration, ProjectDetail } from "~/lib/types";
-import { num, indianGroup, priceDisplay } from "~/lib/format";
+import { num, indianGroup } from "~/lib/format";
 import BrochureButton from "./BrochureButton";
 
 /**
  * Sizes & Floor Plan — a full-bleed two-column band in the project theme: a
- * navy panel (heading + a gold-ruled Type / Area / Price table + a download
- * button) beside a floor-plan slider. Hidden when there are no configs; the
- * right column shows only when real floor-plan images exist (no placeholder).
+ * navy panel (heading + a gold-ruled Type / Area table + a download button)
+ * beside a floor-plan slider. Hidden when there are no configs; the right
+ * column shows only when real floor-plan images exist (no placeholder).
+ *
+ * Sizes only, no price: this section is about what a unit IS. Pricing has its
+ * own section (PriceList), which is where the verified/on-request distinction
+ * can be stated properly rather than compressed into a cell that mostly read
+ * "Not verified".
  */
 export default function FloorPlan(props: { project: ProjectDetail }) {
   const rows = createMemo(() => props.project.configurations);
@@ -17,14 +22,6 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
     if (v === null) return "On Request";
     return `${indianGroup(Math.round(v))} ${c.area_unit || "sq.ft."}`;
   };
-  // An unverified price shows its label, not the number — the same rule as the
-  // price list. The asterisk marks an approximate figure and belongs only on a
-  // number we are actually standing behind.
-  const priceCell = (c: Configuration) =>
-    c.price_status === "verified" && c.price !== null
-      ? `${priceDisplay(c.price, c.price_status)}*`
-      : priceDisplay(c.price, c.price_status, c.price_status_display);
-
   // Floor-plan media (used as a fallback when a config has no plan of its own,
   // indexed by row order). No frontend placeholder image is ever used.
   const mediaPlans = createMemo(() =>
@@ -62,16 +59,15 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
               Sizes &amp; Floor Plan
             </h2>
 
-            {/* Three short columns fit a phone once the cells lose their
-                desktop padding, so the inner scroll is a fallback for very
-                narrow screens rather than the normal mobile experience. */}
+            {/* Two short columns fit a phone once the cells lose their desktop
+                padding, so the inner scroll is a fallback for very narrow
+                screens rather than the normal mobile experience. */}
             <div class="mt-8 overflow-x-auto">
-              <table class="w-full min-w-[300px] border-collapse text-[13px] sm:text-sm">
+              <table class="w-full min-w-[220px] border-collapse text-[13px] sm:text-sm">
                 <thead>
                   <tr>
                     <Th>Type</Th>
                     <Th>Area</Th>
-                    <Th>Price</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -94,7 +90,6 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
                           </span>
                         </Td>
                         <Td>{areaCell(c)}</Td>
-                        <Td>{priceCell(c)}</Td>
                       </tr>
                     )}
                   </For>
@@ -117,9 +112,7 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
                 {(c) => (
                   <div class="rounded-[10px] bg-navy/90 px-4 py-2.5 text-white shadow-md backdrop-blur-sm">
                     <p class="font-display text-lg font-semibold leading-tight">{c().sub_type_display}</p>
-                    <p class="mt-0.5 text-xs text-white/80">
-                      {areaCell(c())} · {priceCell(c())}
-                    </p>
+                    <p class="mt-0.5 text-xs text-white/80">{areaCell(c())}</p>
                   </div>
                 )}
               </Show>

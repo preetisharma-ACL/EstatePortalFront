@@ -964,6 +964,7 @@ export default function ProjectPage() {
                 projectSlug={p().slug}
                 citySlug={p().location.city_slug}
                 phone={p().contact_phone}
+                email={p().contact_email}
                 redirectTo={thankYouUrl()}
               />
             </div>

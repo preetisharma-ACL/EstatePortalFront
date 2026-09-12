@@ -331,6 +331,15 @@ export interface ProjectDetail {
    * src/lib/contactPhone.ts.
    */
   contact_phone: string;
+  /**
+   * Desk email for this project. OPTIONAL, unlike contact_phone: the API does
+   * not serve this key at all today, so it reads as undefined and the Email row
+   * is simply not rendered. Wired ahead of the backend deliberately — the page
+   * starts showing an address the moment the admin gains the field, with no
+   * frontend change — which also means the backend must name it exactly
+   * `contact_email`, or it will go on silently showing nothing.
+   */
+  contact_email?: string;
   latitude: string | null; longitude: string | null;
   description: string; highlights_list: string[];
   price_min: number | null; price_max: number | null;

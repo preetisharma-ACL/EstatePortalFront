@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { phoneOrUndefined, telHref } from "~/lib/contactPhone";
+import { emailOrUndefined, mailtoHref, phoneOrUndefined, telHref } from "~/lib/contactPhone";
 import ProjectEnquiryForm from "./ProjectEnquiryForm";
 
 /**
@@ -8,10 +8,10 @@ import ProjectEnquiryForm from "./ProjectEnquiryForm";
  * The image stays fixed while the content scrolls over it. The fieldset itself
  * lives in ProjectEnquiryForm, shared with the hero banner card.
  *
- * Address is real project data. The phone comes from the record's admin-set
- * `contact_phone` and the row is omitted entirely when that is blank — there is
- * no default desk line to fall back on. Email and hours are portal-wide and
- * always shown.
+ * Address is real project data. Phone and email both come from the record's
+ * admin-set fields, and each row is omitted entirely when its field is blank —
+ * there is no default desk line and no portal-wide inbox to fall back on. Only
+ * the working hours are portal-wide and always shown.
  */
 export default function ContactBand(props: {
   image: string;
@@ -24,6 +24,8 @@ export default function ContactBand(props: {
   contextNote?: string;
   /** Raw `contact_phone` from the payload. Blank renders no Phone row at all. */
   phone?: string | null;
+  /** Raw `contact_email` from the payload. Blank renders no Email row at all. */
+  email?: string | null;
   /** Sends a successful enquiry to this URL instead of confirming in place. */
   redirectTo?: string;
 }) {
@@ -54,7 +56,17 @@ export default function ContactBand(props: {
                 </Detail>
               )}
             </Show>
-            <Detail label="Email">info@estateportal.in</Detail>
+            {/* Same rule as the phone: an address only when the record carries
+                one. A portal-wide inbox here read as this project's desk. */}
+            <Show when={emailOrUndefined(props.email)}>
+              {(email) => (
+                <Detail label="Email">
+                  <a href={mailtoHref(email())} class="underline decoration-gold underline-offset-4">
+                    {email()}
+                  </a>
+                </Detail>
+              )}
+            </Show>
             <Detail label="Working Hours">
               Monday – Saturday
               <br />
