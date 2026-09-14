@@ -1,4 +1,5 @@
 import { A } from "@solidjs/router";
+import { bannerImage } from "~/lib/bannerImage";
 import { For, Show } from "solid-js";
 import { townshipList } from "~/lib/townships";
 
@@ -47,6 +48,9 @@ export default function TownshipSection() {
                 <div class="img-scrim relative aspect-[16/10] overflow-hidden bg-navy/5">
                   <img
                     src={t.heroImages[0] ?? FALLBACK_IMAGES[i() % FALLBACK_IMAGES.length]}
+                    srcset={bannerImage(t.heroImages[0] ?? FALLBACK_IMAGES[i() % FALLBACK_IMAGES.length])?.srcset}
+                    // 3-up inside max-w-7xl at lg, 2-up at sm, full-bleed below.
+                    sizes="(min-width: 1024px) 395px, (min-width: 640px) 50vw, 100vw"
                     alt={t.name}
                     loading="lazy"
                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

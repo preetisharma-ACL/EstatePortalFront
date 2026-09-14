@@ -16,6 +16,7 @@ import { localityQuery, townshipProjectsQuery } from "~/lib/queries";
 import { getTownship, sourceFor } from "~/lib/townships";
 import type { ProjectFilters, ProjectListItem } from "~/lib/types";
 import { canonical, absoluteUrl } from "~/lib/seo";
+import { bannerImage } from "~/lib/bannerImage";
 
 const LOCAL_BANNERS = [
   "/banner/banner-1.webp",
@@ -329,6 +330,8 @@ export default function TownshipPage() {
                     the accessibility tree. */}
                 <img
                   src="/banner/left-shape.webp"
+                  srcset={bannerImage("/banner/left-shape.webp")?.srcset}
+                  sizes="(min-width: 1024px) 330px, (min-width: 640px) 240px, 150px"
                   width="356"
                   height="327"
                   alt=""
@@ -338,6 +341,8 @@ export default function TownshipPage() {
                 />
                 <img
                   src="/banner/right-shape.webp"
+                  srcset={bannerImage("/banner/right-shape.webp")?.srcset}
+                  sizes="(min-width: 1024px) 330px, (min-width: 640px) 240px, 150px"
                   width="362"
                   height="341"
                   alt=""

@@ -1,4 +1,5 @@
 import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { bannerImage } from "~/lib/bannerImage";
 
 /** A hero backdrop image must be at least this wide to be worth showing.
  *  Seed/placeholder images (e.g. a 480×320 solid-colour fill) fall below this
@@ -71,9 +72,15 @@ export default function BannerSlideshow(props: {
   return (
     <div class="absolute inset-0 overflow-hidden" aria-hidden="true">
       <For each={sources()}>
-        {(src, i) => (
+        {(src, i) => {
+          // Local banners ship 320/640/960/1440 variants. Backend media has no
+          // derivatives, so srcset is omitted rather than guessed.
+          const responsive = bannerImage(src);
+          return (
           <img
             src={src}
+            srcset={responsive?.srcset}
+            sizes={responsive ? "100vw" : undefined}
             alt=""
             loading={i() === 0 ? "eager" : "lazy"}
             // Slide 0 is the LCP element on every page that uses this hero.
@@ -88,7 +95,8 @@ export default function BannerSlideshow(props: {
                 : undefined
             }
           />
-        )}
+          );
+        }}
       </For>
     </div>
   );
