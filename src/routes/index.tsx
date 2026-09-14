@@ -117,7 +117,7 @@ export default function Home() {
       <section class="relative overflow-hidden border-y border-line bg-[#f8f5f2] py-14 sm:py-16">
         <div
           class="pointer-events-none absolute inset-0 bg-right-bottom bg-no-repeat opacity-80"
-          style="background-image:url('/banner/professional_bg.png'); background-size:720px auto;"
+          style="background-image:url('/banner/professional_bg.webp'); background-size:720px auto;"
           aria-hidden="true"
         />
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6">
@@ -193,7 +193,7 @@ export default function Home() {
         {/* Fixed parallax background image */}
         <div
           class="pointer-events-none absolute inset-0 bg-fixed bg-cover bg-center"
-          style="background-image:url('/banner/banner-2.jpg')"
+          style="background-image:url('/banner/banner-2.webp')"
           aria-hidden="true"
         />
         <div class="pointer-events-none absolute inset-0 bg-navy-deep/85" aria-hidden="true" />

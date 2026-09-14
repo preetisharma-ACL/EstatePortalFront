@@ -6,3 +6,5 @@ dist
 *.log
 .DS_Store
 .env
+# Source-of-truth originals for scripts/optimize-images.mjs
+_originals

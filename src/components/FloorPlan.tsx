@@ -31,7 +31,7 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
   );
   // The plan image for a given row: its config's own plan, else a media plan,
   // else the local fallback so the right column always shows a plan.
-  const FALLBACK_PLAN = "/banner/floor-plan.jpeg";
+  const FALLBACK_PLAN = "/banner/floor-plan.webp";
   const planFor = (i: number): string =>
     rows()[i]?.floor_plan ?? mediaPlans()[i] ?? FALLBACK_PLAN;
   // With a fallback in place, the plan panel shows whenever there are rows.

@@ -18,9 +18,9 @@ import type { ProjectFilters, ProjectListItem } from "~/lib/types";
 import { canonical, absoluteUrl } from "~/lib/seo";
 
 const LOCAL_BANNERS = [
-  "/banner/banner-1.jpg",
-  "/banner/banner-2.jpg",
-  "/banner/banner-3.jpg",
+  "/banner/banner-1.webp",
+  "/banner/banner-2.webp",
+  "/banner/banner-3.webp",
 ];
 
 /**
@@ -328,7 +328,7 @@ export default function TownshipPage() {
                 {/* Decorative only — empty alt + aria-hidden keep them out of
                     the accessibility tree. */}
                 <img
-                  src="/banner/left-shape.png"
+                  src="/banner/left-shape.webp"
                   width="356"
                   height="327"
                   alt=""
@@ -337,7 +337,7 @@ export default function TownshipPage() {
                   class="pointer-events-none absolute bottom-0 left-0 -z-10 w-[150px] select-none sm:w-[240px] lg:w-[330px]"
                 />
                 <img
-                  src="/banner/right-shape.png"
+                  src="/banner/right-shape.webp"
                   width="362"
                   height="341"
                   alt=""

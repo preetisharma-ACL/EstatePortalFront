@@ -17,9 +17,9 @@ import { canonical, absoluteUrl } from "~/lib/seo";
 const PAGE_SIZE = 12;
 
 const LOCAL_BANNERS = [
-  "/banner/banner-1.jpg",
-  "/banner/banner-2.jpg",
-  "/banner/banner-3.jpg",
+  "/banner/banner-1.webp",
+  "/banner/banner-2.webp",
+  "/banner/banner-3.webp",
 ];
 
 export const route = {

@@ -31,7 +31,7 @@ export default function FeaturedRail(props: {
           wash over it so the cards and copy keep full contrast. */}
       <div
         class="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-60 mix-blend-multiply"
-        style="background-image:url('/banner/sketch.jpg')"
+        style="background-image:url('/banner/sketch.webp')"
         aria-hidden="true"
       />
       <div

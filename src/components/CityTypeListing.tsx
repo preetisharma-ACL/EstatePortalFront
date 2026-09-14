@@ -15,9 +15,9 @@ import type { ProjectFilters } from "~/lib/types";
 const PAGE_SIZE = 12;
 
 const LOCAL_BANNERS = [
-  "/banner/banner-1.jpg",
-  "/banner/banner-2.jpg",
-  "/banner/banner-3.jpg",
+  "/banner/banner-1.webp",
+  "/banner/banner-2.webp",
+  "/banner/banner-3.webp",
 ];
 
 /** Filters for a /<city>/<type> page — city and type are fixed by the route. */

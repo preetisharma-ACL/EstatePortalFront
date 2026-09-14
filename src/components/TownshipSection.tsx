@@ -5,9 +5,9 @@ import { townshipList } from "~/lib/townships";
 /** Cycled per card so the rail doesn't read as three identical navy tiles while
  *  the real township photography is still pending (see Township.heroImages). */
 const FALLBACK_IMAGES = [
-  "/banner/banner-2.jpg",
-  "/banner/banner-1.jpg",
-  "/banner/banner-3.jpg",
+  "/banner/banner-2.webp",
+  "/banner/banner-1.webp",
+  "/banner/banner-3.webp",
 ];
 
 /**

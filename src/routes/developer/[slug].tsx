@@ -410,7 +410,7 @@ export default function DeveloperPage() {
           <section class="relative isolate overflow-hidden bg-navy py-14 text-white sm:py-16">
             <div
               class="pointer-events-none absolute inset-0 bg-fixed bg-cover bg-center"
-              style="background-image:url('/banner/banner-2.jpg')"
+              style="background-image:url('/banner/banner-2.webp')"
               aria-hidden="true"
             />
             <div class="pointer-events-none absolute inset-0 bg-navy-deep/88" aria-hidden="true" />

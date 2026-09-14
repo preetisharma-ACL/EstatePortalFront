@@ -123,7 +123,7 @@ export const TOWNSHIPS: Record<string, Township> = {
     excludeSlugs: ["gaur-nyc-residences"],
     // Skyline photo (1539×1022). Taller than the other two, so a wide hero crop
     // only takes a band out of the middle — that is where the towers sit.
-    heroImages: ["/banner/gaur-city.png"],
+    heroImages: ["/banner/gaur-city.webp"],
     address: "Gaur City, Greater Noida West Link Road, Greater Noida West, Uttar Pradesh 201318",
     metaTitle: "Gaur City, Greater Noida West — Projects, Price & Floor Plans | Aajneeti Real Estate",
     metaDescription:
@@ -172,7 +172,7 @@ export const TOWNSHIPS: Record<string, Township> = {
     townshipSlug: "wave-city",
     searchTerm: "Wave City",
     // 16:9 (1280×720) — already the hero's own ratio, so it crops cleanly.
-    heroImages: ["/banner/wave-city.jpg"],
+    heroImages: ["/banner/wave-city.webp"],
     address: "Wave City, NH-9 (Delhi–Meerut Expressway), Ghaziabad, Uttar Pradesh 201002",
     metaTitle: "Wave City, Ghaziabad — Plots, Apartments & Villas on NH-9 | EstatePortal",
     metaDescription:
@@ -223,7 +223,7 @@ export const TOWNSHIPS: Record<string, Township> = {
     // Landscape entrance photo (1709×920) — composed for a wide crop, with the
     // gate just below the midline, so the default centre framing keeps sky,
     // signage and approach road all in frame.
-    heroImages: ["/banner/adityaworldcity.png"],
+    heroImages: ["/banner/adityaworldcity.webp"],
     address: "Aditya World City, NH-24, Bamheta, Ghaziabad, Uttar Pradesh 201002",
     metaTitle: "Aditya World City, Ghaziabad — Projects, Price & Layouts | Aajneeti Real Estate",
     metaDescription:

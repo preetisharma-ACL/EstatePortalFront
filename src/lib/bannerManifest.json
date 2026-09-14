@@ -1,0 +1,232 @@
+{
+  "adityaworldcity.webp": {
+    "width": 1709,
+    "height": 920,
+    "srcset": [
+      {
+        "name": "adityaworldcity-320.webp",
+        "w": 320
+      },
+      {
+        "name": "adityaworldcity-640.webp",
+        "w": 640
+      },
+      {
+        "name": "adityaworldcity-960.webp",
+        "w": 960
+      },
+      {
+        "name": "adityaworldcity-1440.webp",
+        "w": 1440
+      },
+      {
+        "name": "adityaworldcity.webp",
+        "w": 1709
+      }
+    ]
+  },
+  "banner-1.webp": {
+    "width": 1920,
+    "height": 1280,
+    "srcset": [
+      {
+        "name": "banner-1-320.webp",
+        "w": 320
+      },
+      {
+        "name": "banner-1-640.webp",
+        "w": 640
+      },
+      {
+        "name": "banner-1-960.webp",
+        "w": 960
+      },
+      {
+        "name": "banner-1-1440.webp",
+        "w": 1440
+      },
+      {
+        "name": "banner-1.webp",
+        "w": 1920
+      }
+    ]
+  },
+  "banner-2.webp": {
+    "width": 1920,
+    "height": 1281,
+    "srcset": [
+      {
+        "name": "banner-2-320.webp",
+        "w": 320
+      },
+      {
+        "name": "banner-2-640.webp",
+        "w": 640
+      },
+      {
+        "name": "banner-2-960.webp",
+        "w": 960
+      },
+      {
+        "name": "banner-2-1440.webp",
+        "w": 1440
+      },
+      {
+        "name": "banner-2.webp",
+        "w": 1920
+      }
+    ]
+  },
+  "banner-3.webp": {
+    "width": 1920,
+    "height": 1440,
+    "srcset": [
+      {
+        "name": "banner-3-320.webp",
+        "w": 320
+      },
+      {
+        "name": "banner-3-640.webp",
+        "w": 640
+      },
+      {
+        "name": "banner-3-960.webp",
+        "w": 960
+      },
+      {
+        "name": "banner-3-1440.webp",
+        "w": 1440
+      },
+      {
+        "name": "banner-3.webp",
+        "w": 1920
+      }
+    ]
+  },
+  "floor-plan.webp": {
+    "width": 672,
+    "height": 432,
+    "srcset": [
+      {
+        "name": "floor-plan-320.webp",
+        "w": 320
+      },
+      {
+        "name": "floor-plan-640.webp",
+        "w": 640
+      },
+      {
+        "name": "floor-plan.webp",
+        "w": 672
+      }
+    ]
+  },
+  "gaur-city.webp": {
+    "width": 1539,
+    "height": 1022,
+    "srcset": [
+      {
+        "name": "gaur-city-320.webp",
+        "w": 320
+      },
+      {
+        "name": "gaur-city-640.webp",
+        "w": 640
+      },
+      {
+        "name": "gaur-city-960.webp",
+        "w": 960
+      },
+      {
+        "name": "gaur-city-1440.webp",
+        "w": 1440
+      },
+      {
+        "name": "gaur-city.webp",
+        "w": 1539
+      }
+    ]
+  },
+  "left-shape.webp": {
+    "width": 356,
+    "height": 327,
+    "srcset": [
+      {
+        "name": "left-shape-320.webp",
+        "w": 320
+      },
+      {
+        "name": "left-shape.webp",
+        "w": 356
+      }
+    ]
+  },
+  "professional_bg.webp": {
+    "width": 394,
+    "height": 350,
+    "srcset": [
+      {
+        "name": "professional_bg-320.webp",
+        "w": 320
+      },
+      {
+        "name": "professional_bg.webp",
+        "w": 394
+      }
+    ]
+  },
+  "right-shape.webp": {
+    "width": 362,
+    "height": 341,
+    "srcset": [
+      {
+        "name": "right-shape-320.webp",
+        "w": 320
+      },
+      {
+        "name": "right-shape.webp",
+        "w": 362
+      }
+    ]
+  },
+  "sketch.webp": {
+    "width": 870,
+    "height": 722,
+    "srcset": [
+      {
+        "name": "sketch-320.webp",
+        "w": 320
+      },
+      {
+        "name": "sketch-640.webp",
+        "w": 640
+      },
+      {
+        "name": "sketch.webp",
+        "w": 870
+      }
+    ]
+  },
+  "wave-city.webp": {
+    "width": 1280,
+    "height": 720,
+    "srcset": [
+      {
+        "name": "wave-city-320.webp",
+        "w": 320
+      },
+      {
+        "name": "wave-city-640.webp",
+        "w": 640
+      },
+      {
+        "name": "wave-city-960.webp",
+        "w": 960
+      },
+      {
+        "name": "wave-city.webp",
+        "w": 1280
+      }
+    ]
+  }
+}

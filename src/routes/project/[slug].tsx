@@ -55,9 +55,9 @@ export default function ProjectPage() {
           // BannerSlideshow falls back to these local banners when the backend
           // has no images — or only unusable placeholders (see MIN_HERO_WIDTH).
           const LOCAL_BANNERS = [
-            "/banner/banner-1.jpg",
-            "/banner/banner-2.jpg",
-            "/banner/banner-3.jpg",
+            "/banner/banner-1.webp",
+            "/banner/banner-2.webp",
+            "/banner/banner-3.webp",
           ];
           const backendImages = () =>
             p().media
@@ -893,7 +893,7 @@ export default function ProjectPage() {
                 navy scrim) with a composed blurb.
             ---------------------------------------------------------------- */}
             <div id="developer" class="scroll-mt-[116px] lg:scroll-mt-[76px]">
-              <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.jpg" />
+              <AboutDeveloper developer={p().developer} location={p().location} image="/banner/banner-3.webp" />
             </div>
 
             {/* ---------------------------------------------------------------
@@ -959,7 +959,7 @@ export default function ProjectPage() {
             ---------------------------------------------------------------- */}
             <div id="enquire" class="scroll-mt-24">
               <ContactBand
-                image="/banner/banner-1.jpg"
+                image="/banner/banner-1.webp"
                 address={p().address || `${p().location.locality}, ${p().location.city}`}
                 projectSlug={p().slug}
                 citySlug={p().location.city_slug}

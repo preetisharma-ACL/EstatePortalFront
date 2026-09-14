@@ -214,7 +214,7 @@ export default function WhyEstatePortalPage() {
       <section class="relative isolate overflow-hidden bg-navy py-16 text-white sm:py-20">
         <div
           class="pointer-events-none absolute inset-0 bg-fixed bg-cover bg-center"
-          style="background-image:url('/banner/banner-3.jpg')"
+          style="background-image:url('/banner/banner-3.webp')"
           aria-hidden="true"
         />
         <div class="pointer-events-none absolute inset-0 bg-navy-deep/88" aria-hidden="true" />
