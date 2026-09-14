@@ -24,15 +24,29 @@ gtag('js', new Date());
 
 gtag('config', 'G-DJCMEPXJS2');`}
           />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          {/* Fonts are self-hosted (see scripts/fetch-fonts.mjs). The
+              @font-face rules ride in the bundled CSS, so there is no
+              render-blocking request to fonts.googleapis.com and no second
+              origin to resolve before first paint.
+
+              Only the two faces used by above-the-fold text are preloaded:
+              Manrope carries body copy and Fraunces the headings. Italic
+              Fraunces and IBM Plex Mono are left to load normally -- font-display
+              swap covers them, and preloading everything would just recreate the
+              bandwidth contention this change removes. */}
           <link
-            rel="preconnect"
-            href="https://fonts.gstatic.com"
+            rel="preload"
+            href="/fonts/manrope-400-700-normal.woff2"
+            as="font"
+            type="font/woff2"
             crossorigin="anonymous"
           />
           <link
-            href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
-            rel="stylesheet"
+            rel="preload"
+            href="/fonts/fraunces-400-600-normal.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin="anonymous"
           />
           {assets}
         </head>
