@@ -13,5 +13,25 @@
       "source": "/robots.txt",
       "destination": "https://api.realestate.aajneeti.social/robots.txt"
     }
+  ],
+  "headers": [
+    {
+      "source": "/banner/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/logo/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=604800"
+        }
+      ]
+    }
   ]
 }
