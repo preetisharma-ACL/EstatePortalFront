@@ -10,7 +10,7 @@ export default function Footer() {
 
         <div class="relative grid gap-8 py-10 lg:grid-cols-[1.1fr_1.65fr] lg:gap-12 lg:py-10">
           <div class="max-w-sm pt-1">
-            <img src="/logo/acl-logo.png" alt="Aajneeti" class="h-14 w-auto shrink-0" />
+            <img src="/logo/acl-logo.png" alt="Aajneeti" width="304" height="138" class="h-14 w-auto shrink-0" />
             <p class="mt-4 text-[15px] font-medium leading-7 text-navy/80">
               Your trusted partner for verified residential and commercial property
               discovery across India.

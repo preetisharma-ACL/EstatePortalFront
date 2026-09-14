@@ -121,7 +121,7 @@ export default function Header() {
     <header class="sticky top-0 z-50 border-b border-line bg-card/80 backdrop-blur-md">
       <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <A href="/" class="flex items-center" aria-label="Aajneeti home">
-          <img src="/logo/acl-logo.png" alt="Aajneeti" class="h-14 w-auto shrink-0" />
+          <img src="/logo/acl-logo.png" alt="Aajneeti" width="304" height="138" class="h-14 w-auto shrink-0" />
         </A>
 
         <nav class="hidden items-center gap-7 md:flex" aria-label="Primary">

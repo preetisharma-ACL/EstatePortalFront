@@ -65,7 +65,7 @@ export default function ProjectHeader(props: {
     <header class="sticky top-0 z-50 border-b border-line bg-card/90 backdrop-blur-md">
       <div class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
         <A href="/" class="flex shrink-0 items-center" aria-label="Aajneeti home">
-          <img src="/logo/acl-logo.png" alt="Aajneeti" class="h-12 w-auto shrink-0 sm:h-14" />
+          <img src="/logo/acl-logo.png" alt="Aajneeti" width="304" height="138" class="h-12 w-auto shrink-0 sm:h-14" />
         </A>
 
         <Show when={props.projectName}>

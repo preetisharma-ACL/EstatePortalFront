@@ -329,6 +329,8 @@ export default function TownshipPage() {
                     the accessibility tree. */}
                 <img
                   src="/banner/left-shape.png"
+                  width="356"
+                  height="327"
                   alt=""
                   aria-hidden="true"
                   loading="lazy"
@@ -336,6 +338,8 @@ export default function TownshipPage() {
                 />
                 <img
                   src="/banner/right-shape.png"
+                  width="362"
+                  height="341"
                   alt=""
                   aria-hidden="true"
                   loading="lazy"
