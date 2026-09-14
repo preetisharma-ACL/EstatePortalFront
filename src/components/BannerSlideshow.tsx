@@ -76,6 +76,10 @@ export default function BannerSlideshow(props: {
             src={src}
             alt=""
             loading={i() === 0 ? "eager" : "lazy"}
+            // Slide 0 is the LCP element on every page that uses this hero.
+            // Without the hint the browser discovers it at default priority
+            // behind the stylesheet and fonts.
+            fetchpriority={i() === 0 ? "high" : undefined}
             class="hero-slide absolute inset-0 h-full w-full object-cover"
             classList={{ "is-active": i() === active() }}
             style={
