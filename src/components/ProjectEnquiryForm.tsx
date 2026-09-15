@@ -1,14 +1,14 @@
 import { createSignal, Show, onMount } from "solid-js";
 import { createAsync, useNavigate } from "@solidjs/router";
 import { submitLead, ApiError } from "~/lib/api";
-import { citiesQuery } from "~/lib/queries";
+import { allCitiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
 import { resolveCity } from "~/lib/leadCity";
 import { fireConversion, reportUnconfiguredConversion, stashConversion } from "~/lib/adsConversion";
 import type { LeadPayload } from "~/lib/types";
 
-// First page of /cities/ backs the typed-city -> slug lookup on submit.
-const CITY_PARAMS = { page: 1 } as const;
+// The full city list backs the typed-city -> slug lookup on submit; a short
+// list would silently cost a real city its slug.
 
 /**
  * Tags the redirect target with the new lead's id. Not what drives the
@@ -56,7 +56,7 @@ export default function ProjectEnquiryForm(props: {
   const [formError, setFormError] = createSignal<string | null>(null);
   const [fieldErrors, setFieldErrors] = createSignal<Record<string, string>>({});
 
-  const cities = createAsync(() => citiesQuery(CITY_PARAMS));
+  const cities = createAsync(() => allCitiesQuery());
   const navigate = useNavigate();
 
   onMount(() => captureAttribution());
@@ -82,7 +82,7 @@ export default function ProjectEnquiryForm(props: {
       return;
     }
 
-    const city = resolveCity(strOrUndef(fd.get("city")), cities()?.results ?? [], props.citySlug);
+    const city = resolveCity(strOrUndef(fd.get("city")), cities() ?? [], props.citySlug);
     // One message field carries both notes, so an unrecognised city never
     // silently displaces the page context (or vice versa).
     const message =

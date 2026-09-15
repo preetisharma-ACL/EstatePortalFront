@@ -8,12 +8,11 @@ import TownshipSection from "~/components/TownshipSection";
 import ReraSeal from "~/components/ReraSeal";
 import LeadForm from "~/components/LeadForm";
 import { priceRange } from "~/lib/format";
-import { projectsQuery, citiesQuery } from "~/lib/queries";
+import { projectsQuery, allCitiesQuery } from "~/lib/queries";
 import { canonical } from "~/lib/seo";
 
 const FEATURED = { is_featured: true, page_size: 6 } as const;
 const PREMIUM = { min_price: 50000000, ordering: "-price_min", page_size: 6 } as const;
-const CITIES = { page: 1 } as const;
 
 const COLLECTIONS = [
   { label: "Ready to move", href: "/search?status=ready_to_move" },
@@ -27,14 +26,14 @@ export const route = {
   preload: () => {
     void projectsQuery(FEATURED);
     void projectsQuery(PREMIUM);
-    void citiesQuery(CITIES);
+    void allCitiesQuery();
   },
 } satisfies RouteDefinition;
 
 export default function Home() {
   const featured = createAsync(() => projectsQuery(FEATURED));
   const premium = createAsync(() => projectsQuery(PREMIUM));
-  const cities = createAsync(() => citiesQuery(CITIES));
+  const cities = createAsync(() => allCitiesQuery());
 
   // Premium rail — arrow-driven horizontal scroll (native scrollbar hidden).
   let premiumScroller: HTMLDivElement | undefined;
@@ -226,7 +225,7 @@ export default function Home() {
 
       {/* 7. EXPLORE BY CITY */}
       <Show when={cities()} fallback={<div class="mx-auto max-w-7xl px-4 py-14 sm:px-6"><GridSkeleton /></div>}>
-        <CityCarousel cities={cities()!.results} />
+        <CityCarousel cities={cities()!} />
       </Show>
 
       {/* LEAD / ENQUIRE */}

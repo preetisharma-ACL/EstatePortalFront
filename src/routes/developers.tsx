@@ -5,6 +5,7 @@ import { Title, Meta, Link } from "@solidjs/meta";
 import { createMemo, For, Show } from "solid-js";
 import { developersQuery } from "~/lib/queries";
 import DeveloperCard from "~/components/DeveloperCard";
+import Pagination from "~/components/Pagination";
 import { canonical } from "~/lib/seo";
 
 export const route = {
@@ -21,6 +22,15 @@ export default function DevelopersPage() {
     page: sp.page ? Number(sp.page) : 1,
   }));
   const data = createAsync(() => developersQuery(params()));
+
+  // Any filter change resets pagination; changing the page keeps everything else.
+  const setParam = (key: string, value: string | number | undefined) => {
+    const patch: Record<string, string | null> = {
+      [key]: value === undefined ? null : String(value),
+    };
+    if (key !== "page") patch.page = null;
+    setParams(patch, { scroll: false });
+  };
 
   return (
     <>
@@ -41,11 +51,15 @@ export default function DevelopersPage() {
             placeholder="Search developers"
             value={(sp.search as string) ?? ""}
             class="w-full rounded-[8px] border border-line bg-card px-4 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold/40"
-            onInput={(e) => setParams({ search: e.currentTarget.value || null, page: null }, { scroll: false })}
+            onInput={(e) => setParam("search", e.currentTarget.value || undefined)}
           />
         </div>
 
         <Show when={data()} fallback={<p class="text-slate">Loading developers…</p>}>
+          <p class="mb-5 text-sm text-slate">
+            <span class="font-semibold text-navy">{data()!.count.toLocaleString("en-IN")}</span>{" "}
+            {data()!.count === 1 ? "developer" : "developers"} found
+          </p>
           <Show
             when={data()!.results.length}
             fallback={<p class="rounded-[12px] border border-dashed border-line bg-card p-8 text-center text-slate">No developers found.</p>}
@@ -53,6 +67,8 @@ export default function DevelopersPage() {
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <For each={data()!.results}>{(d) => <DeveloperCard developer={d} />}</For>
             </div>
+
+            <Pagination data={data()} page={params().page} setParam={setParam} />
           </Show>
         </Show>
       </div>

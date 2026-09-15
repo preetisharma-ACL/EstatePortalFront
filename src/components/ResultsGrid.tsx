@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
 import type { Paginated, ProjectListItem, ProjectFilters } from "~/lib/types";
 import ProjectCard from "./ProjectCard";
+import Pagination from "./Pagination";
 
 const SORTS: { v: NonNullable<ProjectFilters["ordering"]> | ""; label: string }[] = [
   { v: "", label: "Relevance" },
@@ -10,7 +11,6 @@ const SORTS: { v: NonNullable<ProjectFilters["ordering"]> | ""; label: string }[
   { v: "possession_date", label: "Possession: soonest" },
 ];
 
-const PAGE_SIZE = 12;
 
 export default function ResultsGrid(props: {
   data: Paginated<ProjectListItem> | undefined;
@@ -19,7 +19,6 @@ export default function ResultsGrid(props: {
   setParam: (key: string, value: string | number | undefined) => void;
 }) {
   const count = () => props.data?.count ?? 0;
-  const totalPages = () => Math.max(1, Math.ceil(count() / PAGE_SIZE));
 
   return (
     <div>
@@ -74,43 +73,13 @@ export default function ResultsGrid(props: {
             <For each={props.data!.results}>{(p) => <ProjectCard project={p} />}</For>
           </div>
 
-          <Show when={totalPages() > 1}>
-            <nav class="mt-10 flex items-center justify-center gap-2" aria-label="Pagination">
-              <PageBtn
-                disabled={props.page <= 1}
-                onClick={() => props.setParam("page", props.page - 1 <= 1 ? undefined : props.page - 1)}
-              >
-                ← Prev
-              </PageBtn>
-              <span class="px-3 text-sm text-slate">
-                Page <span class="font-semibold text-navy">{props.page}</span> of {totalPages()}
-              </span>
-              <PageBtn
-                disabled={props.page >= totalPages()}
-                onClick={() => props.setParam("page", props.page + 1)}
-              >
-                Next →
-              </PageBtn>
-            </nav>
-          </Show>
+          <Pagination data={props.data} page={props.page} setParam={props.setParam} />
         </Show>
       </Show>
     </div>
   );
 }
 
-function PageBtn(props: { disabled: boolean; onClick: () => void; children: any }) {
-  return (
-    <button
-      type="button"
-      disabled={props.disabled}
-      onClick={props.onClick}
-      class="rounded-[8px] border border-line bg-card px-4 py-2 text-sm font-semibold text-navy transition-colors hover:border-gold disabled:cursor-not-allowed disabled:opacity-40"
-    >
-      {props.children}
-    </button>
-  );
-}
 
 function CardSkeleton() {
   return (

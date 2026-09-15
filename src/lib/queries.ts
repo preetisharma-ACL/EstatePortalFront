@@ -146,10 +146,29 @@ export const developerQuery = query(
 );
 
 export const citiesQuery = query(
-  (params: { state?: string; tier?: number; search?: string; page?: number }) =>
+  (params: { state?: string; tier?: number; search?: string; page?: number; page_size?: number }) =>
     api.getCities(params),
   "cities",
 );
+
+/**
+ * Every city, for the explore rail and the lead-form city lookup.
+ *
+ * /cities/ pages at 20 by default, so asking for page 1 silently drops the
+ * tail — and a city missing from that list costs a lead its city_slug, which
+ * is what the CRM routes on. page_size is capped at 100 server-side, so page 1
+ * establishes the total and any remainder is fetched in parallel.
+ */
+export const allCitiesQuery = query(async () => {
+  const first = await api.getCities({ page_size: 100 });
+  const pages = Math.ceil(first.count / 100);
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(0, pages - 1) }, (_, i) =>
+      api.getCities({ page: i + 2, page_size: 100 }),
+    ),
+  );
+  return [first, ...rest].flatMap((r) => r.results);
+}, "all-cities");
 
 export const cityQuery = query(
   (slug: string) => orNull404(api.getCity(slug)),

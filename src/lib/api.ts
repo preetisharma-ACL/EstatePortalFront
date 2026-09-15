@@ -62,7 +62,7 @@ export const getDeveloper = (slug: string) =>
   getJSON<DeveloperDetail>(`/developers/${encodeURIComponent(slug)}/`);
 
 export const getCities = (
-  params: { state?: string; country?: string; tier?: number; search?: string; page?: number } = {},
+  params: { state?: string; country?: string; tier?: number; search?: string; page?: number; page_size?: number } = {},
 ) => getJSON<Paginated<CityList>>(`/cities/${qs(params)}`);
 
 export const getCity = (slug: string) =>
