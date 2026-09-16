@@ -644,21 +644,33 @@ export default function ProjectPage() {
                 unverified price prints its label, never the number and never a
                 blank cell. See PriceList.
             ---------------------------------------------------------------- */}
-            <Section
-              id="pricing"
-              when={p().configurations.length}
-              eyebrow="Pricing"
-              title="Price list"
-              intro={
-                <>
-                  Prices we have not been able to confirm are marked as such rather
-                  than estimated. Verified figures are checked against the developer
-                  and the RERA record.
-                </>
-              }
-            >
-              <PriceList configurations={p().configurations} />
-            </Section>
+            <Show when={p().configurations.length}>
+              <section id="pricing" class="scroll-mt-[116px] lg:scroll-mt-[76px] relative overflow-hidden bg-navy">
+                {/* Gold wash behind the heading, matching the FAQ band. */}
+                <div
+                  class="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(55%_100%_at_50%_0%,rgba(194,161,90,0.20),transparent_72%)]"
+                  aria-hidden="true"
+                />
+                <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+                  <div class="mx-auto max-w-3xl text-center">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">Pricing</p>
+                    <h2 class="mt-3 font-display text-3xl font-bold text-white sm:text-4xl">
+                      Price list
+                    </h2>
+                    <span class="mx-auto mt-5 block h-px w-14 bg-gold" aria-hidden="true" />
+                    <p class="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/60">
+                      Prices we have not been able to confirm are marked as such rather
+                      than estimated. Verified figures are checked against the developer
+                      and the RERA record.
+                    </p>
+                  </div>
+
+                  <div class="mt-10">
+                    <PriceList configurations={p().configurations} />
+                  </div>
+                </div>
+              </section>
+            </Show>
 
             {/* ---------------------------------------------------------------
                 Specifications — fit and finish, grouped by room or trade.

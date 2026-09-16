@@ -12,6 +12,13 @@ import { num, indianGroup, priceDisplay } from "~/lib/format";
  * and more useful than a figure the page cannot stand behind.
  *
  * See priceDisplay in lib/format for the rule itself.
+ *
+ * Rendered on the navy pricing band, so every colour here is struck against
+ * that field rather than the page's paper. The verified/unverified contrast
+ * is the point and survives the inversion: a confirmed figure is solid white,
+ * an unconfirmed one stays muted and italic, and neither reads as an empty
+ * cell. This component has one caller (the project page) — if it gains a
+ * light-background one, these want to become a prop.
  */
 export default function PriceList(props: { configurations: Configuration[] }) {
   const area = (c: Configuration) => {
@@ -23,10 +30,10 @@ export default function PriceList(props: { configurations: Configuration[] }) {
 
   return (
     // Wide tables scroll inside their own box rather than widening the page.
-    <div class="mx-auto max-w-4xl overflow-x-auto rounded-[14px] border border-line bg-card">
+    <div class="mx-auto max-w-4xl overflow-x-auto rounded-[14px] border border-white/[0.14] bg-white/[0.05]">
       <table class="w-full min-w-[420px] border-collapse text-sm">
         <thead>
-          <tr class="border-b border-line bg-paper">
+          <tr class="border-b border-white/[0.14] bg-white/[0.06]">
             <Th>Type</Th>
             <Th>Area</Th>
             <Th>Price</Th>
@@ -35,9 +42,9 @@ export default function PriceList(props: { configurations: Configuration[] }) {
         <tbody>
           <For each={props.configurations}>
             {(c) => (
-              <tr class="border-b border-line last:border-b-0">
+              <tr class="border-b border-white/10 transition-colors last:border-b-0 hover:bg-white/[0.04]">
                 <Td>
-                  <span class="font-semibold text-navy">{typeLabel(c)}</span>
+                  <span class="font-semibold text-white">{typeLabel(c)}</span>
                 </Td>
                 <Td>{area(c)}</Td>
                 <Td>
@@ -46,12 +53,12 @@ export default function PriceList(props: { configurations: Configuration[] }) {
                     fallback={
                       // Muted and italic: legible, clearly not a figure, and
                       // clearly not a blank cell either.
-                      <span class="italic text-slate">
+                      <span class="italic text-white/60">
                         {c.price_status_display || "Not verified"}
                       </span>
                     }
                   >
-                    <span class="font-semibold text-navy">
+                    <span class="font-semibold text-white">
                       {priceDisplay(c.price, c.price_status, c.price_status_display)}
                     </span>
                   </Show>
@@ -67,12 +74,12 @@ export default function PriceList(props: { configurations: Configuration[] }) {
 
 function Th(props: { children: any }) {
   return (
-    <th class="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">
+    <th class="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-white/55">
       {props.children}
     </th>
   );
 }
 
 function Td(props: { children: any }) {
-  return <td class="px-5 py-3.5 text-[15px] text-slate">{props.children}</td>;
+  return <td class="px-5 py-3.5 text-[15px] text-white/70">{props.children}</td>;
 }

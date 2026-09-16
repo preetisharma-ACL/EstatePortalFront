@@ -24,7 +24,8 @@ export type ProjectSection = { id: string; label: string };
  * would scroll nowhere.
  */
 export default function ProjectHeader(props: {
-  /** Shown beside the logo on wide screens, so the bar still says where you are. */
+  /** Not displayed — it is the signal that the project payload resolved,
+      which decides whether Enquire anchors to the form or opens the modal. */
   projectName?: string;
   sections?: ProjectSection[];
   /** Raw `contact_phone` from the payload — blank means no call button. */
@@ -67,14 +68,6 @@ export default function ProjectHeader(props: {
         <A href="/" class="flex shrink-0 items-center" aria-label="Aajneeti home">
           <img src="/logo/acl-logo.png" alt="Aajneeti" width="304" height="138" class="h-12 w-auto shrink-0 sm:h-14" />
         </A>
-
-        <Show when={props.projectName}>
-          <span class="hidden min-w-0 border-l border-line pl-4 md:block lg:hidden xl:block">
-            <span class="block truncate font-display text-base font-semibold text-navy">
-              {props.projectName}
-            </span>
-          </span>
-        </Show>
 
         {/* Above lg the anchors sit inline; below it they move to the scroll
             strip underneath, which suits a long anchor list better than a
