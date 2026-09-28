@@ -25,8 +25,26 @@ export default function PriceList(props: { configurations: Configuration[] }) {
     const v = num(c.carpet_area) ?? num(c.saleable_area);
     return v === null ? "On request" : `${indianGroup(Math.round(v))} ${c.area_unit || "sq.ft."}`;
   };
-  const typeLabel = (c: Configuration) =>
-    [c.bhk, c.sub_type_display].filter(Boolean).join(" ") || c.sub_type_display || "—";
+  /**
+   * One size per row, never two.
+   *
+   * `bhk` and `sub_type_display` both name the size and routinely disagree: a
+   * 3.5 BHK is filed under sub_type "3bhk" and displays as "3 BHK", so joining
+   * the two printed "3.5 3 BHK". `bhk` is the precise figure, so where the row
+   * is counted in bedrooms it supplies the whole label and the display string
+   * is dropped. Anything not counted in bedrooms — plots, retail, penthouses —
+   * keeps its display string, and that string is also the fallback when `bhk`
+   * is blank, which is how plots and a handful of flats arrive.
+   */
+  const typeLabel = (c: Configuration) => {
+    const n = num(c.bhk);
+    const disp = c.sub_type_display?.trim();
+    if (n === null) return disp || "—";
+    // num() drops the decimal noise: "3.00" -> 3 -> "3", "3.50" -> "3.5".
+    const count = String(n);
+    if (/^[0-9]+bhk$/.test(c.sub_type ?? "")) return count + " BHK";
+    return disp ? count + " BHK " + disp : count + " BHK";
+  };
 
   return (
     // Wide tables scroll inside their own box rather than widening the page.
