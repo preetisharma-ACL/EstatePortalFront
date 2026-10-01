@@ -61,7 +61,7 @@ export default function Home() {
               <span class="text-sm font-medium text-gold-soft">Every project RERA-verified</span>
             </span>
             <h1 class="mt-6 font-display text-[40px] font-semibold leading-[1.05] sm:text-6xl lg:text-7xl">
-              Propert discovery,
+              Property discovery,
               <br />
               <span class="italic text-gold-soft">done with conviction.</span>
             </h1>
