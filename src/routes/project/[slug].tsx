@@ -4,7 +4,7 @@ import {
 import { Title, Meta, Link } from "@solidjs/meta";
 import { Show, For } from "solid-js";
 import { projectQuery } from "~/lib/queries";
-import { areaRange, statusLabel, typeLabel, possession, formatINR, landArea, htmlToText, priceRangeDisplay } from "~/lib/format";
+import { areaRange, statusLabel, typeLabel, possession, formatINR, landArea, htmlToText, priceRangeDisplay, priceRange } from "~/lib/format";
 import GalleryGrid from "~/components/GalleryGrid";
 import FloorPlan from "~/components/FloorPlan";
 import AboutDeveloper from "~/components/AboutDeveloper";
@@ -32,6 +32,24 @@ import ProjectHeader, { type ProjectSection } from "~/components/ProjectHeader";
 import { hasMapCoords } from "~/lib/geo";
 import { canonical, absoluteUrl } from "~/lib/seo";
 
+
+/**
+ * EOI (expression of interest) amounts, in rupees, by project slug.
+ *
+ * Lives in code because the API has no field for it. That makes this the one
+ * figure on the page the content team cannot change or withdraw without a
+ * deploy, which matters because an EOI window is pre-launch and temporary —
+ * when it closes, this card has to be removed here by hand.
+ *
+ * Stored as raw numbers rather than a formatted string so it renders through
+ * the same priceRange() as the Price range card and cannot drift from it.
+ *
+ * If more than one project needs this, it belongs on the project record
+ * instead, next to price_min/price_max.
+ */
+const EOI_RANGE: Record<string, [min: number, max: number]> = {
+  "saya-raj-nagar-extension": [800_000, 1_500_000],
+};
 
 export const route = {
   preload: ({ params }) => {
@@ -88,6 +106,10 @@ export default function ProjectPage() {
               { label: "Configurations", value: configSummary() },
               { label: "Unit sizes", value: areaRange(p().area_min, p().area_max) },
               { label: "Price range", value: priceRangeDisplay(p().price_min, p().price_max, p().price_status) },
+              {
+                label: "EOI range",
+                value: EOI_RANGE[p().slug] ? priceRange(...EOI_RANGE[p().slug]) : null,
+              },
               { label: "Project type", value: typeLabel(p().project_type) },
               { label: "Status", value: statusLabel(p().status) },
               { label: "Possession", value: p().possession_label?.trim() || possession(p().possession_date) },
