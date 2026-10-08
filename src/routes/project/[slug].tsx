@@ -368,10 +368,16 @@ export default function ProjectPage() {
                 <div class="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:gap-8">
                   <dl class="grid flex-1 grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-nowrap lg:items-center lg:gap-0">
                     <Stat label="Price" value={priceRangeDisplay(p().price_min, p().price_max, p().price_status)} />
-                    <Stat label="Sizes" value={areaRange(p().area_min, p().area_max) ?? "On request"} />
+                    {/* Second, right behind the price: on an EOI project that is
+                        the figure the visitor has actually come for. Only the
+                        projects listed in EOI_RANGE render it. */}
+                    <Show when={EOI_RANGE[p().slug]}>
+                      {(eoi) => <Stat label="EOI range" value={priceRange(...eoi())} />}
+                    </Show>
                     <Show when={configSummary()}>
                       <Stat label="Configurations" value={configSummary()} />
                     </Show>
+                    <Stat label="Sizes" value={areaRange(p().area_min, p().area_max) ?? "On request"} />
                     <Stat label="Status" value={statusLabel(p().status)} />
                   </dl>
                   <div class="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
@@ -379,13 +385,6 @@ export default function ProjectPage() {
                         otherwise nothing renders here at all. */}
                     <CallCta phone={p().contact_phone} variant="glass" compactLabel />
                     <BrochureButton variant="outline" />
-                    <a
-                      href="#enquire"
-                      class="inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-gold px-6 py-3 text-sm font-semibold text-navy-deep shadow-lg transition-colors hover:bg-gold-soft"
-                    >
-                      Schedule site visit
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
-                    </a>
                   </div>
                 </div>
               </div>
