@@ -13,16 +13,21 @@ const TYPE_LABEL: Partial<Record<MediaType, string>> = {
  * columns on desktop, collapsing to two/one on smaller screens.
  */
 export default function GalleryGrid(props: { media: ProjectMedia[]; name: string }) {
-  // Show a tidy 4×2 grid. Cover first, capped at eight; when the backend has
-  // fewer than eight we cycle the available photos so both rows stay full.
-  const images = createMemo(() => {
-    const real = props.media
+  // Cover first, capped at eight. Only what the backend actually has — never
+  // repeat photos to pad the grid.
+  const images = createMemo(() =>
+    props.media
       .filter((m) => m.media_type !== "video" && m.media_type !== "master_plan" && m.image)
-      .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order);
-    if (!real.length) return real;
-    if (real.length >= 8) return real.slice(0, 8);
-    return Array.from({ length: 8 }, (_, i) => real[i % real.length]);
-  });
+      .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order)
+      .slice(0, 8),
+  );
+
+  // Desktop column count follows the photo count so short galleries fill one
+  // full row instead of leaving empty cells. Static strings for Tailwind.
+  const desktopCols = () =>
+    ({ 1: "sm:grid-cols-1", 2: "sm:grid-cols-2", 3: "sm:grid-cols-3" } as Record<number, string>)[
+      images().length
+    ] ?? "sm:grid-cols-4";
 
   /** What this image *is* — caption, else its media type, else its position. */
   const label = (m: ProjectMedia, i: number) =>
@@ -60,8 +65,8 @@ export default function GalleryGrid(props: { media: ProjectMedia[]; name: string
           {props.name} Images
         </h2>
 
-        {/* Edge-to-edge photo grid — 4×2, images touching */}
-        <ul class="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
+        {/* Edge-to-edge photo grid — up to 4×2, images touching */}
+        <ul class={`grid gap-px bg-line ${images().length === 1 ? "grid-cols-1" : "grid-cols-2"} ${desktopCols()}`}>
           <For each={images()}>
             {(m, i) => (
               <li>

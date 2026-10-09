@@ -86,7 +86,7 @@ export default function ProjectPage() {
           // Mirrors GalleryGrid's own filter — the header must not offer a
           // "Gallery" anchor for a project whose grid renders nothing.
           const hasGallery = () =>
-            p().media.some((m) => m.media_type !== "video" && m.image);
+            p().media.some((m) => m.media_type !== "video" && m.media_type !== "master_plan" && m.image);
           const configSummary = () =>
             [...new Set(p().configurations.map((c) => c.sub_type_display))].join(" · ");
           const primaryRera = () => p().rera_registrations[0];

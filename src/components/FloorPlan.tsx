@@ -144,6 +144,8 @@ export default function FloorPlan(props: { project: ProjectDetail }) {
               alt={`${props.project.name} — ${activeConfig()?.sub_type_display} floor plan`}
               class="absolute inset-0 h-full w-full object-contain p-6 pt-24 sm:p-10 sm:pt-28"
             />
+            {/* Soft blur veil over the plan — sits under the controls (z-10) */}
+            <div class="pointer-events-none absolute inset-0 bg-white/20 backdrop-blur-[6px]" aria-hidden="true" />
 
             {/* Counter */}
             <Show when={rows().length > 1}>
