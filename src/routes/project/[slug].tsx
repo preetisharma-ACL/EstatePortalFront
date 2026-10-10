@@ -77,12 +77,14 @@ export default function ProjectPage() {
             "/banner/banner-2.webp",
             "/banner/banner-3.webp",
           ];
+          // Banner = the first four gallery photos (same filter and order as
+          // GalleryGrid), not the whole gallery.
           const backendImages = () =>
             p().media
-              .filter((m) => m.media_type !== "video" && m.image)
+              .filter((m) => m.media_type !== "video" && m.media_type !== "master_plan" && m.image)
               .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.order - b.order)
               .map((m) => m.image!)
-              .slice(0, 6);
+              .slice(0, 4);
           // Mirrors GalleryGrid's own filter — the header must not offer a
           // "Gallery" anchor for a project whose grid renders nothing.
           const hasGallery = () =>
