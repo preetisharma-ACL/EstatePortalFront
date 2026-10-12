@@ -1,4 +1,4 @@
-import { Show, createEffect, onCleanup, onMount } from "solid-js";
+import { Show, createEffect, on, onCleanup, onMount } from "solid-js";
 import { useLocation } from "@solidjs/router";
 import LeadForm from "./LeadForm";
 import { leadModalOpen, leadModalContext, openLeadModal, closeLeadModal } from "~/lib/leadModal";
@@ -70,6 +70,8 @@ export default function LeadPopup() {
     if (seen) return;
 
     const timer = setTimeout(() => {
+      // Never ask a visitor who has just enquired to enquire again.
+      if (location.pathname.startsWith("/thank-you")) return;
       openLeadModal();
       try {
         sessionStorage.setItem(SEEN_KEY, "1");
@@ -79,6 +81,11 @@ export default function LeadPopup() {
     }, DELAY_MS);
     onCleanup(() => clearTimeout(timer));
   });
+
+  // The modal lives in the root layout, so a navigation does not unmount it —
+  // after a successful submit redirects to /thank-you it would otherwise stay
+  // open on top of that page. Close it on any route change.
+  createEffect(on(() => location.pathname, () => close(), { defer: true }));
 
   // Lock body scroll + Escape-to-close while the modal is open.
   createEffect(() => {
