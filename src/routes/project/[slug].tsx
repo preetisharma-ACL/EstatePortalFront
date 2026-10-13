@@ -27,6 +27,8 @@ import ReraSeal from "~/components/ReraSeal";
 import ProjectEnquiryForm from "~/components/ProjectEnquiryForm";
 import BrochureButton from "~/components/BrochureButton";
 import CallCta from "~/components/CallCta";
+import GoogleAdsTag from "~/components/GoogleAdsTag";
+import { ADS_ACCOUNT_ID } from "~/lib/adsConversion";
 import NotFound from "~/components/NotFound";
 import ProjectHeader, { type ProjectSection } from "~/components/ProjectHeader";
 import { hasMapCoords } from "~/lib/geo";
@@ -256,6 +258,14 @@ export default function ProjectPage() {
               <Meta property="og:image" content={absoluteUrl(p().og_image!)} />
             </Show>
             <Link rel="canonical" href={canonical(`/project/${p().slug}`)} />
+
+            {/* Google Ads base tag on every project page — these are the ad
+                landing pages, so Ads can see the tag there and build
+                remarketing audiences. Conversions still fire on /thank-you;
+                ensureAdsAccount dedupes against this loader, so no
+                double-count. Every project rather than a slug list, so no
+                deploy is needed to start a campaign. */}
+            <GoogleAdsTag id={ADS_ACCOUNT_ID} />
 
             {/* ---------------------------------------------------------------
                 Hero banner — full-bleed cover with a navy scrim, breadcrumb,

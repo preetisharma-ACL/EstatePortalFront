@@ -10,12 +10,16 @@ import { ensureAdsAccount } from "~/lib/adsConversion";
  * is why fireConversion() calls ensureAdsAccount() itself rather than assuming
  * one of these is present.
  *
- * The loader goes in <head> through useHead, so a visitor landing straight on
- * the page from an ad gets it in the server-rendered HTML; on a client-side
- * navigation into the page it is appended instead. The `config` call is left to
- * ensureAdsAccount — it pushes onto dataLayer, which works whether or not
- * gtag.js has finished loading, and is deduped against every other caller so
- * the account cannot be registered twice.
+ * The loader goes in <head> through useHead, and the inline `gtag('config')`
+ * snippet is rendered in the server HTML too — Google Ads' "check installation"
+ * and Tag Assistant look for the literal snippet in the page source, and a
+ * config pushed only after hydration was not detected. The snippet flags the
+ * account on window.__adsConfigured so ensureAdsAccount does not config it a
+ * second time.
+ *
+ * On a client-side navigation into the page the inline <script> is inserted but
+ * never executed, so the flag is absent and ensureAdsAccount (onMount) does the
+ * config instead — exactly once either way.
  */
 export default function GoogleAdsTag(props: { id: string }) {
   useHead({
@@ -27,5 +31,14 @@ export default function GoogleAdsTag(props: { id: string }) {
 
   onMount(() => ensureAdsAccount(props.id, { scriptAlreadyPresent: true }));
 
-  return null;
+  return (
+    <script
+      innerHTML={`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', '${props.id}');
+(window.__adsConfigured = window.__adsConfigured || {})['${props.id}'] = true;`}
+    />
+  );
 }

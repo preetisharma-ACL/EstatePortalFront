@@ -53,6 +53,13 @@ const configured = new Set<string>();
 declare global {
   interface Window {
     dataLayer: unknown[];
+    /**
+     * Accounts already `config`'d by the inline snippet <GoogleAdsTag> renders
+     * into the server HTML. A window flag, not a DOM check: on a client-side
+     * navigation that <script> is inserted but never executed, so its mere
+     * presence in the DOM would wrongly read as "configured".
+     */
+    __adsConfigured?: Record<string, true>;
   }
 }
 
@@ -101,6 +108,9 @@ export function ensureAdsAccount(
     return;
   }
   configured.add(id);
+
+  // The server-rendered snippet already ran js + config for this account.
+  if (window.__adsConfigured?.[id]) return;
 
   const alreadyLoaded =
     opts.scriptAlreadyPresent ||
