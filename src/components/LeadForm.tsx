@@ -27,6 +27,9 @@ import type { LeadPayload } from "~/lib/types";
  * on the redirect it is parked for /thank-you. So the redirect is purely a UX
  * choice and never a measurement one.
  */
+/** Fields this form renders an inline error under. */
+const SHOWN_FIELDS = ["name", "phone", "city_slug", "consent_given"];
+
 export default function LeadForm(props: {
   projectSlug?: string;
   citySlug?: string;
@@ -125,6 +128,10 @@ export default function LeadForm(props: {
         }
         setFieldErrors(fe);
         if (fe.non_field_errors || fe.detail) setFormError(fe.non_field_errors || fe.detail);
+        // An error on a field this form has no input for (attribution, project)
+        // would otherwise leave the form looking unresponsive. Say something.
+        else if (Object.keys(fe).some((k) => !SHOWN_FIELDS.includes(k)))
+          setFormError("We could not send your enquiry. Please try again or call us directly.");
       } else {
         setFormError("Something went wrong. Please try again or call us directly.");
       }

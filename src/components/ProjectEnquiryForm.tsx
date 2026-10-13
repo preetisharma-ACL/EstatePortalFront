@@ -28,6 +28,9 @@ const withLeadId = (url: string, id: number | undefined) =>
  * Deliberately short: name, phone and city only. Everything else the backend
  * accepts on a lead is optional, and a three-field form converts better.
  */
+/** Fields this form renders an inline error under. */
+const SHOWN_FIELDS = ["name", "phone", "city_slug", "consent_given"];
+
 export default function ProjectEnquiryForm(props: {
   projectSlug?: string;
   citySlug?: string;
@@ -139,6 +142,10 @@ export default function ProjectEnquiryForm(props: {
         }
         setFieldErrors(fe);
         if (fe.non_field_errors || fe.detail) setFormError(fe.non_field_errors || fe.detail);
+        // An error on a field this form has no input for (attribution, project)
+        // would otherwise leave the form looking unresponsive. Say something.
+        else if (Object.keys(fe).some((k) => !SHOWN_FIELDS.includes(k)))
+          setFormError("We could not send your enquiry. Please try again or call us directly.");
       } else {
         setFormError("Something went wrong. Please try again or call us directly.");
       }

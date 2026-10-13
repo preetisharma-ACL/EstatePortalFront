@@ -54,7 +54,50 @@ export function getAttribution(): Attribution {
   const stored = read();
   if (!stored.landing_page) stored.landing_page = window.location.href;
   stored.submitted_page = window.location.href;
-  return stored;
+  return fitToApi(stored);
+}
+
+/**
+ * The lead API's column limits (OPTIONS /api/v1/leads/). A value over its limit
+ * gets the WHOLE lead rejected with a 400 — and ad landings are exactly where
+ * that happens: a Google Ads URL with gclid, gbraid and utm params runs ~290
+ * chars against a 200-char `landing_page`. Every enquiry from a paid click was
+ * being lost while direct visits went through.
+ */
+const URL_MAX = 200;
+const FIELD_MAX: Partial<Record<keyof Attribution, number>> = {
+  utm_source: 120, utm_medium: 120,
+  utm_campaign: 160, utm_term: 160, utm_content: 160,
+  gclid: 255, fbclid: 255,
+};
+
+/**
+ * A page URL that fits the column. The query string goes first: the click ids
+ * and utm values in it are already sent as fields of their own, and CRM routing
+ * matches on the path (see lead-attribution notes), so origin + path is what
+ * must survive. Only a path that is itself too long is cut.
+ */
+function fitUrl(href: string | undefined): string | undefined {
+  if (!href || href.length <= URL_MAX) return href;
+  try {
+    const u = new URL(href);
+    const bare = u.origin + u.pathname;
+    if (bare.length <= URL_MAX) return bare;
+  } catch {
+    /* not a parseable URL — fall through to a plain cut */
+  }
+  return href.slice(0, URL_MAX);
+}
+
+function fitToApi(a: Attribution): Attribution {
+  const out: Attribution = { ...a };
+  out.landing_page = fitUrl(a.landing_page);
+  out.submitted_page = fitUrl(a.submitted_page);
+  for (const [k, max] of Object.entries(FIELD_MAX) as [keyof Attribution, number][]) {
+    const v = out[k];
+    if (v && v.length > max) out[k] = v.slice(0, max);
+  }
+  return out;
 }
 
 function read(): Attribution {
