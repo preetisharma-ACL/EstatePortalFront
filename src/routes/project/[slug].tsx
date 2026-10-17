@@ -29,8 +29,6 @@ import BrochureButton from "~/components/BrochureButton";
 import CallCta from "~/components/CallCta";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
 import { ADS_ACCOUNT_ID } from "~/lib/adsConversion";
-import MetaPixel from "~/components/MetaPixel";
-import { metaPixelFor } from "~/lib/metaPixel";
 import NotFound from "~/components/NotFound";
 import ProjectHeader, { type ProjectSection } from "~/components/ProjectHeader";
 import { hasMapCoords } from "~/lib/geo";
@@ -268,12 +266,6 @@ export default function ProjectPage() {
                 double-count. Every project rather than a slug list, so no
                 deploy is needed to start a campaign. */}
             <GoogleAdsTag id={ADS_ACCOUNT_ID} />
-
-            {/* Meta Pixel — only on projects whose client issued one; the
-                same pixel follows the lead to /thank-you?project=<slug>. */}
-            <Show when={metaPixelFor(p().slug)}>
-              {(id) => <MetaPixel id={id()} />}
-            </Show>
 
             {/* ---------------------------------------------------------------
                 Hero banner — full-bleed cover with a navy scrim, breadcrumb,

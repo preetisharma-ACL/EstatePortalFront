@@ -6,8 +6,6 @@ import GoogleAdsTag from "~/components/GoogleAdsTag";
 import AdsConversion from "~/components/AdsConversion";
 import { phoneOrUndefined, telHref } from "~/lib/contactPhone";
 import { ADS_ACCOUNT_ID } from "~/lib/adsConversion";
-import MetaPixel from "~/components/MetaPixel";
-import { metaPixelFor } from "~/lib/metaPixel";
 
 const str = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
 
@@ -61,10 +59,6 @@ export default function ThankYouPage() {
       {/* Sends the conversion parked by the form that redirected here. Fires
           once per lead — a refresh or a back-button return sends nothing. */}
       <AdsConversion />
-      {/* The Meta Pixel of the project the visitor enquired on, if it has one. */}
-      <Show when={metaPixelFor(str(params.project))}>
-        {(id) => <MetaPixel id={id()} />}
-      </Show>
 
       <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-green text-white shadow-[0_0_0_3px_var(--color-gold)]">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
