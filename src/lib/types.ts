@@ -393,6 +393,13 @@ export interface ProjectDetail {
    * which reflects the project the lead was actually attributed to.
    */
   conversion: ConversionConfig | null;
+  /**
+   * This project's Meta pixel, or null when it has none — which means load no
+   * Facebook script at all, not "inherit a default": a pixel belongs to the
+   * client, and there is no site-wide one. Used to initialise the pixel on the
+   * landing page; the lead event itself comes off the lead response.
+   */
+  meta_pixel: MetaPixelConfig | null;
   meta_title: string; meta_description: string; og_image: string | null;
 }
 
@@ -480,6 +487,25 @@ export interface ConversionConfig {
   conversion_id: string;
 }
 
+/** Standard Meta events a lead can report as. A fixed list server-side. */
+export type MetaPixelEvent = "Lead" | "CompleteRegistration" | "Contact" | "SubmitApplication" | "Schedule";
+
+/**
+ * A project's Meta (Facebook) pixel and the event a completed enquiry reports.
+ *
+ * Unlike Google Ads there is no shared account: each pixel is the client's own.
+ * The payload makes no claim about whether the pixel is initialised on the
+ * page — pass it to ensureMetaPixel() and let that decide.
+ */
+export interface MetaPixelConfig {
+  /** Digits only, validated at entry in the admin. */
+  pixel_id: string;
+  event: MetaPixelEvent;
+  /** Null together with `currency`; send neither then, or the pixel's history changes. */
+  value: number | null;
+  currency: string | null;
+}
+
 export interface LeadResponse extends LeadPayload {
   id: number;
   /**
@@ -489,4 +515,9 @@ export interface LeadResponse extends LeadPayload {
    * township, city and search enquiries). Null means fire nothing — not an error.
    */
   conversion: ConversionConfig | null;
+  /**
+   * Meta pixel of the project this lead was ATTRIBUTED to, same as
+   * `conversion`. Null means fire nothing, and never fall back to another pixel.
+   */
+  meta_pixel: MetaPixelConfig | null;
 }

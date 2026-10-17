@@ -5,6 +5,7 @@ import { allCitiesQuery } from "~/lib/queries";
 import { getAttribution, captureAttribution } from "~/lib/attribution";
 import { resolveCity } from "~/lib/leadCity";
 import { fireConversion, reportUnconfiguredConversion, stashConversion } from "~/lib/adsConversion";
+import { fireMetaLead, stashMetaLead } from "~/lib/metaPixel";
 import type { LeadPayload } from "~/lib/types";
 
 // The full city list backs the typed-city -> slug lookup on submit; a short
@@ -111,6 +112,8 @@ export default function ProjectEnquiryForm(props: {
       // means there is nothing to report, which is the common case.
       const leadId = lead?.id ?? null;
       const conversion = lead?.conversion ?? null;
+      // Same source, same rule: null means no pixel, never a fallback one.
+      const metaPixel = lead?.meta_pixel ?? null;
 
       // Paid click that nothing can count — see reportUnconfiguredConversion.
       if (!conversion) {
@@ -126,11 +129,13 @@ export default function ProjectEnquiryForm(props: {
         // page one navigation away. Nothing to park when there is no label —
         // the visitor still goes to /thank-you, which simply reports nothing.
         if (conversion) stashConversion(leadId, conversion);
+        if (metaPixel) stashMetaLead(leadId, metaPixel);
         navigate(withLeadId(props.redirectTo, lead?.id));
       } else {
         // Confirms in place, so /thank-you never runs and the conversion has to
         // be sent from here or not at all.
         fireConversion(leadId, conversion);
+        fireMetaLead(leadId, metaPixel);
         setDone(true);
       }
     } catch (err) {

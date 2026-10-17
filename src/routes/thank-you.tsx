@@ -4,6 +4,7 @@ import { A, createAsync, useSearchParams } from "@solidjs/router";
 import { projectQuery } from "~/lib/queries";
 import GoogleAdsTag from "~/components/GoogleAdsTag";
 import AdsConversion from "~/components/AdsConversion";
+import MetaPixelLead from "~/components/MetaPixelLead";
 import { phoneOrUndefined, telHref } from "~/lib/contactPhone";
 import { ADS_ACCOUNT_ID } from "~/lib/adsConversion";
 
@@ -59,6 +60,8 @@ export default function ThankYouPage() {
       {/* Sends the conversion parked by the form that redirected here. Fires
           once per lead — a refresh or a back-button return sends nothing. */}
       <AdsConversion />
+      {/* The same for the lead's Meta pixel, if its project has one. */}
+      <MetaPixelLead />
 
       <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-green text-white shadow-[0_0_0_3px_var(--color-gold)]">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
